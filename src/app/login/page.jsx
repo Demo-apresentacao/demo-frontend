@@ -1,6 +1,6 @@
 'use client'
 
-import { Mail, Lock } from 'lucide-react'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import styles from './page.module.css'
 
 import { useState } from "react";
@@ -13,26 +13,9 @@ export default function Login() {
 
     const [email, setEmail] = useState("");
     const [senha, setSenha] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+
     const { handleLogin } = useLogin();
-
-
-    const listarUsuarios = async () => {
-        try {
-            const response = await api.get('/users');
-
-            // Se quiser só ver o retorno bruto
-            console.log("Resposta completa:", response.data);
-
-            // Se a API seguir o padrão { dados: [...] }
-            const usuarios = response.data.dados;
-
-    
-
-        } catch (error) {
-            console.error("Erro ao buscar usuários:", error);
-        }
-    };
-
 
     return (
         <div className={styles.page}>
@@ -63,15 +46,25 @@ export default function Login() {
 
                     <div className={styles.field}>
                         <Lock size={18} className={styles.icon} />
+
                         <input
-                            type="password"
+                            type={showPassword ? 'text' : 'password'}
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                             required
                         />
 
+                        <button
+                            type="button"
+                            className={styles.eyeButton}
+                            onClick={() => setShowPassword(prev => !prev)}
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+
                         <label>Senha</label>
                     </div>
+
 
                     <button className={styles.button}>
                         Entrar
@@ -90,12 +83,7 @@ export default function Login() {
                     <span>© 2025 • Sistema Administrativo</span>
                 </footer>
 
-                <button
-                    type="button"
-                    onClick={listarUsuarios}
-                >
-                    Testar /usuarios
-                </button>   
+               
             </div>
         </div>
     )
