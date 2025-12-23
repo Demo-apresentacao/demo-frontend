@@ -1,45 +1,6 @@
-// import { useRouter } from "next/navigation";
-// import { login } from "@/services/auth.service";
-// import Swal from "sweetalert2";
-
-// export function useLogin() {
-//   const router = useRouter();
-
-//   async function handleLogin(email, senha) {
-//     try {
-//       const response = await login(email, senha);
-  
-//       console.log("LOGIN RESPONSE:", response);
-  
-//       if (response.status === "success") {
-//         const usuario = response.data;
-  
-//         console.log("USUÁRIO:", usuario);
-//         console.log("REDIRECT PARA:", usuario.usu_acesso ? "/admin" : "/usuario");
-  
-//         router.push(
-//           usuario.usu_acesso ? "/admin" : "/usuario"
-//         );
-//       } else {
-//         console.log("STATUS DIFERENTE DE SUCCESS");
-//       }
-//     } catch (error) {
-//       console.error("ERRO LOGIN:", error);
-  
-//       Swal.fire({
-//         icon: "error",
-//         title: "Erro",
-//         text: "Credenciais inválidas",
-//       });
-//     }
-//   }
-
-//   return { handleLogin };
-// }
-
-
 import { login } from "@/services/auth.service";
 import Swal from "sweetalert2";
+import Cookies from "js-cookie"; // Importação necessária
 
 export function useLogin() {
 
@@ -49,15 +10,23 @@ export function useLogin() {
 
       console.log("LOGIN RESPONSE:", response);
 
+      // Verificação de sucesso baseada no seu controller
       if (response.status !== "success") {
         throw new Error("Login inválido");
       }
 
       const usuario = response.data;
+      const userRole = usuario.usu_acesso ? "admin" : "user";
 
       console.log("USUÁRIO:", usuario);
 
-      // (Opcional) salvar dados básicos no localStorage
+      // 1. SALVAR NO COOKIE (Para o Middleware ler)
+      // Definimos o cookie no domínio atual (Vercel)
+      // expires: 1 significa que o cookie dura 1 dia
+      Cookies.set("logged", "true", { expires: 1, path: "/" });
+      Cookies.set("role", userRole, { expires: 1, path: "/" });
+
+      // 2. SALVAR NO LOCALSTORAGE (Para persistência de dados do perfil)
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -67,11 +36,13 @@ export function useLogin() {
         })
       );
 
-      // 🔥 REDIRECIONAMENTO HARD (OBRIGATÓRIO COM MIDDLEWARE)
-      const redirectPath = usuario.usu_acesso ? "/admin" : "/usuario";
+      // 3. REDIRECIONAMENTO
+      // ATENÇÃO: Verifique se a rota é "/user" ou "/usuario" para bater com o Middleware
+      const redirectPath = userRole === "admin" ? "/admin" : "/user";
 
       console.log("REDIRECT PARA:", redirectPath);
 
+      // Usar window.location.href garante que o middleware intercepte a nova requisição com os cookies frescos
       window.location.href = redirectPath;
 
     } catch (error) {
@@ -80,7 +51,7 @@ export function useLogin() {
       Swal.fire({
         icon: "error",
         title: "Erro",
-        text: "E-mail ou senha inválidos",
+        text: "E-mail ou senha inválidos ou erro na conexão com o servidor.",
       });
     }
   }
