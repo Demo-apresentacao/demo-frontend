@@ -1,7 +1,7 @@
 export default function User() {
     return (
         <div>
-            Página de Usuário
+            <h1>Dashboard Usuario</h1>
         </div>
     )
 }

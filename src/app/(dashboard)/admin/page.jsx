@@ -1,7 +1,7 @@
 export default function Admin() {
     return (
         <div>
-            Página de Admin
+            <h1>Admin Dashboard</h1>
         </div>
     )
 }
