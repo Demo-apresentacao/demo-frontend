@@ -22,7 +22,7 @@ export function useLogin() {
         );
 
         router.push(
-          usuario.usu_acesso === 1 ? "/admin" : "/usuario"
+          usuario.usu_acesso ? "/admin" : "/user"
         );
       }
     } catch (error) {
