@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
 import { registerUser } from "@/services/register.service.js";
-// import { useRouter } from "next/navigation"; // Opcional se quiser redirecionar
 
 export function useRegister() {
   const [loading, setLoading] = useState(false);
-  // const router = useRouter(); 
+  const router = useRouter();
 
   async function handleRegister(formData) {
     try {
@@ -15,32 +15,47 @@ export function useRegister() {
 
       const response = await registerUser(formData);
 
+      // ✅ SUCESSO
       await Swal.fire({
-        title: "Sucesso!",
+        title: "Cadastro realizado",
         text: "Usuário cadastrado com sucesso!",
         icon: "success",
-        confirmButtonColor: "#ff9d00",
-        background: "#3a3a3a",
-        color: "#fff"
+        confirmButtonColor: "#16a34a", // verde
+        background: "#ffffff",
+        color: "#111827"
       });
 
-      // router.push('/login'); // Exemplo de redirect
+      router.push("/login");
       return response;
+
     } catch (error) {
       console.error("Erro no registro:", error);
 
-      const message = error?.response?.data?.message || "Erro ao realizar cadastro.";
+      const status = error?.response?.status;
+      const message =
+        error?.response?.data?.message ||
+        "Não foi possível concluir o cadastro.";
+
+      // 🔒 DUPLICIDADE / REGRA DE NEGÓCIO
+      const isBusinessError = status === 409 || status === 400;
 
       Swal.fire({
-        title: "Erro",
+        title: isBusinessError
+          ? "Não foi possível concluir o cadastro"
+          : "Erro inesperado",
+
         text: message,
-        icon: "error",
-        confirmButtonColor: "#d33",
-        background: "#3a3a3a",
-        color: "#fff"
+
+        icon: isBusinessError ? "warning" : "error",
+
+        confirmButtonColor: isBusinessError ? "#f59e0b" : "#dc2626",
+
+        background: "#ffffff",
+        color: "#111827"
       });
-      
+
       throw error;
+
     } finally {
       setLoading(false);
     }
@@ -48,6 +63,6 @@ export function useRegister() {
 
   return {
     handleRegister,
-    loading,
+    loading
   };
 }
