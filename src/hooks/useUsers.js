@@ -6,7 +6,7 @@ import { getAllUsers } from "@/services/users.service";
 
 export function useUsers() {
     const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     
     // Estados da paginação
     const [page, setPage] = useState(1);
@@ -41,9 +41,9 @@ export function useUsers() {
     }, []); // Dependências vazias (a função não depende de nada externo que mude)
 
     // Carrega a primeira vez
-    useEffect(() => {
-        fetchUsers(); 
-    }, [fetchUsers]);
+    // useEffect(() => {
+    //     fetchUsers(); 
+    // }, [fetchUsers]);
 
     // Retorna tudo que o componente precisa
     return { users, loading, fetchUsers, page, totalPages };
