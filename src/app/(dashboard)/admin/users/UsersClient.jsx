@@ -3,8 +3,8 @@
 import { useUsers } from "@/hooks/useUsers";
 import { Table } from "@/components/ui/table/table"; 
 import Link from "next/link";
-import { Edit, Search } from "lucide-react"; 
-import { useState, useEffect } from "react";
+import { Edit, Search, Plus} from "lucide-react"; 
+import { useState, useEffect, useRef } from "react"; 
 import { Pagination } from "@/components/ui/pagination/pagination";
 
 import styles from "./UsersClient.module.css"; 
@@ -12,14 +12,30 @@ import styles from "./UsersClient.module.css";
 export default function UsersClient() {
   const { users, loading, fetchUsers, page, totalPages } = useUsers();
   const [inputValue, setInputValue] = useState("");
+  
+  // Ref para impedir que a busca da digitação rode na montagem inicial
+  const isMounted = useRef(false);
 
+  // --- EFEITO 1: Roda APENAS UMA VEZ ao abrir a tela (Mount) ---
   useEffect(() => {
+    fetchUsers("", 1); 
+  }, [fetchUsers]); 
+
+  // --- EFEITO 2: Roda APENAS quando o input muda (Update) ---
+  useEffect(() => {
+    // Se o componente ainda não montou completamente, não faz nada
+    if (!isMounted.current) {
+        isMounted.current = true;
+        return;
+    }
+
+    // Debounce: Espera o usuário parar de digitar
     const delayDebounceFn = setTimeout(() => {
       fetchUsers(inputValue, 1);
     }, 500);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [fetchUsers, inputValue]); 
+  }, [inputValue, fetchUsers]); 
 
   const handlePageChange = (newPage) => {
     fetchUsers(inputValue, newPage);
@@ -41,7 +57,7 @@ export default function UsersClient() {
             borderRadius: '12px',
             fontSize: '0.75rem',
             fontWeight: 'bold',
-            whiteSpace: 'nowrap' /* Impede que quebre linha dentro da badge */
+            whiteSpace: 'nowrap'
         }}>
           {user.usu_acesso ? "Admin" : "Usuário"}
         </span>
@@ -63,9 +79,8 @@ export default function UsersClient() {
   return (
     <div className={styles.wrapper}>
       
-      {/* ÁREA DE PESQUISA */}
-      <div className={styles.searchContainer}>
-        <div className={styles.inputWrapper}>
+      <div className={styles.actionsBar}>
+        <div className={styles.searchWrapper}>
             <Search size={20} className={styles.searchIcon} />
             <input 
               type="text" 
@@ -75,9 +90,13 @@ export default function UsersClient() {
               onChange={(e) => setInputValue(e.target.value)}
             />
         </div>
+
+        <Link href="/admin/users/register" className={styles.newButton}>
+            <Plus size={20} />
+            <span>Novo</span>
+        </Link>
       </div>
 
-      {/* ENVOLVENDO A TABELA PARA SCROLL HORIZONTAL */}
       <div className={styles.tableContainer}>
           <Table 
             columns={columns} 
@@ -86,7 +105,6 @@ export default function UsersClient() {
           />
       </div>
 
-      {/* ÁREA DE PAGINAÇÃO */}
       {!loading && users.length > 0 && (
          <Pagination 
             currentPage={page} 
