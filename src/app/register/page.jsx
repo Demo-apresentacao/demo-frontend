@@ -9,6 +9,8 @@ import InputRegister from '@/components/ui/inputRegister/inputRegister'
 
 import { useState } from "react";
 import { useRegister } from "@/hooks/useRegister";
+import Swal from "sweetalert2";
+import { validateCPF } from "@/app/register/validators"; 
 
 export default function Cadastro() {
   const { handleRegister, loading } = useRegister();
@@ -33,10 +35,25 @@ export default function Cadastro() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. VALIDAÇÃO LOCAL: CPF INVÁLIDO (Matemática)
+    if (!validateCPF(formData.usu_cpf)) {
+        Swal.fire({
+            title: "CPF Inválido",
+            text: "Por favor, verifique os números digitados.",
+            icon: "warning",
+            confirmButtonColor: "#f59e0b",
+            background: "#ffffff",
+            color: "#111827"
+        });
+        return; 
+    }
+
+    // 2. TENTA ENVIAR (Backend checa duplicidade)
     try {
       await handleRegister(formData);
     } catch (err) {
-      // Erro tratado
+      // Erro tratado no hook
     }
   };
 
@@ -50,8 +67,6 @@ export default function Cadastro() {
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
-
-          {/* NOME (Ocupa largura total) */}
           <div className={styles.fullWidth}>
             <InputRegister
               label="Nome Completo"
@@ -63,7 +78,6 @@ export default function Cadastro() {
             />
           </div>
 
-          {/* CPF (1 Coluna) */}
           <InputRegister
             label="CPF"
             icon={CreditCard}
@@ -74,7 +88,6 @@ export default function Cadastro() {
             required
           />
 
-          {/* DATA NASCIMENTO (Corrigido pelo CSS) */}
           <InputRegister
             label="Data de Nascimento"
             icon={Calendar}
@@ -84,7 +97,6 @@ export default function Cadastro() {
             onChange={handleChange}
           />
 
-          {/* SEXO (Corrigido com CSS e novo ícone) */}
           <div className={styles.selectContainer}>
             <Users size={18} className={styles.selectIcon} />
             <select
@@ -99,12 +111,9 @@ export default function Cadastro() {
               <option value="1">Feminino</option>
             </select>
             <label className={styles.selectLabel}>Sexo</label>
-            
-            {/* <--- 2. ADICIONE O ÍCONE DA SETA AQUI */}
             <ChevronDown size={18} className={styles.selectArrow} />
           </div>
 
-          {/* TELEFONE (1 Coluna) */}
           <InputRegister
             label="Telefone"
             icon={Phone}
@@ -114,7 +123,6 @@ export default function Cadastro() {
             mask="(00) 00000-0000"
           />
 
-          {/* EMAIL (Largura total) */}
           <div className={styles.fullWidth}>
             <InputRegister
               label="Email"
@@ -127,7 +135,6 @@ export default function Cadastro() {
             />
           </div>
 
-          {/* SENHA (Largura total) */}
           <div className={styles.fullWidth}>
             <InputRegister
               label="Senha"
@@ -148,7 +155,6 @@ export default function Cadastro() {
             </InputRegister>
           </div>
 
-          {/* OBSERVAÇÃO (Largura total) */}
           <div className={styles.fullWidth}>
             <InputRegister
               label="Observação"
@@ -159,7 +165,6 @@ export default function Cadastro() {
             />
           </div>
 
-          {/* BOTÕES */}
           <button className={styles.button} disabled={loading}>
             {loading ? "Salvando..." : "Cadastrar"}
           </button>
