@@ -1,0 +1,204 @@
+/* .h1 {
+    color: #000;
+} */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+    /* Opcional: padding para não colar na borda se não tiver no layout global */
+    /* padding: 1.5rem; */ 
+}
+
+.title {
+    font-size: 1.8rem;
+    color: #111827; /* Mesma cor do background da sidebar */
+    font-weight: 700;
+}
+
+/* --- GRID DE ESTATÍSTICAS (KPIs) --- */
+.statsGrid {
+    display: grid;
+    /* Responsivo: cria colunas automáticas de no mínimo 240px */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem; /* Mesmo gap do seu Form */
+}
+
+.statCard {
+    background: #fff;
+    border: 1px solid #e5e7eb; /* Mesma borda dos seus inputs */
+    border-radius: 12px; /* Um pouco mais arredondado que os inputs */
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s;
+}
+
+.statCard:hover {
+    transform: translateY(-2px);
+    border-color: #d1d5db;
+}
+
+.iconWrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px; /* Conversa com o radius da Sidebar Item */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Usando seu azul principal com opacidade para o fundo */
+    background-color: #eff6ff; 
+    color: #2563eb; /* Seu azul principal */
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    color: #6b7280; /* Cor de texto secundário padrão */
+    font-weight: 500;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* --- GRID DE CONTEÚDO (EM ANDAMENTO / PRÓXIMOS) --- */
+/* Reutilizando a lógica do seu .form */
+.contentGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Estilo Base dos Cards Grandes */
+.sectionCard {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb; /* Igual ao .actions do seu form */
+    margin-bottom: 0.5rem;
+}
+
+.cardTitle {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151; /* Cor usada no seu btnCancel text */
+}
+
+/* --- CARD: EM ANDAMENTO --- */
+.activeService {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    gap: 0.5rem;
+    padding: 1rem 0;
+}
+
+.pulseContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.pulseDot {
+    width: 12px;
+    height: 12px;
+    background-color: #2563eb; /* Seu azul */
+    border-radius: 50%;
+    position: absolute;
+}
+
+.pulseRing {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #2563eb;
+    border-radius: 50%;
+    opacity: 0;
+    animation: pulse 2s infinite;
+}
+
+.serviceName {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.clientName {
+    font-size: 1.1rem;
+    color: #4b5563;
+}
+
+/* --- LISTA DE PRÓXIMOS --- */
+.appointmentList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.appointmentItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    
+    background-color: #f9fafb; /* Cinza bem claro */
+    border: 1px solid #e5e7eb;
+    border-radius: 8px; /* Igual ao item da sidebar */
+    
+    /* Borda lateral azul para identidade */
+    border-left: 4px solid #2563eb; 
+    
+    transition: background 0.2s;
+}
+
+.appointmentItem:hover {
+    background-color: #f3f4f6; /* Efeito hover do btnCancel */
+}
+
+.timeBadge {
+    background-color: #111827; /* Cor da sidebar */
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+@keyframes pulse {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* --- RESPONSIVIDADE (Mesma lógica do seu Form) --- */
+@media (max-width: 768px) {
+    .contentGrid {
+        grid-template-columns: 1fr; /* 1 coluna no mobile */
+    }
+}

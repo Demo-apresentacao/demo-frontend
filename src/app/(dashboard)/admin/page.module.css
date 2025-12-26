@@ -1,3 +1,242 @@
-.h1 {
-    color: #000;
+.container {
+  padding: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  background-color: #f9fafb; /* Fundo cinza bem claro */
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.dateBadge {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* --- Grid de Estatísticas (Topo) --- */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+}
+
+.iconWrapper {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* --- Grid de Conteúdo (Meio) --- */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sectionCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #f3f4f6;
+  padding-bottom: 1rem;
+}
+
+.headerIconTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconBlue {
+  color: #2563eb;
+}
+
+.cardTitle {
+  font-weight: 600;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+/* Estilos do Box em Andamento */
+.activeService {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.pulseContainer {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  margin: 0 auto 1rem auto;
+}
+
+.pulseDot {
+  width: 12px;
+  height: 12px;
+  background: #22c55e; /* Verde */
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 10;
+}
+
+.pulseRing {
+  border: 3px solid #86efac;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.serviceName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.clientName {
+  color: #4b5563;
+  margin: 0.5rem 0;
+}
+
+.metaData {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.divider {
+  margin: 0 8px;
+}
+
+/* Estilos da Lista de Agendamentos */
+.appointmentList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.appointmentItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border-left: 4px solid #2563eb;
+}
+
+.apptInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.apptService {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.apptClient {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.timeBadge {
+  background: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+}
+
+/* --- Grid Analítico (Fundo) --- */
+.analyticsSection {
+  margin-top: 2rem;
 }

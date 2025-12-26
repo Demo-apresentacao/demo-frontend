@@ -17,6 +17,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-imask": "^7.6.1",
+    "recharts": "^3.6.0",
     "sweetalert2": "^11.26.16"
   },
   "devDependencies": {
