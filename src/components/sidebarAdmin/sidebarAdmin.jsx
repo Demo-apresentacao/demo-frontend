@@ -4,7 +4,6 @@ import { House, Users, Car, Wrench, CalendarCheck, History } from "lucide-react"
 import ItemSidebar from "@/components/ui/itemSidebar/itemSidebar"
 import styles from "./sidebarAdmin.module.css";
 
-// ... (seu array menuItems continua igual aqui) ...
 const menuItems = [
     { label: "Dashboard", href: "/admin", icon: House },
     { label: "Usuários", href: "/admin/users", icon: Users },
@@ -14,7 +13,6 @@ const menuItems = [
     { label: "Calendário", href: "/admin/schedule", icon: History }
 ];
 
-// Recebemos a prop closeMobileMenu
 export default function SidebarAdmin({ closeMobileMenu }) {
 
     return (
@@ -26,7 +24,6 @@ export default function SidebarAdmin({ closeMobileMenu }) {
                         label={item.label}
                         icon={item.icon}
                         href={item.href}
-                        // AQUI: Passamos a função para o Item
                         onClick={closeMobileMenu} 
                     />
                 ))}

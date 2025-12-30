@@ -1,0 +1,88 @@
+/* --- STAT CARD --- */
+.statCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s;
+}
+
+.statCard:hover {
+    transform: translateY(-2px);
+}
+
+.iconWrapper {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statInfo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.valueRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* --- SECTION CARD --- */
+.sectionCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+    height: 100%; /* Ocupa altura total do pai */
+    display: flex;
+    flex-direction: column;
+}
+
+.cardHeader {
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 1rem;
+}
+
+.headerIconTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.iconBlue {
+    color: #2563eb;
+    display: flex; /* Centraliza ícone */
+}
+
+.cardTitle {
+    font-weight: 600;
+    color: #374151;
+    font-size: 1.1rem;
+}
+
+.cardContent {
+    flex: 1; /* Empurra conteudo para preencher */
+}

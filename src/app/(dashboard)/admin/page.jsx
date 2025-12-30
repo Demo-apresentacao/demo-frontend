@@ -1,315 +1,118 @@
-// // import styles from "./page.module.css"
-
-// // export default function Admin() {
-// //     return (
-// //         <div>
-// //             <h1 className={styles.h1}>Admin Dashboard</h1>
-// //         </div>
-// //     )
-// // }
-
-// "use client";
-// import { Users, CalendarCheck, Clock, DollarSign, Activity, CalendarDays } from "lucide-react";
-// import styles from "./page.module.css";
-
-// export default function AdminDashboard() {
-    
-//     // --- MOCK DATA (Contexto: Estética Automotiva) ---
-//     const stats = {
-//         totalUsers: 850, // Clientes cadastrados
-//         totalAppointments: 12, // Agendamentos do dia
-//         revenue: "R$ 4.250,00", // Ticket médio automotivo costuma ser maior
-//         activeNow: 1
-//     };
-
-//     const currentService = {
-//         inProgress: true,
-//         serviceName: "Polimento Técnico + Vitrificação",
-//         clientName: "Roberto Almeida (BMW 320i)", // Adicionei o carro para contexto
-//         timeStart: "08:00", // Serviços automotivos são longos
-//         timeEnd: "17:00",
-//         professional: "Marcos Silva"
-//     };
-
-//     const nextAppointments = [
-//         { id: 1, time: "14:30", client: "Ana Paula (Jeep Compass)", service: "Lavagem Detalhada de Motor" },
-//         { id: 2, time: "15:00", client: "Felipe Costa (Honda Civic)", service: "Higienização Interna" },
-//         { id: 3, time: "16:30", client: "Juliana Martins (HB20)", service: "Oxi-Sanitização" },
-//     ];
-//     // ------------------------------------------------
-
-//     return (
-//         <div className={styles.container}>
-//             <h1 className={styles.title}>Dashboard</h1>
-
-//             {/* 1. GRID DE ESTATÍSTICAS */}
-//             <div className={styles.statsGrid}>
-//                 <StatCard 
-//                     title="Clientes Totais" 
-//                     value={stats.totalUsers} 
-//                     icon={<Users size={24} />} 
-//                 />
-//                 <StatCard 
-//                     title="Veículos Hoje" 
-//                     value={stats.totalAppointments} 
-//                     icon={<CalendarDays size={24} />} 
-//                 />
-//                  <StatCard 
-//                     title="Faturamento" 
-//                     value={stats.revenue} 
-//                     icon={<DollarSign size={24} />} 
-//                 />
-//                  <StatCard 
-//                     title="Ocupação Box" 
-//                     value="100%" 
-//                     icon={<Activity size={24} />} 
-//                 />
-//             </div>
-
-//             {/* 2. GRID DE CONTEÚDO */}
-//             <div className={styles.contentGrid}>
-                
-//                 {/* COLUNA 1: EM ANDAMENTO */}
-//                 <div className={styles.sectionCard}>
-//                     <div className={styles.cardHeader}>
-//                         <Clock size={20} color="#2563eb" />
-//                         <span className={styles.cardTitle}>No Box Principal</span>
-//                     </div>
-                    
-//                     {currentService.inProgress ? (
-//                         <div className={styles.activeService}>
-//                             <div className={styles.pulseContainer}>
-//                                 <div className={styles.pulseDot}></div>
-//                                 <div className={styles.pulseRing}></div>
-//                             </div>
-                            
-//                             <h3 className={styles.serviceName}>{currentService.serviceName}</h3>
-//                             <p className={styles.clientName}>{currentService.clientName}</p>
-                            
-//                             <div style={{marginTop: '1rem', color: '#6b7280', fontSize: '0.9rem'}}>
-//                                 <span>Previsão: {currentService.timeEnd}</span>
-//                                 <span style={{margin: '0 8px'}}>•</span>
-//                                 <span>Detailer: {currentService.professional}</span>
-//                             </div>
-//                         </div>
-//                     ) : (
-//                         <div style={{textAlign: 'center', padding: '2rem', color: '#9ca3af'}}>
-//                             Nenhum veículo no box.
-//                         </div>
-//                     )}
-//                 </div>
-
-//                 {/* COLUNA 2: PRÓXIMOS AGENDAMENTOS */}
-//                 <div className={styles.sectionCard}>
-//                     <div className={styles.cardHeader}>
-//                         <CalendarCheck size={20} color="#2563eb" />
-//                         <span className={styles.cardTitle}>Próximas Entradas</span>
-//                     </div>
-                    
-//                     <div className={styles.appointmentList}>
-//                         {nextAppointments.map(app => (
-//                             <div key={app.id} className={styles.appointmentItem}>
-//                                 <div style={{display:'flex', flexDirection:'column'}}>
-//                                     <span style={{fontWeight: 600, color: '#374151'}}>{app.service}</span>
-//                                     <span style={{fontSize: '0.875rem', color: '#6b7280'}}>{app.client}</span>
-//                                 </div>
-//                                 <div className={styles.timeBadge}>
-//                                     {app.time}
-//                                 </div>
-//                             </div>
-//                         ))}
-                        
-//                         {nextAppointments.length === 0 && (
-//                             <p style={{color: '#6b7280', textAlign: 'center'}}>Agenda livre!</p>
-//                         )}
-//                     </div>
-//                 </div>
-
-//             </div>
-//         </div>
-//     );
-// }
-
-// // Componente simples para os Cards do Topo
-// function StatCard({ title, value, icon }) {
-//     return (
-//         <div className={styles.statCard}>
-//             <div className={styles.iconWrapper}>
-//                 {icon}
-//             </div>
-//             <div className={styles.statInfo}>
-//                 <span className={styles.statLabel}>{title}</span>
-//                 <span className={styles.statValue}>{value}</span>
-//             </div>
-//         </div>
-//     );
-// }
-
 "use client";
-import { Users, CalendarCheck, Clock, DollarSign, Activity, CalendarDays, TrendingUp } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useState, useEffect } from "react";
+import { Users, CalendarCheck, Clock, DollarSign, Activity, CalendarDays, TrendingUp, Eye, EyeOff } from "lucide-react";
+import { getDashboardStats } from "@/services/dashboard.service";
+
+import StatCard from "@/components/dashboard/statCard/StatCard";
+import SectionCard from "@/components/dashboard/sectionCard/SectionCard";
+import ServiceChart from "@/components/dashboard/serviceChart/ServiceChart";
+
 import styles from "./page.module.css";
 
 export default function AdminDashboard() {
-    
-    // --- MOCK DATA ---
-    const stats = {
-        totalUsers: 850,
-        totalAppointments: 12,
-        revenue: "R$ 4.250,00",
-        activeNow: 1
-    };
+    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(null);
+    const [showRevenue, setShowRevenue] = useState(false);
 
-    const currentService = {
-        inProgress: true,
-        serviceName: "Polimento Técnico + Vitrificação",
-        clientName: "Roberto Almeida (BMW 320i)",
-        timeStart: "08:00",
-        timeEnd: "17:00",
-        professional: "Marcos Silva"
-    };
+    const todayFormatted = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
 
-    const nextAppointments = [
-        { id: 1, time: "14:30", client: "Ana Paula (Jeep Compass)", service: "Lavagem Detalhada de Motor" },
-        { id: 2, time: "15:00", client: "Felipe Costa (Honda Civic)", service: "Higienização Interna" },
-        { id: 3, time: "16:30", client: "Juliana Martins (HB20)", service: "Oxi-Sanitização" },
-    ];
+    useEffect(() => {
+        async function loadData() {
+            try {
+                const stats = await getDashboardStats();
+                setData(stats);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadData();
+    }, []);
 
-    // MOCK DATA PARA O GRÁFICO (Top 5 Serviços)
-    const topServicesData = [
-        { name: 'Lavagem Detalhada', total: 120 },
-        { name: 'Polimento Técnico', total: 85 },
-        { name: 'Higienização Interna', total: 60 },
-        { name: 'Vitrificação', total: 45 },
-        { name: 'Lavagem Simples', total: 30 },
-    ];
-    // ------------------------------------------------
+    if (loading) return <div className={styles.loadingContainer}>Carregando painel...</div>;
+    if (!data) return <div className={styles.loadingContainer}>Erro ao carregar dados.</div>;
+
+    const formatMoney = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     return (
         <div className={styles.container}>
             <header className={styles.header}>
                 <h1 className={styles.title}>Dashboard Administrativo</h1>
-                <span className={styles.dateBadge}>25 Dez, 2025</span>
+                <span className={styles.dateBadge}>{todayFormatted}</span>
             </header>
 
-            {/* 1. GRID DE ESTATÍSTICAS */}
+            {/* 1. GRID DE ESTATÍSTICAS (Usando StatCard) */}
             <div className={styles.statsGrid}>
-                <StatCard title="Clientes Totais" value={stats.totalUsers} icon={<Users size={24} />} />
-                <StatCard title="Veículos Hoje" value={stats.totalAppointments} icon={<CalendarDays size={24} />} />
-                <StatCard title="Faturamento" value={stats.revenue} icon={<DollarSign size={24} />} />
-                <StatCard title="Ocupação Box" value="100%" icon={<Activity size={24} />} />
+                <StatCard title="Clientes Totais" value={data.cards.clientes_totais} icon={<Users size={24} />} />
+                <StatCard title="Veículos Hoje" value={data.cards.veiculos_hoje} icon={<CalendarDays size={24} />} />
+                
+                {/* StatCard com Ação (Olhinho) */}
+                <StatCard 
+                    title="Faturamento (Mês)" 
+                    value={showRevenue ? formatMoney(data.cards.faturamento_mes) : "R$ ****"} 
+                    icon={<DollarSign size={24} />}
+                    action={
+                        <button onClick={() => setShowRevenue(!showRevenue)} className={styles.eyeBtn}>
+                            {showRevenue ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    }
+                />
+
+                <StatCard title="Serviços Concluídos" value={data.cards.concluidos_mes} icon={<Activity size={24} />} />
             </div>
 
-            {/* 2. GRID OPERACIONAL (Meio) */}
+            {/* 2. GRID OPERACIONAL (Usando SectionCard) */}
             <div className={styles.contentGrid}>
                 
-                {/* COLUNA 1: EM ANDAMENTO */}
-                <div className={styles.sectionCard}>
-                    <div className={styles.cardHeader}>
-                        <div className={styles.headerIconTitle}>
-                            <Clock size={20} className={styles.iconBlue} />
-                            <span className={styles.cardTitle}>Em Andamento (Box Principal)</span>
-                        </div>
-                    </div>
-                    
-                    {currentService.inProgress ? (
+                {/* Coluna 1: Em Andamento */}
+                <SectionCard title="Em Andamento (Prioritário)" icon={<Clock size={20} />}>
+                    {data.em_andamento ? (
                         <div className={styles.activeService}>
                             <div className={styles.pulseContainer}>
                                 <div className={styles.pulseDot}></div>
                                 <div className={styles.pulseRing}></div>
                             </div>
-                            
-                            <h3 className={styles.serviceName}>{currentService.serviceName}</h3>
-                            <p className={styles.clientName}>{currentService.clientName}</p>
-                            
+                            <h3 className={styles.serviceName}>
+                                {data.em_andamento.lista_servicos?.split('+')[0]} 
+                                {data.em_andamento.lista_servicos?.includes('+') && '...'}
+                            </h3>
+                            <p className={styles.clientName}>
+                                {data.em_andamento.usu_nome} ({data.em_andamento.mod_nome} - {data.em_andamento.veic_placa})
+                            </p>
                             <div className={styles.metaData}>
-                                <span>Previsão: {currentService.timeEnd}</span>
+                                <span>Início: {data.em_andamento.agend_horario.substring(0, 5)}</span>
                                 <span className={styles.divider}>•</span>
-                                <span>Detailer: {currentService.professional}</span>
+                                <span>Tel: {data.em_andamento.usu_telefone}</span>
                             </div>
                         </div>
                     ) : (
-                        <div className={styles.emptyState}>Nenhum veículo no box.</div>
+                        <div className={styles.emptyState}><p>Nenhum serviço em andamento.</p></div>
                     )}
-                </div>
+                </SectionCard>
 
-                {/* COLUNA 2: PRÓXIMOS AGENDAMENTOS */}
-                <div className={styles.sectionCard}>
-                    <div className={styles.cardHeader}>
-                         <div className={styles.headerIconTitle}>
-                            <CalendarCheck size={20} className={styles.iconBlue} />
-                            <span className={styles.cardTitle}>Próximas Entradas</span>
-                        </div>
-                    </div>
-                    
+                {/* Coluna 2: Próximas Entradas */}
+                <SectionCard title="Próximas Entradas" icon={<CalendarCheck size={20} />}>
                     <div className={styles.appointmentList}>
-                        {nextAppointments.map(app => (
-                            <div key={app.id} className={styles.appointmentItem}>
+                        {data.proximas_entradas.map((app, index) => (
+                            <div key={index} className={styles.appointmentItem}>
                                 <div className={styles.apptInfo}>
-                                    <span className={styles.apptService}>{app.service}</span>
-                                    <span className={styles.apptClient}>{app.client}</span>
+                                    <span className={styles.apptService}>{app.servico_principal}</span>
+                                    <span className={styles.apptClient}>{app.usu_nome} ({app.mod_nome})</span>
                                 </div>
-                                <div className={styles.timeBadge}>{app.time}</div>
+                                <div className={styles.timeBadge}>{app.agend_horario.substring(0, 5)}</div>
                             </div>
                         ))}
-                        {nextAppointments.length === 0 && <p className={styles.emptyState}>Agenda livre!</p>}
+                        {data.proximas_entradas.length === 0 && <p className={styles.emptyState}>Agenda livre!</p>}
                     </div>
-                </div>
+                </SectionCard>
             </div>
 
-            {/* 3. GRID ANALÍTICO (Fundo - NOVO) */}
+            {/* 3. GRID ANALÍTICO (Usando SectionCard + ServiceChart) */}
             <div className={styles.analyticsSection}>
-                <div className={styles.sectionCard}>
-                    <div className={styles.cardHeader}>
-                         <div className={styles.headerIconTitle}>
-                            <TrendingUp size={20} className={styles.iconBlue} />
-                            <span className={styles.cardTitle}>Serviços Mais Procurados (Mês)</span>
-                        </div>
-                    </div>
-                    
-                    {/* Componente do Gráfico */}
-                    <div style={{ width: '100%', height: "300px", marginTop: '1rem' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                layout="vertical"
-                                data={topServicesData}
-                                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#e5e7eb" />
-                                <XAxis type="number" hide />
-                                <YAxis 
-                                    dataKey="name" 
-                                    type="category" 
-                                    width={150} 
-                                    tick={{fontSize: 12, fill: '#4b5563'}} 
-                                />
-                                <Tooltip 
-                                    cursor={{fill: '#f3f4f6'}}
-                                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                />
-                                <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={30}>
-                                    {topServicesData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill="#2563eb" />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    );
-}
-
-// Sub-componente Card
-function StatCard({ title, value, icon }) {
-    return (
-        <div className={styles.statCard}>
-            <div className={styles.iconWrapper}>{icon}</div>
-            <div className={styles.statInfo}>
-                <span className={styles.statLabel}>{title}</span>
-                <span className={styles.statValue}>{value}</span>
+                <SectionCard title="Serviços Mais Procurados (Mês)" icon={<TrendingUp size={20} />}>
+                    <ServiceChart data={data.grafico_servicos} />
+                </SectionCard>
             </div>
         </div>
     );
