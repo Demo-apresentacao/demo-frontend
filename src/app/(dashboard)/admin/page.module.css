@@ -2,7 +2,7 @@
   padding: 2rem;
   max-width: 1280px;
   margin: 0 auto;
-  background-color: #f9fafb; /* Fundo cinza bem claro */
+  background-color: #f9fafb;
   min-height: 100vh;
   font-family: system-ui, -apple-system, sans-serif;
 }
@@ -239,4 +239,54 @@
 /* --- Grid Analítico (Fundo) --- */
 .analyticsSection {
   margin-top: 2rem;
+}
+
+/* Container de Loading */
+.loadingContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 1.2rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* --- Ajuste para o Card de Faturamento --- */
+.revenueRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.eyeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.eyeBtn:hover {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+/* Pequeno ajuste no título do serviço para não quebrar se for grande */
+.serviceName {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+    
+    /* Truncar texto se for muito longo */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    padding: 0 10px;
 }
