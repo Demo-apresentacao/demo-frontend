@@ -1,39 +1,21 @@
-"use client"
+import AdminLayoutClient from "@/components/adminLayoutClient/adminLayoutClient";
 
-import { useState } from "react";
-import Header from "@/components/header/header";
-import SidebarAdmin from "@/components/sidebarAdmin/sidebarAdmin";
-import styles from "./layout.module.css";
+export const metadata = {
+  title: "Oficina | Gestão Administrativa",
+  description: "Sistema administrativo para controle de oficina mecânica.",
+  icons: {
+    icon: "/favicon.ico", // Garanta que a imagem esteja na pasta public/
+  },
+};
 
-export default function AdminLayout({ children }) {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-
-    const handleToggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
-
-    const closeSidebar = () => {
-        setSidebarOpen(false);
-    };
-
-    return (
-        <div className={styles.container}>
-            <Header toggleSidebar={handleToggleSidebar} />
-
-            <div className={styles.body}>
-                <aside className={`${styles.sidebarWrapper} ${sidebarOpen ? styles.open : ''}`}>
-                    {/* AQUI: Passamos a função closeSidebar para o componente filho */}
-                    <SidebarAdmin closeMobileMenu={closeSidebar} />
-                </aside>
-
-                {sidebarOpen && (
-                    <div className={styles.overlay} onClick={closeSidebar} />
-                )}
-
-                <main className={styles.content}>
-                    {children}
-                </main>
-            </div>
-        </div>
-    );
+export default function RootLayout({ children }) {
+  return (
+    <html lang="pt-BR">
+      <body>
+        <AdminLayoutClient>
+            {children}
+        </AdminLayoutClient>
+      </body>
+    </html>
+  );
 }

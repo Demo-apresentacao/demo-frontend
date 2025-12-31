@@ -46,7 +46,7 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
 
     // Se tiver initialData (Edição), preenche
     return {
-      cat_id: initialData.cat_id || '', // Se o back não mandar isso direto, talvez precise buscar a partir do modelo
+      cat_id: initialData.cat_id || '', 
       mar_id: initialData.mar_id || '',
       mod_id: initialData.mod_id || '',
       veic_placa: initialData.veic_placa || '',
@@ -85,7 +85,6 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
   };
 
-  // 👇 FUNÇÃO QUE FALTAVA
   const handleMaskChange = (value, name) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -99,13 +98,13 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
     // 1. Calcula o limite de ano
     const currentYear = new Date().getFullYear();
     const maxYear = currentYear + 1;
-    const minYear = 1900; // Opcional: para evitar anos como "0" ou "1"
+    const minYear = 1900; 
 
 
     if (!formData.cat_id) newErrors.cat_id = "Selecione uma categoria";
     if (!formData.mar_id) newErrors.mar_id = "Selecione uma marca";
     if (!formData.mod_id) newErrors.mod_id = "Selecione um modelo";
-    if (!formData.veic_placa) newErrors.veic_placa = "Informe a placa"; // Corrigido nome da chave
+    if (!formData.veic_placa) newErrors.veic_placa = "Informe a placa"; 
     if (!formData.veic_ano) newErrors.veic_ano = "Informe o ano";
 
 
@@ -132,7 +131,6 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
 
     setLoading(true);
     try {
-      // Prepara payload para o Backend
       const payload = {
         mod_id: formData.mod_id,
         veic_placa: formData.veic_placa,
@@ -208,25 +206,17 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
   ];
 
 
-  // Função chamada quando o Modal clica em Salvar
   const handleLinkUserSave = async (modalData) => {
-    // 1. Prepara o payload conforme o controller espera
-    // Controller espera: { veic_id, usu_id, ehproprietario, data_inicial }
-    // Modal entrega: { usu_id, is_owner, start_date }
-
     const payload = {
-      veic_id: initialData.veic_id, // Pega do veículo atual
+      veic_id: initialData.veic_id, 
       usu_id: modalData.usu_id,
       ehproprietario: modalData.is_owner,
       data_inicial: modalData.start_date
     };
 
-    // 2. Chama o hook
     const success = await linkUser(payload);
 
     if (success) {
-      // Opcional: Recarregar dados do veículo ou lista de proprietários
-      // fetchVehicleDetails(); 
       console.log("Vínculo criado:", success);
     }
   };
@@ -235,13 +225,18 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
     <>
       <form onSubmit={handleSubmit} className={styles.form}>
 
+        {initialData && (
+            <div className={styles.inputGroup} style={{ maxWidth: '100px' }}>
+                <InputRegisterForm label="ID" value={initialData.veic_id} disabled={true} />
+            </div>
+        )}
+
         <div className={styles.inputGroup}>
           <SelectRegister
             name="cat_id"
             label="Categoria"
             value={formData.cat_id}
             onChange={handleChange}
-            // disabled={!isEditable}
             disabled={!isEditable || !!initialData}
             options={categories?.data?.map(cat => ({ value: cat.cat_id, label: cat.cat_nome })) || []}
           />
@@ -254,9 +249,7 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
             label={loadingBrands ? "Carregando..." : "Marca"}
             value={formData.mar_id}
             onChange={handleChange}
-            // disabled={!isEditable || !formData.cat_id}
             disabled={!isEditable || !!initialData || !formData.cat_id}
-            // options={toOptions(brands, 'mar_id', 'mar_nome')}
             options={loadingBrands ? [{ value: "", label: "Carregando marcas..." }] : toOptions(brands, 'mar_id', 'mar_nome')}
           />
           <ErrorMessage message={errors.mar_id} />
@@ -269,8 +262,6 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
             value={formData.mod_id}
             onChange={handleChange}
             disabled={!isEditable || (!formData.mar_id && !initialData)}
-
-
             options={toOptions(models?.dados || [], 'mod_id', 'mod_nome')}
           />
           <ErrorMessage message={errors.mod_id} />
@@ -280,11 +271,16 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
           <InputMaskRegister
             name="veic_placa"
             label="Placa"
+            // MUDANÇA AQUI: Usar 'a' minúsculo para representar letras
             mask={[
-              { mask: 'AAA-0000' },
-              { mask: 'AAA-0A00' }
+              { mask: 'aaa-0000' }, // Placa Antiga (ABC-1234)
+              { mask: 'aaa-0a00' }  // Placa Mercosul (ABC-1D23)
             ]}
-            prepare={(str) => str.toUpperCase()}
+            // Removemos o 'definitions' pois 'a' já é nativo
+            
+            // O prepare garante que o 'a' vire 'A' visualmente
+            prepare={(str) => str.toUpperCase()} 
+            
             value={formData.veic_placa}
             onAccept={(value) => handleMaskChange(value, "veic_placa")}
             required
@@ -352,11 +348,9 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
 
         <div className={styles.actions}>
 
-          {/* NOVO BOTÃO DE VINCULAR */}
-          {/* Só mostra se tiver initialData (veículo existe) */}
+          {/* Botões de Ação Especiais (Vincular/Histórico) */}
           {!!initialData && (
             <div style={{ marginRight: 'auto', display: 'flex', gap: '10px' }}>
-              {/* Botão Vincular (Existente) */}
               <button
                 type="button"
                 className={styles.btnLink}
@@ -366,10 +360,9 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
                 Vincular
               </button>
 
-              {/* NOVO BOTÃO DE HISTÓRICO */}
               <button
                 type="button"
-                className={styles.btnLink} // Pode criar btnHistory se quiser outra cor
+                className={styles.btnLink} 
                 onClick={() => setShowHistoryModal(true)}
                 style={{ backgroundColor: '#fff', color: '#374151', border: '1px solid #d1d5db' }}
               >
@@ -379,9 +372,7 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
             </div>
           )}
 
-
-
-          {/* Lógica existente de Editar/Salvar */}
+          {/* Botões Padrão (Editar/Salvar/Cancelar) */}
           {!isEditable ? (
             <button type="button" className={styles.btnSave} onClick={() => setIsEditable(true)}>
               <Edit size={16} style={{ marginRight: 5 }} /> Editar Dados
@@ -405,12 +396,11 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
         onSave={handleLinkUserSave}
       />
 
-      {/* NOVO MODAL AQUI */}
-            <ModalVehicleHistory 
-                isOpen={showHistoryModal}
-                onClose={() => setShowHistoryModal(false)}
-                vehicleId={initialData?.veic_id}
-            />
+      <ModalVehicleHistory 
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        vehicleId={initialData?.veic_id}
+      />
     </>
   );
 }

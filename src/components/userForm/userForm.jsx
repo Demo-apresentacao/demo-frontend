@@ -1,17 +1,22 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Edit, Check, X, EyeOff, Eye } from "lucide-react";
+import { Edit, Check, X, EyeOff, Eye, Car, Plus, History } from "lucide-react";
 import { InputRegisterForm } from "../ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "../ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "../ui/selectRegister/selectRegister";
 import styles from "./userForm.module.css";
 import { validateCPF, validateEmail, getBirthDateError } from "@/utils/validators";
+import ModalVehicleLink from "../modals/modalVehicleLink/modalVehicleLink";
+import { useVehicleUsers } from "@/hooks/useVehicleUsers";
 
 export default function UserForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'edit' }) {
   const [loading, setLoading] = useState(false);
   const [isEditable, setIsEditable] = useState(mode === 'edit');
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const { linkUser } = useVehicleUsers();
 
   const getInitialState = () => {
     const defaults = {
@@ -98,6 +103,21 @@ export default function UserForm({ onSuccess, onCancel, saveFunction, initialDat
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleLinkVehicleSave = async (modalData) => {
+    const payload = {
+      usu_id: initialData.usu_id, // Usuário fixo (o que estamos editando)
+      veic_id: modalData.veic_id, // Veículo escolhido no modal
+      ehproprietario: modalData.is_owner,
+      data_inicial: modalData.start_date
+    };
+
+    const success = await linkUser(payload);
+    if (success) {
+      console.log("Veículo vinculado!");
+      // Opcional: Recarregar dados se você tiver uma lista de carros no form
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -152,8 +172,15 @@ export default function UserForm({ onSuccess, onCancel, saveFunction, initialDat
   );
 
   return (
+    <>
     <form onSubmit={handleSubmit} className={styles.form}>
       
+      {initialData && (
+        <div className={styles.inputGroup} style={{ maxWidth: '100px' }}>
+            <InputRegisterForm label="ID" value={initialData.usu_id} disabled={true} />
+        </div>
+      )}
+
       {/* GRUPO 1: Nome */}
       <div className={styles.inputGroup}>
           <InputRegisterForm 
@@ -192,7 +219,6 @@ export default function UserForm({ onSuccess, onCancel, saveFunction, initialDat
             required 
             disabled={!isEditable}
         />
-        {/*"Precisa ter 18 anos" ou "Ano inválido" */}
         <ErrorMessage message={errors.usu_data_nasc} />
       </div>
 
@@ -305,25 +331,49 @@ export default function UserForm({ onSuccess, onCancel, saveFunction, initialDat
       </div>
 
       <div className={styles.actions}>
-        {!isEditable ? (
-             <button 
-                type="button" 
-                className={styles.btnSave} 
-                onClick={() => setIsEditable(true)}
-             >
-                <Edit size={16} style={{marginRight: 5}}/> Editar Dados
-             </button>
-        ) : (
-             <>
-                <button type="button" onClick={handleCancelClick} className={styles.btnCancel} disabled={loading}>
-                  Cancelar
-                </button>
-                <button type="submit" className={styles.btnSave} disabled={loading}>
-                  {loading ? "Salvando..." : "Salvar"}
-                </button>
-             </>
-        )}
-      </div>
-    </form>
+            
+            {/* NOVO: BOTÃO DE VINCULAR VEÍCULO (Só aparece se o usuário já existir) */}
+            {!!initialData && (
+                <div style={{ marginRight: 'auto' }}>
+                    <button
+                        type="button"
+                        className={styles.btnSave} // Pode criar um estilo btnLink se preferir
+                        style={{ backgroundColor: '#fff', color: '#2563eb', border: '1px solid #2563eb' }}
+                        onClick={() => setShowLinkModal(true)}
+                    >
+                        <Car size={16} style={{ marginRight: 5 }} />
+                        Adicionar Veículo
+                    </button>
+                </div>
+            )}
+
+            {!isEditable ? (
+                 <button 
+                    type="button" 
+                    className={styles.btnSave} 
+                    onClick={() => setIsEditable(true)}
+                 >
+                    <Edit size={16} style={{marginRight: 5}}/> Editar Dados
+                 </button>
+            ) : (
+                 <>
+                    <button type="button" onClick={handleCancelClick} className={styles.btnCancel} disabled={loading}>
+                      Cancelar
+                    </button>
+                    <button type="submit" className={styles.btnSave} disabled={loading}>
+                      {loading ? "Salvando..." : "Salvar"}
+                    </button>
+                 </>
+            )}
+        </div>
+      </form>
+
+      {/* MODAL DE VÍNCULO DE VEÍCULO */}
+      <ModalVehicleLink
+        isOpen={showLinkModal}
+        onClose={() => setShowLinkModal(false)}
+        onSave={handleLinkVehicleSave}
+      />
+    </>
   )
 }
