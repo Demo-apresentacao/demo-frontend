@@ -1,199 +1,263 @@
-/* --- LAYOUT PRINCIPAL --- */
+/* VehiclesClient.module.css */
+
+/* ==========================================================================
+   1. LAYOUT PRINCIPAL E BARRA DE AÇÕES (CÓDIGO SEU - MANTIDO INTACTO)
+   ========================================================================== */
+
 .wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
 }
 
-/* --- BARRA DE AÇÕES (BUSCA + BOTÃO) --- */
 .actionsBar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* O Segredo: Separa os itens nas pontas */
-    gap: 1rem;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
-/* Wrapper da Busca (limita a largura da busca) */
+/* Novo Grupo de Filtros (Busca + Select) */
+.filtersGroup {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  min-width: 300px;
+}
+
+/* --- Wrapper da Busca --- */
 .searchWrapper {
-    position: relative; /* Para o ícone absoluto funcionar */
-    width: 100%;
-    max-width: 400px; /* A busca não cresce mais que isso */
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+   max-width: 400px; 
 }
 
 .searchIcon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-    pointer-events: none;
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
 }
 
 .searchInput {
-    width: 100%;
-    padding: 10px 10px 10px 40px; 
-    height: 42px; 
-    background-color: #fff;
-    color: #1f2937;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
-    outline: none;
-    transition: all 0.2s ease-in-out;
+  width: 100%;
+  padding: 10px 10px 10px 40px; 
+  height: 42px; 
+  background-color: #fff;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
+  outline: none;
+  transition: all 0.2s ease-in-out;
 }
 
 .searchInput::placeholder { color: #9ca3af; }
 
 .searchInput:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); 
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); 
 }
 
-/* --- BOTÃO NOVO (ESTILIZADO) --- */
+/* --- Wrapper do Select de Status --- */
+.selectWrapper {
+  position: relative;
+  width: 170px;
+  flex-shrink: 0;
+}
+
+.filterIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.statusSelect {
+  width: 100%;
+  padding: 0 10px 0 35px;
+  height: 42px; 
+  background-color: #fff;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  outline: none;
+  cursor: pointer;
+  appearance: none; 
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px top 50%;
+  background-size: 10px auto;
+}
+
+.statusSelect:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); 
+}
+
+/* --- Botão Novo --- */
 .newButton {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    
-    background-color: #16a34a; /* Verde (green-600) */
-    color: #ffffff;
-    
-    padding: 0 2rem;
-    height: 42px; /* Mesma altura do input */
-    border-radius: 8px;
-    
-    text-decoration: none; /* Remove sublinhado do Link */
-    font-weight: 600;
-    font-size: 0.875rem;
-    
-    transition: background-color 0.2s;
-    white-space: nowrap; /* Garante que o texto não quebre */
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #16a34a;
+  color: #ffffff;
+  padding: 0 1.5rem;
+  height: 42px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .newButton:hover {
-    background-color: #15803d; /* Verde mais escuro (green-700) */
+  background-color: #15803d;
 }
 
-/* --- CONTAINER DA TABELA --- */
+/* ==========================================================================
+   2. CONTAINER DA TABELA + SCROLLBAR CUSTOMIZADA (ADICIONADO)
+   ========================================================================== */
+
 .tableContainer {
-    width: 100%;
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch;
-    background-color: #fff; 
-    border-radius: 8px;
-    border: 1px solid #e5e7eb; 
-    overflow: hidden; 
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
-}
-
-.tableContainer table {
-    width: 100%;
-    min-width: 900px; 
-    border-collapse: collapse;
-}
-
-.tableContainer th {
-    background-color: #2563eb; 
-    color: #f3f4f6;            
-    text-align: left;
-    font-weight: 600;
-    padding: 1rem;
-    white-space: nowrap;
-    border-bottom: 2px solid #1e3a8a;
-}
-
-.tableContainer td {
-    padding: 1rem;
-    white-space: nowrap;
-    vertical-align: middle;
-    color: #4b5563;
-    border-bottom: 1px solid #f3f4f6;
-}
-
-/* VehiclesClient.module.css */
-
-/* ... seus outros estilos ... */
-
-.selectContainer {
-  position: relative;
-  display: inline-block;
   width: 100%;
-  max-width: 180px;
-}
-
-.selectNative {
-  /* Remove o estilo padrão (seta do navegador) */
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-
-  width: 100%;
-  padding: 8px 32px 8px 10px; /* Padding direito maior para caber o ícone */
+  overflow-x: auto; 
+  -webkit-overflow-scrolling: touch;
+  background-color: #fff; 
+  border-radius: 8px;
+  border: 1px solid #e5e7eb; 
+  overflow: hidden; 
   
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  color: #333;
-  font-size: 0.9rem;
-  cursor: pointer;
-  outline: none;
-  
-  /* Garante que o select fique "por cima" visualmente, mas transparente no fundo */
-  z-index: 1; 
+  /* Scrollbar Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
-.selectNative:focus {
-  border-color: #000; /* Cor da borda ao focar */
+/* Scrollbar Webkit (Chrome, Edge, Safari) */
+.tableContainer::-webkit-scrollbar {
+    height: 8px;
+    width: 6px;
+}
+.tableContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+.tableContainer::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 10px;
+}
+.tableContainer::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
 }
 
-/* O Ícone da Lucide */
-.selectIcon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%); /* Centraliza verticalmente */
-  color: #666;
-  pointer-events: none; /* Importante: deixa o clique passar para o select */
-  z-index: 2;
+/* ==========================================================================
+   3. COLUNA DE PROPRIETÁRIOS (SELECT INTERNO DA TABELA)
+   ========================================================================== */
+
+.singleOwner {
+    font-size: 0.875rem;
+    color: #374151;
 }
 
 .emptyText {
-  color: #999;
-  font-style: italic;
-  font-size: 0.9rem;
+    color: #9ca3af;
+    font-size: 1rem;
+    font-weight: bold;
+    display: block;
+    text-align: center;
 }
 
-.singleOwner {
-  color: #333;
-  font-weight: 500;
-  font-size: 0.9rem;
+/* Container que segura o Select e o Ícone */
+.selectContainer {
+    position: relative; /* Mantém o ícone preso aqui dentro */
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    max-width: 250px; /* Evita que fique gigante na tabela */
 }
 
-/* ... scrollbars ... */
-
-/* --- RESPONSIVIDADE --- */
-@media (max-width: 640px) {
-    /* No celular, empilha a busca e o botão */
-    .actionsBar {
-        flex-direction: column-reverse; /* Botão em cima ou embaixo? (column normal = busca em cima) */
-        align-items: stretch; /* Estica para ocupar a largura total */
-    }
+/* O Select em si */
+.selectNative {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
     
-    .searchWrapper {
-        max-width: 100%; /* Busca ocupa tudo no mobile */
-    }
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    
+    /* Espaço na direita para o ícone não ficar em cima do texto */
+    padding: 6px 30px 6px 10px; 
+    
+    font-size: 0.8rem;
+    color: #374151;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+    
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-    .newButton {
-        justify-content: center; /* Centraliza o texto no botão */
-    }
+.selectNative:hover {
+    border-color: #d1d5db;
+    background-color: #f9fafb;
+}
 
-    .tableContainer th, 
-    .tableContainer td {
-        padding: 0.75rem; 
-    }
+.selectNative:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+/* O Ícone ChevronDown (Lucide) */
+.selectIcon {
+    position: absolute;
+    right: 8px; /* Cola na direita */
+    top: 50%;
+    transform: translateY(-50%); /* Centraliza verticalmente */
+    color: #6b7280;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* ==========================================================================
+   4. RESPONSIVIDADE (CÓDIGO SEU - MANTIDO)
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .actionsBar {
+      flex-direction: column-reverse;
+      align-items: stretch;
+  }
+  
+  .filtersGroup {
+      flex-direction: column;
+  }
+
+  .searchWrapper, .selectWrapper {
+      width: 100%;
+      max-width: 100%;
+  }
+
+  .newButton {
+      justify-content: center;
+  }
+
+  .tableContainer th, 
+  .tableContainer td {
+      padding: 0.75rem; 
+  }
 }

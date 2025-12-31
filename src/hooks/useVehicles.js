@@ -13,30 +13,32 @@ export function useVehicles() {
     const [totalPages, setTotalPages] = useState(1);
 
     // 👇 IMPORTANTE: Envolvemos em useCallback para a função não ser recriada a cada render
-    const fetchVehicles = useCallback(async (termo = "", paginaDesejada = 1) => {
-        try {
-            setLoading(true);   
-            
-            // Chama o service passando termo e página
-            const response = await getAllVehicles(termo, paginaDesejada);
+const fetchVehicles = useCallback(
+    async (termo = "", paginaDesejada = 1, status) => {
+      try {
+        setLoading(true);
 
-            // Ajuste conforme o retorno real do seu backend (ex: response.data ou response)
-            const lista = response.data || [];
-            const meta = response.meta || {};
+        console.log("🔎 BUSCA REAL:", { termo, paginaDesejada, status });
 
-            setVehicles(lista);
-            
-            // Atualiza estados de paginação (com fallbacks de segurança)
-            setTotalPages(meta.totalPages || 1);
-            setPage(parseInt(paginaDesejada));
+        const response = await getAllVehicles(
+          termo,
+          paginaDesejada,
+          status
+        );
 
-        } catch (error) {
-            console.error("Erro ao buscar os veículos:", error);
-            Swal.fire("Erro", "Não foi possível carregar os veículos.", "error");
-        } finally {
-            setLoading(false);
-        }   
-    }, []); // Dependências vazias
+        setVehicles(response.data || []);
+        setTotalPages(response.meta?.totalPages || 1);
+        setPage(Number(paginaDesejada));
+      } catch (error) {
+        console.error(error);
+        Swal.fire("Erro", "Não foi possível carregar os veículos.", "error");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [] // 🚨 agora é seguro
+  );
+// Dependências vazias
 
     // Carrega a primeira vez
     // useEffect(() => {
