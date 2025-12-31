@@ -1,6 +1,17 @@
 import api from "./api"; // Sua instância do axios configurada
 
 
+export const getVehicleUsersHistory = async (veic_id) => {
+  try {
+    // Ajuste a rota conforme seu backend (ex: /vehicle-users/vehicle/5)
+    const response = await api.get(`/vehicle-users/vehicle/${veic_id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};
+
+
 /**
  * Cria o vínculo entre veículo e usuário
  * Payload: { veic_id, usu_id, ehproprietario, data_inicial }

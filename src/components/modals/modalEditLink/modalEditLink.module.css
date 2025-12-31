@@ -1,0 +1,229 @@
+/* EditLinkModal.module.css */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    /* Acima do histórico */
+}
+
+.modal {
+    background: white;
+    width: 95%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.closeBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #9ca3af;
+}
+
+.closeBtn:hover {
+    color: #ef4444;
+}
+
+.body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.description {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+/* Inputs */
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.inputGroup label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.inputIconWrapper {
+    position: relative;
+    width: 100%;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2563eb;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px 0 40px;
+    /* Espaço pro ícone esq */
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #111827;
+    background-color: white;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Ícone do Calendário Nativo AZUL */
+.input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(32%) sepia(61%) saturate(3472%) hue-rotate(205deg) brightness(99%) contrast(94%);
+    transition: opacity 0.2s;
+}
+
+/* Checkbox Card */
+.checkboxContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: white;
+}
+
+.checkboxContent {
+    display: flex;
+    flex-direction: column;
+}
+
+.checkboxTitle {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #1f2937;
+}
+
+.checkboxDesc {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.realCheckbox {
+    display: none;
+}
+
+.circleEmpty {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+}
+
+/* Botões */
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.btnCancel {
+    padding: 0.6rem 1rem;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    color: #374151;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btnCancel:hover {
+    background-color: #f3f4f6;
+}
+
+.btnSave {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Cores dinâmicas para o botão de salvar */
+.btnSave.edit {
+    background-color: #16a34a;
+    /* Verde Sucesso */
+}
+
+.btnSave.edit:hover {
+    background-color: #15803d;
+    /* Verde Escuro no Hover */
+}
+
+.btnSave.finalize {
+    background-color: #ef4444;
+}
+
+/* Vermelho para finalizar */
+.btnSave.finalize:hover {
+    background-color: #b91c1c;
+}
