@@ -2,13 +2,17 @@ import { useState, useCallback } from "react";
 import { 
   createVehicleUserLink, 
   updateVehicleUserLink, 
-  deleteVehicleUserLink 
+  deleteVehicleUserLink,
+  getVehicleUsersHistory // <--- 1. Importe a nova função aqui
 } from "@/services/vehicleUsers.service";
-import Swal from "sweetalert2"; // Opcional: para feedback visual
+import Swal from "sweetalert2";
 
 export const useVehicleUsers = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // --- NOVO: State para guardar a lista de histórico ---
+  const [history, setHistory] = useState([]);
 
   // 1. Vincular
   const linkUser = useCallback(async (data) => {
@@ -46,15 +50,34 @@ export const useVehicleUsers = () => {
     }
   }, []);
 
+  // --- NOVO: Finalizar Vínculo (Encerrar Data) ---
+  // É uma variação do editLink, mas com mensagem específica
+  const finalizeLink = useCallback(async (id, dataFinal) => {
+    setLoading(true);
+    try {
+      // Envia apenas a data final para o update
+      await updateVehicleUserLink(id, { data_final: dataFinal });
+      // Não exibe Swal aqui se quiser controlar no modal, ou exibe msg de sucesso:
+      // Swal.fire("Encerrado", "Vínculo finalizado com sucesso.", "success");
+      return true;
+    } catch (err) {
+      const msg = err.message || "Erro ao finalizar vínculo.";
+      setError(msg);
+      Swal.fire("Erro", msg, "error");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // 3. Remover Vínculo
   const removeLink = useCallback(async (id) => {
     setLoading(true);
     setError(null);
     try {
-      // Confirmação antes de deletar
       const confirm = await Swal.fire({
         title: 'Tem certeza?',
-        text: "Essa ação removerá o vínculo deste usuário com o veículo.",
+        text: "Essa ação removerá o registro do vínculo (Delete físico). Para apenas encerrar, use a opção de finalizar data.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -65,9 +88,9 @@ export const useVehicleUsers = () => {
       if (confirm.isConfirmed) {
         await deleteVehicleUserLink(id);
         Swal.fire('Removido!', 'O vínculo foi desfeito.', 'success');
-        return true; // Retorna true para indicar sucesso
+        return true;
       }
-      return false; // Cancelado pelo usuário
+      return false;
     } catch (err) {
       const msg = err.message || "Erro ao remover vínculo.";
       setError(msg);
@@ -78,10 +101,34 @@ export const useVehicleUsers = () => {
     }
   }, []);
 
+  // --- NOVO: Buscar Histórico ---
+  const fetchHistory = useCallback(async (veicId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await getVehicleUsersHistory(veicId);
+      
+      // Proteção para garantir que é um array
+      // Às vezes a API retorna { data: [...] } ou direto [...]
+      const lista = Array.isArray(data) ? data : (data.data || data.dados || []);
+      
+      setHistory(lista);
+    } catch (err) {
+      console.error(err);
+      setError("Erro ao buscar histórico");
+      setHistory([]); // Limpa a lista em caso de erro
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     linkUser,
     editLink,
     removeLink,
+    finalizeLink, // <--- Exporte a nova função
+    fetchHistory, // <--- Exporte a nova função
+    history,      // <--- Exporte o state
     loading,
     error
   };

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Edit, UserPlus } from "lucide-react";
+import { Edit, UserPlus, History } from "lucide-react";
 
 import { InputRegisterForm } from "../ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "../ui/inputMaskRegister/inputMaskRegister";
@@ -15,6 +15,7 @@ import { useVehicleUsers } from "@/hooks/useVehicleUsers";
 
 
 import styles from "./vehicleForm.module.css";
+import ModalVehicleHistory from "../modals/modalVehicleHistory/modalVehicleHistory";
 
 export default function VehicleForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'edit' }) {
 
@@ -22,6 +23,7 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
   const [isEditable, setIsEditable] = useState(mode === 'edit');
   const [errors, setErrors] = useState({});
   const [showLinkModal, setShowLinkModal] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const { linkUser, loading: linkLoading } = useVehicleUsers();
 
@@ -353,15 +355,28 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
           {/* NOVO BOTÃO DE VINCULAR */}
           {/* Só mostra se tiver initialData (veículo existe) */}
           {!!initialData && (
-            <button
-              type="button"
-              className={styles.btnLink} // Sugestão de classe (veja nota abaixo)
-              onClick={() => setShowLinkModal(true)}
-              style={{ marginRight: 'auto' }} // Isso empurra os outros botões para a direita se usar flexbox
-            >
-              <UserPlus size={16} style={{ marginRight: 5 }} />
-              Vincular Usuário
-            </button>
+            <div style={{ marginRight: 'auto', display: 'flex', gap: '10px' }}>
+              {/* Botão Vincular (Existente) */}
+              <button
+                type="button"
+                className={styles.btnLink}
+                onClick={() => setShowLinkModal(true)}
+              >
+                <UserPlus size={16} style={{ marginRight: 5 }} />
+                Vincular
+              </button>
+
+              {/* NOVO BOTÃO DE HISTÓRICO */}
+              <button
+                type="button"
+                className={styles.btnLink} // Pode criar btnHistory se quiser outra cor
+                onClick={() => setShowHistoryModal(true)}
+                style={{ backgroundColor: '#fff', color: '#374151', border: '1px solid #d1d5db' }}
+              >
+                <History size={16} style={{ marginRight: 5 }} />
+                Histórico
+              </button>
+            </div>
           )}
 
 
@@ -389,6 +404,13 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
         onClose={() => setShowLinkModal(false)}
         onSave={handleLinkUserSave}
       />
+
+      {/* NOVO MODAL AQUI */}
+            <ModalVehicleHistory 
+                isOpen={showHistoryModal}
+                onClose={() => setShowHistoryModal(false)}
+                vehicleId={initialData?.veic_id}
+            />
     </>
   );
 }
