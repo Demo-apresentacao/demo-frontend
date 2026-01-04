@@ -1,4 +1,4 @@
-import UserLayoutClient from "@/components/userLayoutClient/userLayoutClient";
+import UserLayoutClient from "@/components/layouts/userLayoutClient/userLayoutClient";
 
 export const metadata = {
   title: "Oficina | Painel do Usuário",

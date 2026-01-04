@@ -3,7 +3,8 @@ import {
   createVehicleUserLink, 
   updateVehicleUserLink, 
   deleteVehicleUserLink,
-  getVehicleUsersHistory // <--- 1. Importe a nova função aqui
+  getVehicleUsersHistory,
+  getUserVehicles // <--- Importante: Certifique-se de que isso existe no service
 } from "@/services/vehicleUsers.service";
 import Swal from "sweetalert2";
 
@@ -11,10 +12,62 @@ export const useVehicleUsers = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // --- NOVO: State para guardar a lista de histórico ---
+  // State para guardar o histórico (Quem usou este veículo?)
   const [history, setHistory] = useState([]);
+  
+  // State para guardar os veículos do usuário (Quais veículos este usuário tem?)
+  const [vehicles, setVehicles] = useState([]);
 
-  // 1. Vincular
+  // ----------------------------------------------------------------
+  // 1. BUSCAR VEÍCULOS DE UM USUÁRIO (Para os Cards)
+  // ----------------------------------------------------------------
+  const fetchUserVehicles = useCallback(async (usuId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getUserVehicles(usuId);
+      
+      // Tratamento baseado no seu JSON: { status: "success", data: [...] }
+      // Garante que seja um array mesmo se vier null/undefined
+      const lista = response.data || [];
+      
+      setVehicles(lista);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Erro ao buscar veículos.";
+      setError(msg);
+      setVehicles([]); // Limpa a lista em caso de erro
+      console.error("Erro fetchUserVehicles:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ----------------------------------------------------------------
+  // 2. BUSCAR HISTÓRICO DE UM VEÍCULO
+  // ----------------------------------------------------------------
+  const fetchHistory = useCallback(async (veicId) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await getVehicleUsersHistory(veicId);
+      
+      // Flexibilidade para diferentes retornos de API
+      const lista = Array.isArray(response) ? response : (response.data || []);
+      
+      setHistory(lista);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || "Erro ao buscar histórico.";
+      setError(msg);
+      setHistory([]);
+      console.error("Erro fetchHistory:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ----------------------------------------------------------------
+  // 3. VINCULAR (CRIAR)
+  // ----------------------------------------------------------------
   const linkUser = useCallback(async (data) => {
     setLoading(true);
     setError(null);
@@ -23,7 +76,7 @@ export const useVehicleUsers = () => {
       Swal.fire("Sucesso", "Vínculo criado com sucesso!", "success");
       return result;
     } catch (err) {
-      const msg = err.message || "Erro ao vincular usuário.";
+      const msg = err.response?.data?.message || err.message || "Erro ao vincular usuário.";
       setError(msg);
       Swal.fire("Erro", msg, "error");
       return null;
@@ -32,7 +85,9 @@ export const useVehicleUsers = () => {
     }
   }, []);
 
-  // 2. Editar Vínculo
+  // ----------------------------------------------------------------
+  // 4. EDITAR VÍNCULO
+  // ----------------------------------------------------------------
   const editLink = useCallback(async (id, data) => {
     setLoading(true);
     setError(null);
@@ -41,7 +96,7 @@ export const useVehicleUsers = () => {
       Swal.fire("Sucesso", "Vínculo atualizado!", "success");
       return result;
     } catch (err) {
-      const msg = err.message || "Erro ao atualizar vínculo.";
+      const msg = err.response?.data?.message || err.message || "Erro ao atualizar vínculo.";
       setError(msg);
       Swal.fire("Erro", msg, "error");
       return null;
@@ -50,18 +105,18 @@ export const useVehicleUsers = () => {
     }
   }, []);
 
-  // --- NOVO: Finalizar Vínculo (Encerrar Data) ---
-  // É uma variação do editLink, mas com mensagem específica
+  // ----------------------------------------------------------------
+  // 5. FINALIZAR VÍNCULO (Encerrar Data)
+  // ----------------------------------------------------------------
   const finalizeLink = useCallback(async (id, dataFinal) => {
     setLoading(true);
+    setError(null);
     try {
-      // Envia apenas a data final para o update
       await updateVehicleUserLink(id, { data_final: dataFinal });
-      // Não exibe Swal aqui se quiser controlar no modal, ou exibe msg de sucesso:
-      // Swal.fire("Encerrado", "Vínculo finalizado com sucesso.", "success");
+      // Opcional: Swal.fire("Encerrado", "Vínculo finalizado.", "success");
       return true;
     } catch (err) {
-      const msg = err.message || "Erro ao finalizar vínculo.";
+      const msg = err.response?.data?.message || err.message || "Erro ao finalizar vínculo.";
       setError(msg);
       Swal.fire("Erro", msg, "error");
       return false;
@@ -70,29 +125,32 @@ export const useVehicleUsers = () => {
     }
   }, []);
 
-  // 3. Remover Vínculo
+  // ----------------------------------------------------------------
+  // 6. REMOVER VÍNCULO (DELETE FÍSICO)
+  // ----------------------------------------------------------------
   const removeLink = useCallback(async (id) => {
     setLoading(true);
     setError(null);
     try {
       const confirm = await Swal.fire({
         title: 'Tem certeza?',
-        text: "Essa ação removerá o registro do vínculo (Delete físico). Para apenas encerrar, use a opção de finalizar data.",
+        text: "Essa ação removerá o registro permanentemente. Para apenas encerrar o uso, prefira finalizar a data.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sim, remover!'
+        confirmButtonText: 'Sim, remover!',
+        cancelButtonText: 'Cancelar'
       });
 
       if (confirm.isConfirmed) {
         await deleteVehicleUserLink(id);
-        Swal.fire('Removido!', 'O vínculo foi desfeito.', 'success');
+        Swal.fire('Removido!', 'O vínculo foi excluído.', 'success');
         return true;
       }
       return false;
     } catch (err) {
-      const msg = err.message || "Erro ao remover vínculo.";
+      const msg = err.response?.data?.message || err.message || "Erro ao remover vínculo.";
       setError(msg);
       Swal.fire("Erro", msg, "error");
       return false;
@@ -101,34 +159,20 @@ export const useVehicleUsers = () => {
     }
   }, []);
 
-  // --- NOVO: Buscar Histórico ---
-  const fetchHistory = useCallback(async (veicId) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getVehicleUsersHistory(veicId);
-      
-      // Proteção para garantir que é um array
-      // Às vezes a API retorna { data: [...] } ou direto [...]
-      const lista = Array.isArray(data) ? data : (data.data || data.dados || []);
-      
-      setHistory(lista);
-    } catch (err) {
-      console.error(err);
-      setError("Erro ao buscar histórico");
-      setHistory([]); // Limpa a lista em caso de erro
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   return {
+    // Actions
+    fetchUserVehicles,
+    fetchHistory,
     linkUser,
     editLink,
+    finalizeLink,
     removeLink,
-    finalizeLink, // <--- Exporte a nova função
-    fetchHistory, // <--- Exporte a nova função
-    history,      // <--- Exporte o state
+    
+    // Data States
+    vehicles, // Lista de veículos (cards)
+    history,  // Lista de histórico de usuários
+    
+    // UI States
     loading,
     error
   };

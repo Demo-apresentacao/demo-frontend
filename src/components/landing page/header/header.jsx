@@ -27,7 +27,7 @@ export default function Header() {
               height: '50px',
               objectFit: 'contain'
             }}
-            quality={100}
+            quality={[100, 75]}
             className={styles.logoImage}
             priority
           />

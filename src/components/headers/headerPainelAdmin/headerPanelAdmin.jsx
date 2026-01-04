@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { LogOut, Menu } from "lucide-react"; // Importar Menu
-import styles from "./headerPanelAdmin.module.css";
+import styles from "../headerPanel.module.css";
 
 // Recebe a função toggleSidebar via props
 export default function HeaderPanelAdmin({ toggleSidebar }) {

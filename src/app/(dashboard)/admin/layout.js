@@ -1,4 +1,4 @@
-import AdminLayoutClient from "@/components/adminLayoutClient/adminLayoutClient";
+import AdminLayoutClient from "@/components/layouts/adminLayoutClient/adminLayoutClient";
 
 export const metadata = {
   title: "Oficina | Gestão Administrativa",

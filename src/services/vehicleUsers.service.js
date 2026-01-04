@@ -49,3 +49,12 @@ export const deleteVehicleUserLink = async (id) => {
     throw error.response?.data || error.message;
   }
 };
+
+export const getUserVehicles = async (usu_id) => {
+  try {
+    const response = await api.get(`/vehicle-users/user/${usu_id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
+};

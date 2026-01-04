@@ -2,7 +2,7 @@
 
 import { House, Users, Car, Wrench, CalendarCheck, History, CalendarDays } from "lucide-react"
 import ItemSidebar from "@/components/ui/itemSidebar/itemSidebar"
-import styles from "./sidebarAdmin.module.css";
+import styles from "../sidebar.module.css"
 
 const menuItems = [
     { label: "Dashboard", href: "/admin", icon: House },

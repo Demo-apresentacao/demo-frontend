@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Edit, Save, X, EyeOff, Eye, User, Mail, Phone, Calendar } from "lucide-react";
+import { Edit, Save, X, EyeOff, Eye, User, Mail, Phone, Calendar, Car } from "lucide-react";
 import { InputRegisterForm } from "@/components/ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "@/components/ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "@/components/ui/selectRegister/selectRegister";
-import styles from "./userFormUser.module.css"; // Reutilizando o mesmo CSS
+import styles from "../userForm.module.css"; 
 import { validateEmail, getBirthDateError } from "@/utils/validators";
 
 export default function UserFormUser({ user, onUpdate }) {
@@ -14,22 +14,33 @@ export default function UserFormUser({ user, onUpdate }) {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  // Inicializa com os dados do usuário logado
-  const [formData, setFormData] = useState({
-    usu_nome: user?.usu_nome || "",
-    usu_cpf: user?.usu_cpf || "",
-    usu_data_nasc: user?.usu_data_nasc ? user.usu_data_nasc.split('T')[0] : "",
-    usu_sexo: String(user?.usu_sexo ?? "0"),
-    usu_email: user?.usu_email || "",
-    usu_telefone: user?.usu_telefone || "",
-    usu_senha: "", // Senha começa vazia
+  // Função para mapear os dados do objeto user para o estado do formulário
+  const mapUserDataToForm = (u) => ({
+    usu_nome: u?.usu_nome || "",
+    usu_cpf: u?.usu_cpf || "",
+    usu_data_nasc: u?.usu_data_nasc ? u.usu_data_nasc.split('T')[0] : "",
+    usu_sexo: String(u?.usu_sexo ?? "0"),
+    usu_email: u?.usu_email || "",
+    usu_telefone: u?.usu_telefone || "",
+    usu_senha: "", // Senha sempre começa vazia por segurança
   });
 
-  // Regras de validação de senha (visual)
+  const [formData, setFormData] = useState(mapUserDataToForm(user));
+
+  // Sincroniza o formulário caso os dados do usuário mudem externamente (ex: após o save)
+  useEffect(() => {
+    if (user) {
+      setFormData(mapUserDataToForm(user));
+    }
+  }, [user]);
+
+  // Regras de validação de senha
   const passwordRules = {
-    length: formData.usu_senha.length >= 8, // Relaxei um pouco para usuário comum, ou mantenha 12
+    length: formData.usu_senha.length >= 12,
     capital: /[A-Z]/.test(formData.usu_senha),
+    lower: /[a-z]/.test(formData.usu_senha),
     number: /\d/.test(formData.usu_senha),
+    special: /[\W_]/.test(formData.usu_senha),
   };
   
   const isPasswordValid = Object.values(passwordRules).every(Boolean);
@@ -52,7 +63,6 @@ export default function UserFormUser({ user, onUpdate }) {
         newErrors.usu_email = "E-mail inválido.";
     }
 
-    // Se estiver tentando mudar a senha
     if (formData.usu_senha.length > 0 && !isPasswordValid) {
         newErrors.usu_senha = "A senha não atende aos requisitos mínimos.";
     }
@@ -72,19 +82,18 @@ export default function UserFormUser({ user, onUpdate }) {
 
     setLoading(true);
 
-    // Prepara payload (remove senha se estiver vazia)
     const payload = {
       ...formData,
       usu_sexo: Number(formData.usu_sexo),
     };
     
+    // Se a senha estiver vazia, removemos do payload para não sobrescrever com vazio
     if (!payload.usu_senha) delete payload.usu_senha;
-    // Removemos CPF do envio se a API não permitir update de CPF, ou enviamos apenas para confirmação
 
     try {
       await onUpdate(payload);
       setIsEditable(false);
-      setFormData(prev => ({ ...prev, usu_senha: "" })); // Limpa campo de senha após salvar
+      setErrors({});
     } catch (error) {
       console.error("Erro ao atualizar perfil", error);
     } finally {
@@ -92,19 +101,16 @@ export default function UserFormUser({ user, onUpdate }) {
     }
   };
 
-  const handleCancel = () => {
-    setIsEditable(false);
+  const handleCancelClick = () => {
+    setFormData(mapUserDataToForm(user)); // Restaura dados originais
     setErrors({});
-    // Reseta para os dados originais do user
-    setFormData({
-        usu_nome: user?.usu_nome || "",
-        usu_cpf: user?.usu_cpf || "",
-        usu_data_nasc: user?.usu_data_nasc ? user.usu_data_nasc.split('T')[0] : "",
-        usu_sexo: String(user?.usu_sexo ?? "0"),
-        usu_email: user?.usu_email || "",
-        usu_telefone: user?.usu_telefone || "",
-        usu_senha: "",
-    });
+    setIsEditable(false);
+    setShowPassword(false);
+  };
+
+  const ErrorMessage = ({ message }) => {
+    if (!message) return null;
+    return <span className={styles.errorText}>{message}</span>;
   };
 
   const PasswordReqItem = ({ label, met }) => (
@@ -116,35 +122,12 @@ export default function UserFormUser({ user, onUpdate }) {
 
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
-      
-      {/* CABEÇALHO DO FORMULÁRIO */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', width: '100%' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
-             <User size={24} /> Meus Dados
-          </h2>
-          {!isEditable ? (
-              <button 
-                type="button" 
-                className={styles.btnSave} // Reutilizando estilo
-                onClick={() => setIsEditable(true)}
-              >
-                <Edit size={16} style={{marginRight: 5}}/> Editar Perfil
-              </button>
-          ) : (
-            <div style={{ display: 'flex', gap: '10px'}}>
-               <button type="button" onClick={handleCancel} className={styles.btnCancel} disabled={loading}>
-                 <X size={16} /> Cancelar
-               </button>
-               <button type="submit" className={styles.btnSave} disabled={loading}>
-                 {loading ? "Salvando..." : <><Save size={16} style={{marginRight:5}}/> Salvar</>}
-               </button>
-            </div>
-          )}
-      </div>
+      {user && (
+        <div className={styles.inputGroup} >
+            <InputRegisterForm label="ID" value={user.usu_id} disabled={true} />
+        </div>
+      )}
 
-      {/* --- CAMPOS --- */}
-
-      {/* Nome */}
       <div className={styles.inputGroup}>
           <InputRegisterForm 
             name="usu_nome" 
@@ -152,11 +135,10 @@ export default function UserFormUser({ user, onUpdate }) {
             value={formData.usu_nome} 
             onChange={handleChange} 
             disabled={!isEditable}
-            icon={User} // Se o seu componente suportar ícone
+            icon={User}
           />
       </div>
 
-      {/* CPF (Sempre Desabilitado para User Comum) */}
       <div className={styles.inputGroup}>
         <InputMaskRegister
             name="usu_cpf"
@@ -168,7 +150,6 @@ export default function UserFormUser({ user, onUpdate }) {
         />
       </div>
 
-      {/* Email */}
       <div className={styles.inputGroup}>
         <InputRegisterForm 
             name="usu_email" 
@@ -178,10 +159,9 @@ export default function UserFormUser({ user, onUpdate }) {
             onChange={handleChange} 
             disabled={!isEditable}
         />
-        {errors.usu_email && <span className={styles.errorText}>{errors.usu_email}</span>}
+        <ErrorMessage message={errors.usu_email} />
       </div>
 
-      {/* Telefone */}
       <div className={styles.inputGroup}>
         <InputMaskRegister
             name="usu_telefone"
@@ -193,7 +173,6 @@ export default function UserFormUser({ user, onUpdate }) {
         />
       </div>
 
-      {/* Data Nascimento */}
       <div className={styles.inputGroup}>
         <InputRegisterForm 
             name="usu_data_nasc" 
@@ -203,10 +182,9 @@ export default function UserFormUser({ user, onUpdate }) {
             onChange={handleChange} 
             disabled={!isEditable}
         />
-        {errors.usu_data_nasc && <span className={styles.errorText}>{errors.usu_data_nasc}</span>}
+        <ErrorMessage message={errors.usu_data_nasc} />
       </div>
 
-      {/* Sexo */}
       <div className={styles.inputGroup}>
         <SelectRegister
             name="usu_sexo"
@@ -222,42 +200,85 @@ export default function UserFormUser({ user, onUpdate }) {
         />
       </div>
 
-      {/* Senha (Só aparece em modo edição para não poluir) */}
       {isEditable && (
-          <div className={`${styles.inputGroup} ${styles.fullWidth}`} style={{ marginTop: '20px', padding: '15px', border: '1px dashed #ccc', borderRadius: '8px' }}>
-            <h4 style={{marginBottom: '10px', fontSize: '0.9rem', color: '#666'}}>Alterar Senha</h4>
-            
+          <div className={styles.inputGroup}>
             <div style={{ position: 'relative' }}>
                 <InputRegisterForm 
                     name="usu_senha" 
-                    label="Nova Senha" 
+                    label="Nova Senha (deixe em branco para manter)" 
                     type={showPassword ? "text" : "password"} 
                     value={formData.usu_senha} 
                     onChange={handleChange} 
-                    placeholder="Deixe em branco para manter a atual"
+                    disabled={!isEditable}
                 />
                 <button 
                     type="button" 
                     className={styles.eyeButton}
                     onClick={() => setShowPassword(!showPassword)}
-                    style={{ top: '35px' }} // Ajuste fino dependendo do seu CSS
+                    style={{ position: 'absolute', right: '10px', top: '35px', background: 'none', border: 'none', cursor: 'pointer' }}
                 >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
             </div>
 
-            {/* Feedback Visual de Senha */}
-            {formData.usu_senha.length > 0 && (
-                <div style={{ display: 'flex', gap: '15px', marginTop: '10px', flexWrap: 'wrap' }}>
-                    <PasswordReqItem label="8+ Caracteres" met={passwordRules.length} />
+            <ErrorMessage message={errors.usu_senha} />
+
+            {formData.usu_senha.length > 0 && !isPasswordValid && (
+                <div className={styles.passwordRequirements} style={{ marginTop: '10px' }}>
+                    <PasswordReqItem label="Mínimo de 12 caracteres" met={passwordRules.length} />
                     <PasswordReqItem label="Letra Maiúscula" met={passwordRules.capital} />
+                    <PasswordReqItem label="Letra Minúscula" met={passwordRules.lower} />
                     <PasswordReqItem label="Número" met={passwordRules.number} />
+                    <PasswordReqItem label="Caractere Especial" met={passwordRules.special} />
                 </div>
             )}
-             {errors.usu_senha && <span className={styles.errorText}>{errors.usu_senha}</span>}
           </div>
       )}
 
-    </form>
+      <div className={styles.actions} style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+            {!!user && (
+                <div style={{ marginRight: 'auto' }}>
+                    <button
+                        type="button"
+                        className={styles.btnSave}
+                        style={{ backgroundColor: '#fff', color: '#2563eb', border: '1px solid #2563eb', display: 'flex', alignItems: 'center' }}
+                        onClick={() => {/* Lógica do modal de veículo aqui */}}
+                    >
+                        <Car size={16} style={{ marginRight: 5 }} />
+                        Adicionar Veículo
+                    </button>
+                </div>
+            )}
+
+            {!isEditable ? (
+                 <button 
+                    type="button" 
+                    className={styles.btnSave} 
+                    onClick={() => setIsEditable(true)}
+                    style={{ display: 'flex', alignItems: 'center' }}
+                 >
+                    <Edit size={16} style={{marginRight: 5}}/> Editar Dados
+                 </button>
+            ) : (
+                 <>
+                    <button 
+                        type="button" 
+                        onClick={handleCancelClick} 
+                        className={styles.btnCancel} 
+                        disabled={loading}
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                        type="submit" 
+                        className={styles.btnSave} 
+                        disabled={loading}
+                    >
+                      {loading ? "Salvando..." : "Salvar Alterações"}
+                    </button>
+                 </>
+            )}
+      </div>
+    </form> 
   );
 }
