@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import HeaderPanelUser from "@/components/headerPanelUser/headerPanelUser"
-import SidebarUser from "@/components/sidebarUser/sidebarUser"
-import styles from "./userLayoutClient.module.css"
+import { useState } from "react";
+import HeaderPanelAdmin from "@/components/headers/headerPainelAdmin/headerPanelAdmin";
+import SidebarAdmin from "@/components/sidebars/sidebarAdmin/sidebarAdmin";
+import styles from "../layout.module.css";
 
-export default function UserLayoutClient({ children }) {
+export default function AdminLayout({ children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const handleToggleSidebar = () => {
@@ -14,23 +14,25 @@ export default function UserLayoutClient({ children }) {
 
     const closeSidebar = () => {
         setSidebarOpen(false);
-    };      
+    };
 
     return (
         <div className={styles.container}>
-            <HeaderPanelUser toggleSidebar={handleToggleSidebar} /> 
+            <HeaderPanelAdmin toggleSidebar={handleToggleSidebar} />
+
             <div className={styles.body}>
                 <aside className={`${styles.sidebarWrapper} ${sidebarOpen ? styles.open : ''}`}>
-                    {/* AQUI: Passamos a função closeSidebar para o componente filho */}
-                    <SidebarUser closeMobileMenu={closeSidebar} />
+                    <SidebarAdmin closeMobileMenu={closeSidebar} />
                 </aside>
+
                 {sidebarOpen && (
                     <div className={styles.overlay} onClick={closeSidebar} />
-                )}                
+                )}
+
                 <main className={styles.content}>
                     {children}
                 </main>
             </div>
         </div>
-    )
+    );
 }

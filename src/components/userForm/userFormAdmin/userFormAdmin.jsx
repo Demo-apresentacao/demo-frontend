@@ -4,7 +4,7 @@ import { Edit, Check, X, EyeOff, Eye, Car, Plus, History } from "lucide-react";
 import { InputRegisterForm } from "../../ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "../../ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "../../ui/selectRegister/selectRegister";
-import styles from "./userFormAdmin.module.css";
+import styles from "../userForm.module.css";
 import { validateCPF, validateEmail, getBirthDateError } from "@/utils/validators";
 import ModalVehicleLink from "../../modals/modalVehicleLink/modalVehicleLink";
 import { useVehicleUsers } from "@/hooks/useVehicleUsers";
@@ -338,7 +338,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                     <button
                         type="button"
                         className={styles.btnSave} // Pode criar um estilo btnLink se preferir
-                        style={{ backgroundColor: '#fff', color: '#2563eb', border: '1px solid #2563eb' }}
+                        style={{ backgroundColor: '#fff', color: '#eb2525ff', border: '1px solid #eb2525ff' }}
                         onClick={() => setShowLinkModal(true)}
                     >
                         <Car size={16} style={{ marginRight: 5 }} />

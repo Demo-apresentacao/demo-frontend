@@ -11,7 +11,7 @@ import {
 
 import ItemSidebar from "@/components/ui/itemSidebar/itemSidebar"
 // Você pode criar um sidebarUser.module.css ou renomear o do admin para sidebar.module.css se forem iguais
-import styles from "./sidebarUser.module.css"; 
+import styles from "../sidebar.module.css"
 
 const menuItems = [
     { 

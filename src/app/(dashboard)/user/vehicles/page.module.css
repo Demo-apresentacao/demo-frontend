@@ -1,0 +1,74 @@
+/* --- Layout Principal --- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.pageHeader {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827; /* Gray 900 */
+  margin-bottom: 8px;
+}
+
+.description {
+  color: #6b7280; /* Gray 500 */
+}
+
+/* --- Grid de Cards --- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* Responsividade do Grid */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* --- Estados de Feedback (Erro, Loading, Vazio) --- */
+
+.errorBox {
+  padding: 16px;
+  margin-bottom: 16px;
+  color: #b91c1c; /* Red 700 */
+  background-color: #fee2e2; /* Red 100 */
+  border-radius: 8px;
+  border: 1px solid #fca5a5;
+}
+
+.loadingState {
+  text-align: center;
+  padding: 80px 0;
+  color: #6b7280; /* Gray 500 */
+}
+
+.emptyState {
+  /* Faz a div ocupar toda a largura do grid, independente das colunas */
+  grid-column: 1 / -1; 
+  
+  padding: 48px 0;
+  text-align: center;
+  background-color: #f9fafb; /* Gray 50 */
+  border-radius: 8px;
+  border: 1px dashed #d1d5db; /* Gray 300 */
+}
+
+.emptyText {
+  color: #6b7280; /* Gray 500 */
+  margin: 0;
+}
