@@ -7,7 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 import { useState } from "react";
-import { useLogin } from "../../hooks/useLogin";
+import { useLogin } from '@/hooks/useLogin';
 
 export default function Login() {
 
@@ -73,6 +73,13 @@ export default function Login() {
                         </button>
                     </InputLogin>
 
+                    {/* --- NOVO: Link de Esqueci Minha Senha --- */}
+                    <div className={styles.forgotContainer}>
+                        <Link href="/auth/forgot" className={styles.forgotLink}>
+                            Esqueci minha senha
+                        </Link>
+                    </div>
+
                     {/* BOTÃO DE ENTRAR */}
                     <button
                         className={styles.button}
@@ -99,10 +106,9 @@ export default function Login() {
                     </button>
                 </form>
 
-                {/* --- NOVO: Link para Cadastro --- */}
+                {/* Link para Cadastro */}
                 <div className={styles.signupContainer}>
                     <span>Não tem uma conta?</span>
-                    {/* Ajuste o href conforme a rota do seu cadastro (ex: /cadastro, /register) */}
                     <Link href="/register" className={styles.signupLink}>
                         Cadastre-se agora
                     </Link>

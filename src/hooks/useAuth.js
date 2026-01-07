@@ -17,7 +17,7 @@ export function useAuth() {
     sessionStorage.clear();
 
     // 3. Redirecionamento Hard para limpar memória
-    window.location.href = '/login';
+    window.location.href = '/auth/login';
   }
 
   return { logout };
