@@ -24,13 +24,10 @@ export function useRegister() {
         color: "#111827"
       });
 
-      router.push("/login");
+      router.push("/auth/login");
       return response;
 
     } catch (error) {
-      // 🔍 DEBUG: Isso vai mostrar no F12 o que está chegando de verdade
-      console.log("OBJETO DE ERRO RECEBIDO:", error);
-      console.log("RESPONSE DO ERRO:", error.response);
 
       // Tenta pegar o status e a mensagem de vários lugares possíveis
       const status = error?.response?.status || 500;

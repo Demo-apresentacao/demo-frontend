@@ -10,7 +10,7 @@ export function middleware(request) {
   // --- REGRA 1: Usuário logado tentando acessar /login ---
   // Se ele já tem token, não faz sentido ver a tela de login.
   // Mandamos ele direto para o dashboard correspondente.
-  if (pathname === '/login' && token) {
+  if (pathname === '/auth/login' && token) {
      if (role === 'admin') {
          return NextResponse.redirect(new URL('/admin', request.url));
      }
@@ -23,7 +23,7 @@ export function middleware(request) {
     
     // a) Se não tem token, tchau -> login
     if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 
     // b) Proteção por Cargo (Role)

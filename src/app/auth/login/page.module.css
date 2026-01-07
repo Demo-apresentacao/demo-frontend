@@ -157,6 +157,71 @@
   padding-top: 20px;
 }
 
+/* Container para alinhar o "Esqueci minha senha" à direita */
+.forgotContainer {
+  display: flex;
+  justify-content: flex-end; /* Joga para a direita */
+  width: 100%;
+  margin-top: -12px; /* Puxa para perto do input de senha */
+  margin-bottom: 20px; /* Empurra o botão Entrar para baixo */
+  padding-right: 2px;
+}
+
+.forgotLink {
+  font-size: 13px;
+  color: #806b6b; /* Mesma cor dos labels */
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.forgotLink:hover {
+  color: #e11d48; /* Vermelho primário no hover */
+  text-decoration: underline;
+}
+
+/* Container para a área de "Não tem conta?" */
+.signupContainer {
+  margin-top: 25px;
+  text-align: center;
+  font-size: 14px;
+  color: #806b6b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px; /* Espaço entre o texto e o link */
+}
+
+.signupLink {
+  color: #e11d48; /* Vermelho primário */
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.signupLink:hover {
+  color: #be123c; /* Vermelho mais escuro */
+  text-decoration: underline;
+}
+
+/* Animação de Rotação para o ícone de Loading */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* AJUSTE OPCIONAL: Se o form estiver herdando o grid de 2 colunas do cadastro */
+/* Use isso se os inputs estiverem ficando pequenos */
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

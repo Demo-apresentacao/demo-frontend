@@ -44,7 +44,7 @@ export default function Header() {
 
           <div className={styles.divider}></div>
 
-          <a href="/login" className={styles.loginBtn}>
+          <a href="/auth/login" className={styles.loginBtn}>
             <User size={18} /> Entrar
           </a>
 
