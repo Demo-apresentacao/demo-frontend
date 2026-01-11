@@ -5,6 +5,9 @@ export default function ServiceChart({ data }) {
         return <div style={{ padding: '2rem', textAlign: 'center', color: '#af9c9cff' }}>Sem dados suficientes para o gráfico.</div>;
     }
 
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 450;
+
     return (
         <div style={{ width: '100%', height: "300px" }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -15,14 +18,15 @@ export default function ServiceChart({ data }) {
                 >
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#ebe5e5ff" />
                     <XAxis type="number" hide />
-                    <YAxis 
-                        dataKey="serv_nome" 
-                        type="category" 
-                        width={150} 
-                        tick={{fontSize: 12, fill: '#634b4bff'}} 
+                    <YAxis
+                        dataKey="serv_nome"
+                        type="category"
+                        width={isMobile ? 90 : 150}
+                        tick={{ fontSize: isMobile ? 10 : 12, fill: '#634b4bff' }}
                     />
-                    <Tooltip 
-                        cursor={{fill: '#f6f3f3ff'}}
+
+                    <Tooltip
+                        cursor={{ fill: '#f6f3f3ff' }}
                         contentStyle={{
                             borderRadius: '8px',
                             border: '1px solid #ebe5e5ff',

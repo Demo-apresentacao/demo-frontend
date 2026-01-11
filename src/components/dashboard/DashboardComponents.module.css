@@ -66,10 +66,12 @@
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     border: 1px solid #ebe5e5;
-    height: 100%;
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    max-width: 100%;
 }
+
 
 .cardHeader {
     margin-bottom: 1.5rem;
@@ -97,37 +99,55 @@
 
 .cardContent {
     flex: 1;
+    min-width: 0;
+    overflow-x: hidden;
 }
+
 
 /* --- RESPONSIVO (MOBILE) --- */
 @media (max-width: 768px) {
-    /* Compactar StatCard */
     .statCard {
-        padding: 1rem; /* Menos espaçamento interno */
+        padding: 1rem; 
         gap: 0.75rem;
     }
 
     .iconWrapper {
-        padding: 8px; /* Ícone menor */
+        padding: 8px; 
         border-radius: 8px;
     }
 
     .statValue {
-        font-size: 1.25rem; /* Fonte do número menor */
+        font-size: 1.25rem; 
     }
 
-    /* Compactar SectionCard */
+
     .sectionCard {
-        padding: .5rem; /* Menos espaçamento interno */
-        height: auto; /* Deixa a altura automática para não forçar espaço vazio */
+        padding: .5rem;
+        height: auto; 
     }
 
     .cardHeader {
-        margin-bottom: 1rem; /* Menos espaço abaixo do título */
+        margin-bottom: 1rem; 
         padding-bottom: 0.75rem;
     }
 
     .cardTitle {
-        font-size: 1rem; /* Título do card levemente menor */
+        font-size: 1rem; 
+    }
+}
+
+@media (max-width: 450px) {
+    .sectionCard {
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+
+    .cardHeader {
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .cardTitle {
+        font-size: 0.95rem;
     }
 }
