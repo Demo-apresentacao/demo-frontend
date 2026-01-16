@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Cadastro de Serviço</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  body {
+    background: #f3f4f6;
+    padding: 40px;
+  }
+
+  .form-card {
+    max-width: 90%;
+    margin: auto;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #111827;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #374151;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 50%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 14px;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  /* ===== SEÇÃO DE VEÍCULOS ===== */
+
+  .vehicle-section {
+    margin-top: 30px;
+  }
+
+  .vehicle-section h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #1f2937;
+  }
+
+  .vehicle-row {
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #f9fafb;
+  }
+
+  .vehicle-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .vehicle-header input[type="checkbox"] {
+    transform: scale(1.2);
+    cursor: pointer;
+  }
+
+  .vehicle-name {
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .vehicle-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .vehicle-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+  }
+
+  .vehicle-field span {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    color: #6b7280;
+  }
+
+  .vehicle-field input {
+    padding-left: 36px;
+  }
+
+  .vehicle-field.time input {
+    padding-left: 12px;
+  }
+
+  .hint {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+
+  /* ===== AÇÕES ===== */
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .btn-cancel {
+    background: #e5e7eb;
+    color: #111827;
+  }
+
+  .btn-save {
+    background: #10b981;
+    color: #ffffff;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="form-card">
+  <h1>Cadastrar Serviço</h1>
+
+  <!-- CATEGORIA DO SERVIÇO -->
+  <div class="form-group">
+    <label>Categoria do Serviço</label>
+    <select>
+      <option value="">Selecione uma categoria</option>
+      <option>Lavagem</option>
+      <option>Estética</option>
+      <option>Mecânica</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Nome do Serviço</label>
+    <input type="text" placeholder="Ex: Lavagem Completa">
+  </div>
+
+  <div class="form-group">
+    <label>Descrição</label>
+    <textarea placeholder="Descrição detalhada do serviço..."></textarea>
+  </div>
+
+  <!-- TIPOS DE VEÍCULO -->
+  <div class="vehicle-section">
+    <h2>Configuração por Tipo de Veículo</h2>
+
+    <!-- CARRO -->
+    <div class="vehicle-row">
+      <div class="vehicle-header">
+        <input type="checkbox">
+        <span class="vehicle-name">Carro</span>
+      </div>
+
+      <div class="vehicle-fields">
+        <div class="vehicle-field">
+          <span>R$</span>
+          <input type="number" placeholder="Preço">
+        </div>
+
+        <div class="vehicle-field time">
+          <input type="text" placeholder="Duração (HH:MM)">
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMINHONETE -->
+    <div class="vehicle-row">
+      <div class="vehicle-header">
+        <input type="checkbox">
+        <span class="vehicle-name">Caminhonete</span>
+      </div>
+
+      <div class="vehicle-fields">
+        <div class="vehicle-field">
+          <span>R$</span>
+          <input type="number" placeholder="Preço">
+        </div>
+
+        <div class="vehicle-field time">
+          <input type="text" placeholder="Duração (HH:MM)">
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMINHÃO -->
+    <div class="vehicle-row">
+      <div class="vehicle-header">
+        <input type="checkbox">
+        <span class="vehicle-name">Caminhão</span>
+      </div>
+
+      <div class="vehicle-fields">
+        <div class="vehicle-field">
+          <span>R$</span>
+          <input type="number" placeholder="Preço">
+        </div>
+
+        <div class="vehicle-field time">
+          <input type="text" placeholder="Duração (HH:MM)">
+        </div>
+      </div>
+    </div>
+
+    <!-- MOTO -->
+    <div class="vehicle-row">
+      <div class="vehicle-header">
+        <input type="checkbox">
+        <span class="vehicle-name">Moto</span>
+      </div>
+
+      <div class="vehicle-fields">
+        <div class="vehicle-field">
+          <span>R$</span>
+          <input type="number" placeholder="Preço">
+        </div>
+
+        <div class="vehicle-field time">
+          <input type="text" placeholder="Duração (HH:MM)">
+        </div>
+      </div>
+    </div>
+
+    <p class="hint">
+      Marque apenas os tipos de veículo atendidos e informe o preço e o tempo para cada um.
+    </p>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-cancel">Cancelar</button>
+    <button class="btn btn-save">Salvar Serviço</button>
+  </div>
+</div>
+
+</body>
+</html>

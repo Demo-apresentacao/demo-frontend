@@ -51,8 +51,8 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
         const defaults = {
             cat_serv_id: "",
             serv_nome: "",
-            serv_duracao: "",
-            serv_preco: "",
+            stv_duracao: "",
+            stv_preco: "",
             serv_descricao: "",
             serv_situacao: "true"
         };
@@ -62,8 +62,8 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
         return {
             cat_serv_id: String(initialData.cat_serv_id || ""),
             serv_nome: initialData.serv_nome || "",
-            serv_duracao: initialData.serv_duracao || "",
-            serv_preco: initialData.serv_preco ? formatCurrency(initialData.serv_preco) : "",
+            stv_duracao: initialData.stv_duracao || "",
+            stv_preco: initialData.stv_preco ? formatCurrency(initialData.stv_preco) : "",
             serv_descricao: initialData.serv_descricao || "",
             serv_situacao: String(initialData.serv_situacao ?? "true")
         };
@@ -86,8 +86,8 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
     const handlePriceChange = (e) => {
         const rawValue = e.target.value;
         const formatted = maskCurrency(rawValue);
-        setFormData((prev) => ({ ...prev, serv_preco: formatted }));
-        if (errors.serv_preco) setErrors(prev => ({ ...prev, serv_preco: null }));
+        setFormData((prev) => ({ ...prev, stv_preco: formatted }));
+        if (errors.stv_preco) setErrors(prev => ({ ...prev, stv_preco: null }));
     };
 
     // Handler de Máscara (Duração)
@@ -129,14 +129,14 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
         const newErrors = {};
         if (!formData.serv_nome) newErrors.serv_nome = "Nome é obrigatório.";
 
-        if (!formData.serv_preco || formData.serv_preco === "R$ 0,00") {
-            newErrors.serv_preco = "Preço é obrigatório.";
+        if (!formData.stv_preco || formData.stv_preco === "R$ 0,00") {
+            newErrors.stv_preco = "Preço é obrigatório.";
         }
 
         if (!formData.cat_serv_id) newErrors.cat_serv_id = "Selecione uma categoria.";
 
-        if (!formData.serv_duracao || formData.serv_duracao.includes("_") || formData.serv_duracao.length < 8) {
-            newErrors.serv_duracao = "Informe a duração completa (HH:MM:SS).";
+        if (!formData.stv_duracao || formData.stv_duracao.includes("_") || formData.stv_duracao.length < 8) {
+            newErrors.stv_duracao = "Informe a duração completa (HH:MM:SS).";
         }
 
         setErrors(newErrors);
@@ -151,8 +151,8 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
         const payload = {
             cat_serv_id: Number(formData.cat_serv_id),
             serv_nome: formData.serv_nome,
-            serv_duracao: formData.serv_duracao,
-            serv_preco: parseCurrency(formData.serv_preco),
+            stv_duracao: formData.stv_duracao,
+            stv_preco: parseCurrency(formData.stv_preco),
             serv_descricao: formData.serv_descricao,
             serv_situacao: formData.serv_situacao === "true"
         };
@@ -267,12 +267,12 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                         label="Preço"
                         placeholder="R$ 0,00"
                         type="text"
-                        value={formData.serv_preco}
+                        value={formData.stv_preco}
                         onChange={handlePriceChange}
                         required
                         disabled={!isEditable}
                     />
-                    <ErrorMessage message={errors.serv_preco} />
+                    <ErrorMessage message={errors.stv_preco} />
                 </div>
 
                 <div className={styles.inputGroup}>
@@ -281,12 +281,12 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                         label="Duração (HH:MM:SS)"
                         mask="00:00:00"
                         lazy={false} // Mostra o __:__:__
-                        value={formData.serv_duracao}
-                        onAccept={(value) => handleMaskChange(value, "serv_duracao")}
+                        value={formData.stv_duracao}
+                        onAccept={(value) => handleMaskChange(value, "stv_duracao")}
                         disabled={!isEditable}
                         required
                     />
-                    <ErrorMessage message={errors.serv_duracao} />
+                    <ErrorMessage message={errors.stv_duracao} />
                 </div>
 
                 {/* GRUPO 4: Situação */}

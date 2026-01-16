@@ -128,9 +128,14 @@ export default function ServicesClient() {
     { header: "Nome", accessor: "serv_nome" },
     { header: "Descrição", accessor: "serv_descricao" },
     {
+      header: "Categoria",
+      accessor: "tps_nome",
+      render: (item) => item.tps_nome || ''
+    },
+    {
       header: "Preço",
-      accessor: "serv_preco",
-      render: (item) => item.serv_preco ? `R$ ${Number(item.serv_preco).toFixed(2)}` : 'R$ 0.00'
+      accessor: "stv_preco",
+      render: (item) => item.stv_preco ? `R$ ${Number(item.stv_preco).toFixed(2)}` : 'R$ 0.00'
     },
     {
       header: "Status",
