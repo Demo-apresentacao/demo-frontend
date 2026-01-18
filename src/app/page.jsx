@@ -3,6 +3,7 @@ import styles from './page.module.css'
 import Header from '@/components/landing page/header/header'
 import Hero from '@/components/landing page/hero/hero';
 import StoreSection from '@/components/landing page/store/store';
+import DilutionCalculator from '@/components/landing page/calculator/dilutionCalculator';
 import About from '@/components/landing page/about/about';
 import Footer from '@/components/landing page/footer/footer'
 
@@ -15,6 +16,8 @@ export default function Home() {
 				<Hero />
 
 				<StoreSection />
+
+				<DilutionCalculator />
 
 				<About />
 			</main>

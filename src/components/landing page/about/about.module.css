@@ -1,8 +1,7 @@
 .about {
-  /* Mantive seu degradê suave */
-  background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%);
+  /* background: linear-gradient(180deg, #ffffff 0%, #fff1f2 100%); */
+  background: linear-gradient(0deg, #ffffff 0%, #fff1f2 100%);
   padding: 8rem 0; 
-  /* min-height removido para se ajustar ao conteúdo, evita buracos em telas gigantes */
   display: flex;
   align-items: center;
 }
