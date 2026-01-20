@@ -21,19 +21,18 @@ export const getAllServices = async (search = "", page = 1, status = "all", orde
 };
 
 export async function getServicesList() {
-    // Pedimos um limite alto (ex: 100) para trazer todos de uma vez
     const { data } = await api.get("/services", { 
         params: { limit: 100 } 
     });
-    
-    // O backend retorna { status: 'success', data: [...], meta: ... }
-    // Queremos retornar apenas o array que está em data.data
     return data.data; 
 }
 
-// const service = await getServiceById(id);
-// setServiceData(service);
-
+// --- AQUI ESTA A FUNÇÃO CORRIGIDA ---
+export async function getServiceById(id) {
+    const { data } = await api.get(`/services/${id}`);
+    return data.data;
+}
+// ------------------------------------
 
 export async function createService(payload) {
     const { data } = await api.post("/services", payload);
@@ -46,7 +45,6 @@ export async function updateService(id, payload) {
 }
 
 export async function toggleServiceStatus(id, status) {
-    // Chama a rota PATCH enviando apenas o objeto { serv_situacao: true/false }
     const { data } = await api.patch(`/services/${id}/status`, { serv_situacao: status });
     return data;
 }
