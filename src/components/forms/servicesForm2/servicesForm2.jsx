@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { InputRegisterForm } from "../../ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "../../ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "../../ui/selectRegister/selectRegister";
@@ -12,72 +11,60 @@ import { useCategoriesVehiclesForServices } from "@/hooks/useCategoriesVehiclesF
 
 // --- FUNÇÕES AUXILIARES DE MOEDA ---
 const formatCurrency = (value) => {
-    if (value === null || value === undefined || value === "") return "";
+    if (!value) return "";
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 };
 
 const maskCurrency = (value) => {
-    const onlyDigits = String(value).replace(/\D/g, "");
+    const onlyDigits = value.replace(/\D/g, "");
     const numberValue = Number(onlyDigits) / 100;
     return formatCurrency(numberValue);
 };
 
 const parseCurrency = (value) => {
     if (!value) return 0;
-    const cleanString = String(value).replace(/[R$\s.]/g, "").replace(",", ".");
+    const cleanString = value.replace(/[R$\s.]/g, "").replace(",", ".");
     return parseFloat(cleanString);
 };
 
-export default function ServiceForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'create' }) {
-    const isView = mode === "view";
+export default function ServiceForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'edit' }) {
     const [loading, setLoading] = useState(false);
-
-    // 1. Hook para Categorias de Serviço (Dropdown)
+    
+    // 1. USO DO SEU HOOK EXISTENTE (Já retorna formattedOptions com value/label)
+    // Renomeei para 'serviceOptions' para ficar claro que já são opções prontas
     const { categories: serviceOptions, loading: loadingCategories } = useServiceCategories();
 
     // 2. Hook para Categorias de Veículo (Checkboxes)
     const { vehicleCategories, loading: loadingVehicles } = useCategoriesVehiclesForServices();
 
-    // --- ESTADO DADOS BÁSICOS ---
     const [formData, setFormData] = useState({
-        category_id: initialData?.cat_serv_id || "",
-        serv_nome: initialData?.serv_nome || "",
-        serv_descricao: initialData?.serv_descricao || "",
+        category_id: "",
+        serv_nome: "",
+        serv_descricao: "",
     });
 
-    // --- ESTADO CONFIGURAÇÃO POR VEÍCULO ---
-    // Calculamos a configuração inicial baseada nas props e nos veículos carregados
-    const initialVehicleConfig = useMemo(() => {
-        if (!vehicleCategories || vehicleCategories.length === 0) return {};
-        
-        const config = {};
-        vehicleCategories.forEach((item) => {
-            const catVehId = item.tps_id || item.id;
+    const [vehicleConfig, setVehicleConfig] = useState({});
+
+    // Inicializa a configuração de preços quando as categorias de VEÍCULOS carregarem
+    useEffect(() => {
+        if (vehicleCategories && vehicleCategories.length > 0) {
+            const initialConfig = {};
             
-            // Procura se já existe um preço salvo para este veículo no initialData
-            const savedPrice = initialData?.precos?.find(p => Number(p.tps_id) === Number(catVehId));
+            vehicleCategories.forEach((cat) => {
+                // Ajuste se necessário (tps_id ou id)
+                const uniqueId = cat.tps_id || cat.id; 
 
-            config[catVehId] = savedPrice ? {
-                checked: true,
-                price: formatCurrency(savedPrice.preco),
-                duration: savedPrice.duracao
-            } : {
-                checked: false,
-                price: "",
-                duration: ""
-            };
-        });
-        return config;
-    }, [vehicleCategories, initialData]);
-
-    // Sincronização de estado sem causar erro de "Cascading Renders"
-    const [vehicleConfig, setVehicleConfig] = useState(initialVehicleConfig);
-    const [prevInitialConfig, setPrevInitialConfig] = useState(null);
-
-    if (initialVehicleConfig !== prevInitialConfig) {
-        setVehicleConfig(initialVehicleConfig);
-        setPrevInitialConfig(initialVehicleConfig);
-    }
+                initialConfig[uniqueId] = vehicleConfig[uniqueId] || {
+                    checked: false,
+                    price: "",
+                    duration: ""
+                };
+            });
+            
+            setVehicleConfig(prev => ({ ...prev, ...initialConfig }));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [vehicleCategories]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,19 +73,21 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
 
     // --- HANDLERS PARA A TABELA DE VEÍCULOS ---
     const handleCheckVehicle = (catVehId) => {
-        if (isView) return;
-        setVehicleConfig(prev => ({
-            ...prev,
-            [catVehId]: {
-                ...prev[catVehId],
-                checked: !prev[catVehId]?.checked
-            }
-        }));
+        setVehicleConfig(prev => {
+            const currentConfig = prev[catVehId] || { checked: false, price: "", duration: "" };
+            return {
+                ...prev,
+                [catVehId]: {
+                    ...currentConfig,
+                    checked: !currentConfig.checked
+                }
+            };
+        });
     };
 
     const handleVehiclePriceChange = (e, catVehId) => {
-        if (isView) return;
-        const formatted = maskCurrency(e.target.value);
+        const rawValue = e.target.value;
+        const formatted = maskCurrency(rawValue);
         setVehicleConfig(prev => ({
             ...prev,
             [catVehId]: { ...prev[catVehId], price: formatted }
@@ -106,7 +95,6 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
     };
 
     const handleVehicleDurationChange = (value, catVehId) => {
-        if (isView) return;
         setVehicleConfig(prev => ({
             ...prev,
             [catVehId]: { ...prev[catVehId], duration: value }
@@ -115,37 +103,36 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isView) return;
         setLoading(true);
 
         const selectedVehicles = Object.entries(vehicleConfig)
             .filter(([_, config]) => config.checked)
-            .map(([catVehId, config]) => ({
-                tps_id: Number(catVehId), // Nome tps_id para o backend
-                preco: parseCurrency(config.price),
-                duracao: config.duration
-            }));
+            .map(([catVehId, config]) => {
+                return {
+                    cat_veic_id: Number(catVehId),
+                    preco: parseCurrency(config.price),
+                    duracao: config.duration
+                };
+            });
 
-        if (!formData.serv_nome || !formData.category_id || selectedVehicles.length === 0) {
-            alert("Preencha o nome, categoria e ao menos um veículo com preço.");
+        if (selectedVehicles.length === 0) {
+            alert("Selecione pelo menos um tipo de veículo e configure o preço.");
             setLoading(false);
             return;
         }
 
         const payload = {
-            serv_nome: formData.serv_nome.trim(),
-            serv_descricao: formData.serv_descricao?.trim() || "",
-            cat_serv_id: Number(formData.category_id),
+            serv_nome: formData.serv_nome,
+            serv_descricao: formData.serv_descricao,
+            cat_serv_id: formData.category_id,
             prices: selectedVehicles
         };
 
         try {
             const result = await saveFunction(payload);
-            if (result && (result.success || result.status === 'success')) {
-                onSuccess();
-            }
+            if (result && result.success) onSuccess();
         } catch (error) {
-            console.error("Erro ao salvar serviço:", error);
+            console.error(error);
         } finally {
             setLoading(false);
         }
@@ -153,20 +140,23 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
 
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.sectionTitle}>
-                {mode === 'create' ? "Cadastrar" : mode === 'edit' ? "Editar" : "Visualizar"} Serviço
-            </div>
+
+            <div className={styles.sectionTitle}>Cadastrar Serviço</div>
 
             <div className={styles.inputGroup}>
+                {/* CORREÇÃO AQUI: 
+                    Usamos 'serviceOptions' direto. 
+                    Seu hook já retorna [{value: '1', label: 'Nome'}, ...].
+                    Não precisamos fazer .map() aqui novamente.
+                */}
                 <SelectRegister
                     name="category_id"
                     label="Categoria do Serviço"
                     value={formData.category_id}
                     onChange={handleChange}
-                    disabled={loadingCategories || isView}
+                    disabled={loadingCategories}
                     options={serviceOptions} 
                     placeholder={loadingCategories ? "Carregando..." : "Selecione uma categoria"}
-                    required
                 />
             </div>
 
@@ -177,7 +167,6 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                     placeholder="Ex: Lavagem Completa"
                     value={formData.serv_nome}
                     onChange={handleChange}
-                    disabled={isView}
                     required
                 />
             </div>
@@ -189,22 +178,22 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                     placeholder="Descrição detalhada do serviço..."
                     value={formData.serv_descricao}
                     onChange={handleChange}
-                    disabled={isView}
                     textarea
                 />
             </div>
 
+            {/* Configuração por Tipo de Veículo */}
             <div className={styles.sectionTitle} style={{ marginTop: '20px' }}>
                 Configuração por Tipo de Veículo
             </div>
 
             {loadingVehicles ? (
-                <p>Carregando tipos de veículos...</p>
+                <p>Carregando categorias de veículos...</p>
             ) : (
                 <div className={styles.vehicleList}>
                     {vehicleCategories.map((item) => {
                         const catVehId = item.tps_id || item.id; 
-                        const catVehName = item.tps_nome || item.nome; 
+                        const catVehName = item.tps_nome || item.nome || "Veículo"; 
                         const config = vehicleConfig[catVehId] || { checked: false, price: "", duration: "" };
 
                         return (
@@ -215,7 +204,6 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                                         id={`veh-${catVehId}`}
                                         checked={!!config.checked}
                                         onChange={() => handleCheckVehicle(catVehId)}
-                                        disabled={isView}
                                     />
                                     <label htmlFor={`veh-${catVehId}`}>
                                         {catVehName}
@@ -225,20 +213,22 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                                 <div className={styles.vehicleInputs}>
                                     <div style={{ flex: 1 }}>
                                         <InputRegisterForm
+                                            name={`price-${catVehId}`}
                                             placeholder="Preço (R$)"
                                             value={config.price || ""}
                                             onChange={(e) => handleVehiclePriceChange(e, catVehId)}
-                                            disabled={!config.checked || isView}
+                                            disabled={!config.checked}
                                             small
                                         />
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <InputMaskRegister
+                                            name={`duration-${catVehId}`}
                                             placeholder="Duração"
                                             mask="00:00"
                                             value={config.duration || ""}
                                             onAccept={(val) => handleVehicleDurationChange(val, catVehId)}
-                                            disabled={!config.checked || isView}
+                                            disabled={!config.checked}
                                             small
                                         />
                                     </div>
@@ -251,13 +241,11 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
 
             <div className={styles.actions}>
                 <button type="button" onClick={onCancel} className={styles.btnCancel}>
-                    {isView ? "Voltar" : "Cancelar"}
+                    Cancelar
                 </button>
-                {!isView && (
-                    <button type="submit" className={styles.btnSave} disabled={loading}>
-                        {loading ? "Salvando..." : mode === 'create' ? "Salvar Serviço" : "Atualizar Serviço"}
-                    </button>
-                )}
+                <button type="submit" className={styles.btnSave} disabled={loading}>
+                    {loading ? "Salvando..." : "Salvar Serviço"}
+                </button>
             </div>
         </form>
     );
