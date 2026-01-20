@@ -1,6 +1,6 @@
 import api from "./api";
 
-export const getAllServices = async (search = "", page = 1, status = "all", orderBy = "serv_id", orderDirection = "DESC", vehicleType = "all") => {
+export const getAllServices = async (search = "", page = 1, status = "all", orderBy = "serv_id", orderDirection = "DESC") => {
     try {
         const response = await api.get('/services', {
             params: { 
@@ -9,8 +9,7 @@ export const getAllServices = async (search = "", page = 1, status = "all", orde
                 limit: 10,
                 status,
                 orderBy,
-                orderDirection,
-                vehicleType
+                orderDirection
             }
         });
         return response.data;
@@ -31,9 +30,10 @@ export async function getServicesList() {
     return data.data; 
 }
 
-// const service = await getServiceById(id);
-// setServiceData(service);
-
+export async function getServiceById(id) {
+    const { data } = await api.get(`/services/${id}`);
+    return data;
+}
 
 export async function createService(payload) {
     const { data } = await api.post("/services", payload);

@@ -51,7 +51,7 @@ export default function RegisterServicePage() {
                     saveFunction={handleCreate}
                     onSuccess={handleSuccess}
                     onCancel={() => router.back()}
-                    mode="edit" 
+                    mode="create" 
                 />
             </div>
         </div>
