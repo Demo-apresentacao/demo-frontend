@@ -33,7 +33,14 @@ export default function AdminDashboard() {
     if (loading) return <div className={styles.loadingContainer}>Carregando painel...</div>;
     if (!data) return <div className={styles.loadingContainer}>Erro ao carregar dados.</div>;
 
-    const formatMoney = (value) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    // --- FUNÇÃO DE FORMATAÇÃO SEGURA ---
+    // Evita erros se o valor vier nulo, indefinido ou texto
+    const formatMoney = (value) => {
+        if (value === undefined || value === null) return "R$ 0,00";
+        const numberVal = Number(value);
+        if (isNaN(numberVal)) return "R$ 0,00";
+        return numberVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
 
     return (
         <div className={styles.container}>
@@ -44,13 +51,14 @@ export default function AdminDashboard() {
 
             {/* 1. GRID DE ESTATÍSTICAS (Usando StatCard) */}
             <div className={styles.statsGrid}>
-                <StatCard title="Clientes Totais" value={data.cards.clientes_totais} icon={<Users size={24} />} />
-                <StatCard title="Veículos Hoje" value={data.cards.veiculos_hoje} icon={<CalendarDays size={24} />} />
+                {/* Adicionamos || 0 para segurança */}
+                <StatCard title="Clientes Totais" value={data.cards?.clientes_totais || 0} icon={<Users size={24} />} />
+                <StatCard title="Veículos Hoje" value={data.cards?.veiculos_hoje || 0} icon={<CalendarDays size={24} />} />
 
-                {/* StatCard com Ação (Olhinho) */}
+                {/* StatCard com Ação (Olhinho) e formatação segura */}
                 <StatCard
                     title="Faturamento (Mês)"
-                    value={showRevenue ? formatMoney(data.cards.faturamento_mes) : "R$ ****"}
+                    value={showRevenue ? formatMoney(data.cards?.faturamento_mes) : "R$ ****"}
                     icon={<DollarSign size={24} />}
                     action={
                         <button onClick={() => setShowRevenue(!showRevenue)} className={styles.eyeBtn}>
@@ -59,7 +67,7 @@ export default function AdminDashboard() {
                     }
                 />
 
-                <StatCard title="Serviços Concluídos" value={data.cards.concluidos_mes} icon={<Activity size={24} />} />
+                <StatCard title="Serviços Concluídos" value={data.cards?.concluidos_mes || 0} icon={<Activity size={24} />} />
             </div>
 
             {/* 2. GRID OPERACIONAL (Usando SectionCard) */}
@@ -112,7 +120,7 @@ export default function AdminDashboard() {
                             <div className={styles.metaData}>
                                 <span>
                                     Início:{" "}
-                                    {data.em_andamento.agend_horario.substring(
+                                    {data.em_andamento.agend_horario?.substring(
                                         0,
                                         5
                                     )}
@@ -134,16 +142,18 @@ export default function AdminDashboard() {
                 {/* Coluna 2: Próximas Entradas */}
                 <SectionCard title="Próximas Entradas" icon={<CalendarCheck size={20} />}>
                     <div className={styles.appointmentList}>
-                        {data.proximas_entradas.map((app, index) => (
+                        {data.proximas_entradas?.map((app, index) => (
                             <div key={index} className={styles.appointmentItem}>
                                 <div className={styles.apptInfo}>
                                     <span className={styles.apptService}>{app.servico_principal}</span>
                                     <span className={styles.apptClient}>{app.usu_nome} ({app.mod_nome})</span>
                                 </div>
-                                <div className={styles.timeBadge}>{app.agend_horario.substring(0, 5)}</div>
+                                <div className={styles.timeBadge}>{app.agend_horario?.substring(0, 5)}</div>
                             </div>
                         ))}
-                        {data.proximas_entradas.length === 0 && <p className={styles.emptyState}>Agenda livre!</p>}
+                        {(!data.proximas_entradas || data.proximas_entradas.length === 0) && (
+                            <p className={styles.emptyState}>Agenda livre!</p>
+                        )}
                     </div>
                 </SectionCard>
             </div>
@@ -151,7 +161,7 @@ export default function AdminDashboard() {
             {/* 3. GRID ANALÍTICO (Usando SectionCard + ServiceChart) */}
             <div className={styles.analyticsSection}>
                 <SectionCard title="Serviços Mais Procurados (Mês)" icon={<TrendingUp size={20} />}>
-                    <ServiceChart data={data.grafico_servicos} />
+                    <ServiceChart data={data.grafico_servicos || []} />
                 </SectionCard>
             </div>
         </div>

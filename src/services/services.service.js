@@ -27,7 +27,17 @@ export async function getServicesList() {
     return data.data; 
 }
 
-// --- AQUI ESTA A FUNÇÃO CORRIGIDA ---
+// --- NOVA FUNÇÃO ADICIONADA AQUI ---
+export async function getServicesByVehicleId(veicUsuId) {
+    // Busca os serviços com preços ajustados para a categoria deste veículo
+    const { data } = await api.get(`/services/vehicle/${veicUsuId}`);
+    
+    // O controller retorna { status: 'success', data: [...] }
+    // Retornamos data.data para pegar direto o array de serviços
+    return data.data;
+}
+// -----------------------------------
+
 export async function getServiceById(id) {
     const { data } = await api.get(`/services/${id}`);
     return data.data;

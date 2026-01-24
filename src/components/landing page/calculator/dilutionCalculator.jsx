@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { FlaskConical, Droplets, Info } from 'lucide-react'; // Ícones da mesma lib que você usa
+import { FlaskConical, Droplets, Info } from 'lucide-react';
 import styles from './dilutionCalculator.module.css';
 
-export default function DilutionCalculator() {
-  const [containerSize, setContainerSize] = useState(500); // Padrão 500ml
-  const [ratio, setRatio] = useState(10); // Padrão 1:10 (apenas o numero da agua)
+// 1. Recebemos a prop simpleMode (padrão false)
+export default function DilutionCalculator({ simpleMode = false }) {
+  const [containerSize, setContainerSize] = useState(500); 
+  const [ratio, setRatio] = useState(10); 
   const [result, setResult] = useState({ product: 0, water: 0 });
 
-  // Lista de diluições comuns na estética automotiva
   const commonRatios = [
     { label: "1:5 (Limpeza Pesada)", value: 5 },
     { label: "1:10 (Interiores/Couro)", value: 10 },
@@ -19,9 +19,7 @@ export default function DilutionCalculator() {
     { label: "1:200 (Snow Foam)", value: 200 },
   ];
 
-  // A mágica acontece aqui
   useEffect(() => {
-    // Fórmula: Volume Total / (Partes de Água + 1 Parte de Produto)
     const totalParts = Number(ratio) + 1;
     const productAmount = Number(containerSize) / totalParts;
     const waterAmount = Number(containerSize) - productAmount;
@@ -33,18 +31,21 @@ export default function DilutionCalculator() {
   }, [containerSize, ratio]);
 
   return (
-    <section className={styles.dilutionSection}>
+    // 2. Trocamos a classe: Se for simpleMode, usa estilo Admin, senão usa estilo Landing Page
+    <section className={simpleMode ? styles.adminSection : styles.dilutionSection}>
       <div className={styles.container}>
         
-        {/* Cabeçalho da Seção */}
-        <div className={styles.headerContent}>
-          <h4 className={styles.tagline}>Ferramenta Gratuita</h4>
-          <h2 className={styles.sectionTitle}>Calculadora de Diluição</h2>
-          <p className={styles.text}>
-            Não desperdice produtos. 
-            <br />Calcule a mistura exata para o seu borrifador ou snow foam em segundos.
-          </p>
-        </div>
+        {/* 3. Condicional: Só mostra o texto de marketing se NÃO for modo simples */}
+        {!simpleMode && (
+          <div className={styles.headerContent}>
+            <h4 className={styles.tagline}>Ferramenta Gratuita</h4>
+            <h2 className={styles.sectionTitle}>Calculadora de Diluição</h2>
+            <p className={styles.text}>
+              Não desperdice produtos. 
+              <br />Calcule a mistura exata para o seu borrifador ou snow foam em segundos.
+            </p>
+          </div>
+        )}
 
         {/* Card da Calculadora */}
         <div className={styles.calculatorCard}>
@@ -81,13 +82,10 @@ export default function DilutionCalculator() {
             </select>
           </div>
 
-          {/* Divisor Visual */}
           <div className={styles.divider}></div>
 
           {/* Resultados */}
           <div className={styles.resultsContainer}>
-            
-            {/* Box Produto */}
             <div className={`${styles.resultBox} ${styles.productBox}`}>
               <div className={styles.iconCircleRed}>
                 <FlaskConical size={24} color="#fa0106" />
@@ -98,7 +96,6 @@ export default function DilutionCalculator() {
               </div>
             </div>
 
-            {/* Box Água */}
             <div className={`${styles.resultBox} ${styles.waterBox}`}>
               <div className={styles.iconCircleBlue}>
                 <Droplets size={24} color="#3b82f6" />
@@ -108,7 +105,6 @@ export default function DilutionCalculator() {
                 <span className={styles.resultValue}>{result.water} ml</span>
               </div>
             </div>
-
           </div>
           
           <div className={styles.proTip}>

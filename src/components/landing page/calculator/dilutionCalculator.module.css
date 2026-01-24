@@ -3,10 +3,7 @@
   display: flex;
   justify-content: center;
   background: linear-gradient(190deg, #ffffff 0%, #ffefef 100%);
-  /* transition: box-shadow 0.3s ease; */
 }
-
-
 
 .container {
   max-width: 1200px;
@@ -57,6 +54,15 @@
   width: 100%;
   max-width: 500px;
   border: 1px solid #f3f4f6;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow;
+}
+
+/* Hover Effect da Landing Page */
+.dilutionSection .calculatorCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.12);
+  border-color: rgba(250, 1, 6, 0.2);
 }
 
 .inputGroup {
@@ -121,12 +127,12 @@
 }
 
 .productBox {
-  background-color: #fef2f2; /* Vermelho bem claro */
+  background-color: #fef2f2;
   border: 1px solid #fee2e2;
 }
 
 .waterBox {
-  background-color: #eff6ff; /* Azul bem claro */
+  background-color: #eff6ff; 
   border: 1px solid #dbeafe;
 }
 
@@ -185,5 +191,65 @@
   
   .resultBox {
     flex: 1;
+  }
+}
+
+/* =========================================
+   --- MODO ADMIN (Simple Mode) --- 
+   ========================================= */
+
+.adminSection {
+  padding: 0;
+  background: transparent;
+  width: 100%;
+}
+
+.adminSection .container {
+  padding: 0;
+  gap: 0;
+  max-width: 100%;
+}
+
+.adminSection .calculatorCard {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  max-width: 100%; /* Garante que o componente use todo o espaço */
+  border-radius: 0;
+}
+
+/* NOVO: Organização Interna para telas largas do Admin */
+/* Quando a tela for maior que 768px (Desktop/Tablet) */
+@media (min-width: 768px) {
+  
+  /* Transforma o conteúdo do card em um Grid de 2 colunas */
+  .adminSection .calculatorCard {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Duas colunas iguais */
+    gap: 1.5rem; /* Espaço entre elas */
+    align-items: flex-start; /* Alinha os inputs na base */
+  }
+
+  /* Os Inputs ocupam as duas colunas de cima */
+  .adminSection .inputGroup {
+    margin-bottom: 0; /* Remove margem extra */
+    width: 100%;
+  }
+
+  /* O divisor (linha) some ou ocupa tudo se quiser, 
+     mas no grid lado a lado ele atrapalha, então vamos esconder no admin desktop */
+  .adminSection .divider {
+    display: none;
+  }
+
+  /* A área de resultados ocupa a linha de baixo inteira (2 colunas) */
+  .adminSection .resultsContainer {
+    grid-column: span 2;
+    margin-top: 1rem;
+  }
+
+  /* A dica Pro ocupa a linha de baixo inteira (2 colunas) */
+  .adminSection .proTip {
+    grid-column: span 2;
   }
 }
