@@ -8,7 +8,6 @@
     align-items: center;
     gap: 1rem;
     transition: transform 0.2s;
-    /* Adicionado para garantir que não estoure */
     min-width: 0; 
 }
 
@@ -24,7 +23,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Impede que o ícone seja esmagado */
     flex-shrink: 0; 
 }
 
@@ -32,7 +30,6 @@
     display: flex;
     flex-direction: column;
     flex: 1;
-    /* Garante que o texto trunque se necessário */
     min-width: 0; 
 }
 
@@ -45,8 +42,9 @@
 .valueRow {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
+    justify-content: flex-start; /* Alinha o valor e o botão no início */
+    gap: 8px; /* Espaço fixo entre o valor e o botão de "olho" */
+    width: 100%;
 }
 
 .statValue {
@@ -54,10 +52,10 @@
     font-weight: 700;
     color: #1f2937;
     
-    /* Evita que números grandes quebrem o layout */
+    /* MUDANÇAS AQUI: Removido o ellipsis para mostrar o valor cheio */
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible; /* Permite que o número apareça todo */
+    display: inline-block;
 }
 
 .sectionCard {
@@ -71,7 +69,6 @@
     min-width: 0;
     max-width: 100%;
 }
-
 
 .cardHeader {
     margin-bottom: 1.5rem;
@@ -103,7 +100,6 @@
     overflow-x: hidden;
 }
 
-
 /* --- RESPONSIVO (MOBILE) --- */
 @media (max-width: 768px) {
     .statCard {
@@ -119,7 +115,6 @@
     .statValue {
         font-size: 1.25rem; 
     }
-
 
     .sectionCard {
         padding: .5rem;
@@ -137,6 +132,12 @@
 }
 
 @media (max-width: 450px) {
+    /* No mobile muito pequeno, permitimos quebra de linha se o valor for gigante */
+    .statValue {
+        white-space: normal;
+        line-height: 1.2;
+    }
+
     .sectionCard {
         padding: 0.75rem;
         border-radius: 10px;
