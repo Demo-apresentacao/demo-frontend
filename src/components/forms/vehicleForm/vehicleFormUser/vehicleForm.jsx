@@ -31,8 +31,13 @@ export default function VehicleFormUser({
   // STATE INICIAL (Simplificado para o User)
   const getInitialState = () => {
     const defaults = {
-      cat_id: '', mar_id: '', mod_id: '', veic_placa: '',
-      veic_ano: '', veic_cor: '', veic_combustivel: '',
+      cat_id: '',
+      mar_id: '',
+      mod_id: '',
+      veic_placa: '',
+      veic_ano: '',
+      veic_cor: '',
+      veic_combustivel: '',
       veic_observacao: ''
       // Removemos veic_situacao daqui, pois o user não edita isso no form
     };
@@ -61,6 +66,8 @@ export default function VehicleFormUser({
   useEffect(() => {
     setIsEditable(mode === 'edit');
     setErrors({});
+
+
   }, [mode]);
 
   const handleChange = (e) => {
@@ -115,8 +122,6 @@ export default function VehicleFormUser({
         veic_cor: formData.veic_cor,
         veic_combustivel: formData.veic_combustivel,
         veic_observ: formData.veic_observacao,
-        // Mantemos a situação original do veículo (para não reativar um carro excluído sem querer)
-        // Ou enviamos undefined se o backend não exigir no update
         veic_situacao: initialData ? initialData.veic_situacao : true
       };
 
@@ -162,6 +167,8 @@ export default function VehicleFormUser({
 
   const ErrorMessage = ({ message }) => message ? <span className={styles.errorText}>{message}</span> : null;
 
+ 
+
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
 
@@ -173,7 +180,7 @@ export default function VehicleFormUser({
         <SelectRegister
           name="cat_id" label="Categoria" value={formData.cat_id} onChange={handleChange}
           disabled={!isEditable || !!initialData} // Geralmente não deixamos mudar categoria depois de criado, mas se quiser pode liberar
-          options={categories?.data?.map(cat => ({ value: cat.cat_id, label: cat.cat_nome })) || []}
+          options={categories.map(cat => ({ value: cat.cat_id, label: cat.cat_nome })) || []}
         />
         <ErrorMessage message={errors.cat_id} />
       </div>
