@@ -1,11 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-// 1. NOVOS ÍCONES ADICIONADOS AQUI (MessageCircle, Share2, Copy)
 import { Edit, Ban, Save, ArrowLeft, Calendar, Clock, User, Car, MessageCircle, Share2, Copy } from "lucide-react";
 import { getUsersList, getUserVehicles } from "@/services/users.service";
-import { getServicesList } from "@/services/services.service";
-import Swal from "sweetalert2"; // Certifique-se de ter instalado (npm install sweetalert2)
+// IMPORTANTE: Certifique-se de que a função getServicesByVehicleId está no services.service.js com a URL correta (/vehicle/)
+import { getServicesByVehicleId } from "@/services/services.service"; 
+import Swal from "sweetalert2";
 import styles from "./appointmentsForm.module.css";
 
 export default function AppointmentForm({
@@ -18,6 +18,9 @@ export default function AppointmentForm({
     const router = useRouter();
     const [isEditable, setIsEditable] = useState(mode !== 'view');
     const [loading, setLoading] = useState(false);
+    
+    // Novo estado para controlar carregamento dos preços
+    const [loadingServices, setLoadingServices] = useState(false);
 
     const [clientsList, setClientsList] = useState([]);
     const [vehiclesList, setVehiclesList] = useState([]);
@@ -33,24 +36,20 @@ export default function AppointmentForm({
         services: []
     });
 
-    // --- CARGA INICIAL ---
+    // --- CARGA INICIAL (Usuários e Dados Iniciais) ---
     useEffect(() => {
         const loadDependencies = async () => {
             try {
-                // 1. Carrega listas
-                const [users, services] = await Promise.all([
-                    getUsersList(),
-                    getServicesList()
-                ]);
+                // Carrega lista de clientes
+                const users = await getUsersList();
                 setClientsList(users);
-                setServicesList(services);
 
-                // 2. Popula o formulário se houver initialData
+                // Se houver dados iniciais (Edição ou Visualização)
                 if (initialData) {
                     const dataFormatada = initialData.agend_data ? new Date(initialData.agend_data).toISOString().split('T')[0] : "";
 
                     setFormData({
-                        usu_id: initialData.veic_usu_id ? "loaded" : "",
+                        usu_id: initialData.veic_usu_id ? "loaded" : "", // Mantém placeholder se já tiver vinculo
                         veic_usu_id: String(initialData.veic_usu_id || ""),
                         agend_data: dataFormatada,
                         agend_horario: initialData.agend_horario || "",
@@ -58,13 +57,54 @@ export default function AppointmentForm({
                         agend_situacao: String(initialData.agend_situacao ?? "1"),
                         services: initialData.servicos ? initialData.servicos.map(s => s.serv_id || s.agend_serv_id) : []
                     });
+                    
+                    // Se for modo VISUALIZAÇÃO, usamos os serviços que vieram no initialData (pois já tem os preços históricos/salvos)
+                    // Se for modo EDIÇÃO, o useEffect abaixo vai recarregar a tabela atualizada baseada no veículo
+                    if (initialData.servicos && mode === 'view') {
+                         setServicesList(initialData.servicos);
+                    }
                 }
             } catch (error) {
                 console.error("Erro ao carregar dependências", error);
             }
         };
         loadDependencies();
-    }, [initialData]);
+    }, [initialData, mode]);
+
+    // --- LÓGICA CORE: Carrega Preços quando Seleciona o Veículo ---
+    useEffect(() => {
+        const fetchSpecificServices = async () => {
+            // Regra de Ouro: Só busca se tiver veículo selecionado e NÃO for apenas visualização estática
+            if (!formData.veic_usu_id || mode === 'view') return;
+
+            setLoadingServices(true);
+            try {
+                // Chama o serviço que bate na rota /services/vehicle/:id
+                const specificServices = await getServicesByVehicleId(formData.veic_usu_id);
+                
+                // Garante que é um array
+                const lista = Array.isArray(specificServices) ? specificServices : (specificServices.data || []);
+                
+                setServicesList(lista);
+            } catch (error) {
+                console.error("Erro ao buscar preços por veículo:", error);
+                setServicesList([]); 
+                Swal.fire({
+                    toast: true,
+                    icon: 'error',
+                    title: 'Erro ao carregar tabela de preços deste veículo',
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            } finally {
+                setLoadingServices(false);
+            }
+        };
+
+        fetchSpecificServices();
+    }, [formData.veic_usu_id, mode]);
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -73,7 +113,16 @@ export default function AppointmentForm({
 
     const handleClientChange = async (e) => {
         const userId = e.target.value;
-        setFormData(prev => ({ ...prev, usu_id: userId, veic_usu_id: "" }));
+        
+        // RESET IMPORTANTE: Ao trocar de cliente, limpamos o veículo e os serviços selecionados
+        // Isso evita misturar preços de carro com caminhão se trocar o cliente sem querer
+        setFormData(prev => ({ 
+            ...prev, 
+            usu_id: userId, 
+            veic_usu_id: "", 
+            services: [] 
+        }));
+        setServicesList([]); // Limpa a lista visual também
 
         if (userId) {
             try {
@@ -107,42 +156,22 @@ export default function AppointmentForm({
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // --- VALIDAÇÃO PREVENTIVA (FRONTEND) ---
-
-        // 1. Verifica se selecionou o Cliente
+        // --- VALIDAÇÃO ---
         if (!formData.usu_id) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campo Obrigatório',
-                text: 'Por favor, selecione um Cliente.',
-                confirmButtonColor: '#f59e0b'
-            });
-            return; // Para tudo aqui
-        }
-
-        // 2. Verifica se selecionou o Veículo (AQUI QUE ESTAVA O ERRO)
-        if (!formData.veic_usu_id) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campo Obrigatório',
-                text: 'Por favor, selecione o Veículo do cliente.',
-                confirmButtonColor: '#f59e0b'
-            });
-            return; // Para tudo aqui
-        }
-
-        // 3. (Opcional) Verifica se tem pelo menos 1 serviço
-        if (!formData.services || formData.services.length === 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Serviços Vazios',
-                text: 'Selecione pelo menos um serviço para o agendamento.',
-                confirmButtonColor: '#f59e0b'
-            });
+            Swal.fire({ icon: 'warning', title: 'Campo Obrigatório', text: 'Por favor, selecione um Cliente.', confirmButtonColor: '#f59e0b' });
             return;
         }
 
-        // --- Se passou, envia pro servidor ---
+        if (!formData.veic_usu_id) {
+            Swal.fire({ icon: 'warning', title: 'Campo Obrigatório', text: 'Por favor, selecione o Veículo do cliente.', confirmButtonColor: '#f59e0b' });
+            return;
+        }
+
+        if (!formData.services || formData.services.length === 0) {
+            Swal.fire({ icon: 'warning', title: 'Serviços Vazios', text: 'Selecione pelo menos um serviço para o agendamento.', confirmButtonColor: '#f59e0b' });
+            return;
+        }
+
         setLoading(true);
         try {
             await saveFunction(formData);
@@ -152,17 +181,14 @@ export default function AppointmentForm({
             setLoading(false);
         }
     };
-    // --- 2. NOVAS FUNÇÕES DE RASTREIO ---
 
-    // Função para Enviar WhatsApp (Atualizada)
+    // --- FUNÇÕES DE RASTREIO E WHATSAPP ---
     const handleSendWhatsApp = () => {
-        // Verifica se tem token
         if (!initialData || !initialData.tracking_token) {
             Swal.fire("Atenção", "Salve o agendamento primeiro para gerar o link de rastreio!", "warning");
             return;
         }
 
-        // Limpa o telefone
         const telefoneRaw = initialData.usu_telefone || "";
         const telefone = telefoneRaw.replace(/\D/g, "");
 
@@ -175,38 +201,23 @@ export default function AppointmentForm({
         const baseUrl = window.location.origin;
         const linkRastreio = `${baseUrl}/status/${initialData.tracking_token}`;
 
-        // Status com Unicode
         let statusTexto = "";
         switch (formData.agend_situacao) {
-            case "1":
-                statusTexto = `*Pendente* \u{1F552}`; // 🕒
-                break;
-            case "2":
-                statusTexto = `*Em Andamento* \u{1F6BF}`; // 🚿
-                break;
-            case "3":
-                statusTexto = `*Concluído* \u{2728}`; // ✨
-                break;
-            case "0":
-                statusTexto = `*Cancelado* \u{274C}`; // ❌
-                break;
-            default:
-                statusTexto = "atualizado";
+            case "1": statusTexto = `*Pendente* \u{1F552}`; break;
+            case "2": statusTexto = `*Em Andamento* \u{1F6BF}`; break;
+            case "3": statusTexto = `*Concluído* \u{2728}`; break;
+            case "0": statusTexto = `*Cancelado* \u{274C}`; break;
+            default: statusTexto = "atualizado";
         }
 
-        // Mensagem com Unicode
         const mensagem =
-            `Olá, ${nomeCliente}! \u{1F44B}\n\n` + // 👋
+            `Olá, ${nomeCliente}! \u{1F44B}\n\n` +
             `Seu serviço está ${statusTexto}!\n\n` +
             `Para mais informações do agendamento acesse:\n` +
             `${linkRastreio}`;
 
         const mensagemCodificada = encodeURIComponent(mensagem);
-
-        // Detecta dispositivo
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        // Link correto
         const linkZap = isMobile
             ? `https://api.whatsapp.com/send?phone=55${telefone}&text=${mensagemCodificada}`
             : `https://web.whatsapp.com/send?phone=55${telefone}&text=${mensagemCodificada}`;
@@ -214,22 +225,12 @@ export default function AppointmentForm({
         window.open(linkZap, "_blank");
     };
 
-    // Função para Copiar Link
     const handleCopyLink = () => {
         if (!initialData?.tracking_token) return;
         const link = `${window.location.origin}/status/${initialData.tracking_token}`;
         navigator.clipboard.writeText(link);
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Link copiado!',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500
-        });
+        Swal.fire({ icon: 'success', title: 'Link copiado!', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
     };
-    // ------------------------------------
 
     const getStatusStyle = (status) => {
         const s = String(status);
@@ -332,6 +333,7 @@ export default function AppointmentForm({
             </div>
 
             {!isEditable ? (
+                /* MODO VISUALIZAÇÃO: MOSTRA SERVIÇOS SALVOS (do initialData) */
                 <div className={styles.servicesReadOnly}>
                     {formData.services && formData.services.length > 0 ? (
                         <>
@@ -349,19 +351,37 @@ export default function AppointmentForm({
                     ) : (<div className={styles.noServices}>Nenhum serviço lançado.</div>)}
                 </div>
             ) : (
+                /* MODO EDIÇÃO/CRIAÇÃO: MOSTRA LISTA FILTRADA PELA CATEGORIA */
                 <div className={styles.servicesContainer}>
-                    {servicesList.map(service => {
-                        const isSelected = formData.services.includes(service.serv_id);
-                        return (
-                            <label key={service.serv_id} className={styles.serviceItem} style={{ backgroundColor: isSelected ? '#eff6ff' : 'transparent' }}>
-                                <input type="checkbox" className={styles.serviceCheckbox} checked={isSelected} onChange={() => handleServiceToggle(service.serv_id)} />
-                                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span className={styles.serviceName} style={{ fontWeight: isSelected ? '600' : '400' }}>{service.serv_nome}</span>
-                                    <span className={styles.servicePrice}>{Number(service.serv_preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                                </div>
-                            </label>
-                        );
-                    })}
+                    {loadingServices ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#666', gridColumn: '1 / -1' }}>
+                            <div className="animate-spin" style={{ display: 'inline-block', marginRight: '8px' }}>⏳</div>
+                            Carregando tabela de preços para este veículo...
+                        </div>
+                    ) : servicesList.length === 0 && formData.veic_usu_id ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#b91c1c', gridColumn: '1 / -1' }}>
+                            Nenhum serviço disponível para a categoria deste veículo.
+                        </div>
+                    ) : !formData.veic_usu_id ? (
+                        <div style={{ padding: '20px', textAlign: 'center', color: '#666', gridColumn: '1 / -1' }}>
+                            Selecione um veículo para ver os preços.
+                        </div>
+                    ) : (
+                        servicesList.map(service => {
+                            const isSelected = formData.services.includes(service.serv_id);
+                            return (
+                                <label key={service.serv_id} className={styles.serviceItem} style={{ backgroundColor: isSelected ? '#eff6ff' : 'transparent' }}>
+                                    <input type="checkbox" className={styles.serviceCheckbox} checked={isSelected} onChange={() => handleServiceToggle(service.serv_id)} />
+                                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span className={styles.serviceName} style={{ fontWeight: isSelected ? '600' : '400' }}>{service.serv_nome}</span>
+                                        <span className={styles.servicePrice}>
+                                            {Number(service.serv_preco || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        </span>
+                                    </div>
+                                </label>
+                            );
+                        })
+                    )}
                 </div>
             )}
 
@@ -370,78 +390,28 @@ export default function AppointmentForm({
                 <textarea name="agend_observ" className={styles.input} style={{ height: '80px', paddingTop: '10px' }} value={formData.agend_observ} onChange={handleChange} disabled={!isEditable} placeholder="Observações..." />
             </div>
 
-            {/* --- 3. ÁREA DE RASTREIO E WHATSAPP (Aparece se já tiver token) --- */}
+            {/* --- 3. ÁREA DE RASTREIO E WHATSAPP --- */}
             {mode !== 'create' && initialData?.tracking_token && (
                 <div style={{
-                    marginTop: '20px',
-                    padding: '16px',
-                    backgroundColor: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px'
+                    marginTop: '20px', padding: '16px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '12px'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#166534', fontWeight: '700', fontSize: '0.95rem' }}>
                         <Share2 size={18} />
                         <span>Link de Acompanhamento</span>
                     </div>
-
                     <div style={{ display: 'flex', gap: '10px' }}>
-                        {/* Botão WhatsApp */}
-                        <button
-                            type="button"
-                            onClick={handleSendWhatsApp}
-                            style={{
-                                flex: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '8px',
-                                backgroundColor: '#25D366', // Verde Zap
-                                color: 'white',
-                                border: 'none',
-                                padding: '12px',
-                                borderRadius: '6px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                transition: 'filter 0.2s',
-                                fontSize: '0.9rem'
-                            }}
-                            onMouseOver={(e) => e.target.style.filter = 'brightness(0.9)'}
-                            onMouseOut={(e) => e.target.style.filter = 'brightness(1)'}
-                        >
-                            <MessageCircle size={20} />
-                            Enviar Status p/ Cliente
+                        <button type="button" onClick={handleSendWhatsApp} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#25D366', color: 'white', border: 'none', padding: '12px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', transition: 'filter 0.2s', fontSize: '0.9rem' }} onMouseOver={(e) => e.target.style.filter = 'brightness(0.9)'} onMouseOut={(e) => e.target.style.filter = 'brightness(1)'}>
+                            <MessageCircle size={20} /> Enviar Status p/ Cliente
                         </button>
-
-                        {/* Botão Copiar */}
-                        <button
-                            type="button"
-                            onClick={handleCopyLink}
-                            title="Copiar Link"
-                            style={{
-                                width: '50px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: 'white',
-                                border: '1px solid #bbf7d0',
-                                color: '#166534',
-                                borderRadius: '6px',
-                                cursor: 'pointer'
-                            }}
-                        >
+                        <button type="button" onClick={handleCopyLink} title="Copiar Link" style={{ width: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', border: '1px solid #bbf7d0', color: '#166534', borderRadius: '6px', cursor: 'pointer' }}>
                             <Copy size={20} />
                         </button>
                     </div>
-
                     <p style={{ margin: 0, fontSize: '0.75rem', color: '#166534', opacity: 0.8, textAlign: 'center' }}>
                         Envie este link para o cliente acompanhar o serviço em tempo real.
                     </p>
                 </div>
             )}
-            {/* ----------------------------------------------------------------- */}
 
             {/* --- RODAPÉ DE AÇÕES --- */}
             <div className={styles.actionsFooter}>
