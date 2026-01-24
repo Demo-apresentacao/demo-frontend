@@ -1,6 +1,6 @@
 import api from "./api";
 
-export const getAllServices = async (search = "", page = 1, status = "all", orderBy = "serv_id", orderDirection = "DESC", vehicleType = "all") => {
+export const getAllServices = async (search = "", page = 1, status = "all", orderBy = "serv_id", orderDirection = "DESC") => {
     try {
         const response = await api.get('/services', {
             params: { 
@@ -9,8 +9,7 @@ export const getAllServices = async (search = "", page = 1, status = "all", orde
                 limit: 10,
                 status,
                 orderBy,
-                orderDirection,
-                vehicleType
+                orderDirection
             }
         });
         return response.data;
@@ -21,28 +20,20 @@ export const getAllServices = async (search = "", page = 1, status = "all", orde
 };
 
 export async function getServicesList() {
+    // Pedimos um limite alto (ex: 100) para trazer todos de uma vez
     const { data } = await api.get("/services", { 
         params: { limit: 100 } 
     });
+    
+    // O backend retorna { status: 'success', data: [...], meta: ... }
+    // Queremos retornar apenas o array que está em data.data
     return data.data; 
 }
 
-// --- NOVA FUNÇÃO ADICIONADA AQUI ---
-export async function getServicesByVehicleId(veicUsuId) {
-    // Busca os serviços com preços ajustados para a categoria deste veículo
-    const { data } = await api.get(`/services/vehicle/${veicUsuId}`);
-    
-    // O controller retorna { status: 'success', data: [...] }
-    // Retornamos data.data para pegar direto o array de serviços
-    return data.data;
-}
-// -----------------------------------
-
 export async function getServiceById(id) {
     const { data } = await api.get(`/services/${id}`);
-    return data.data;
+    return data;
 }
-// ------------------------------------
 
 export async function createService(payload) {
     const { data } = await api.post("/services", payload);
@@ -55,6 +46,7 @@ export async function updateService(id, payload) {
 }
 
 export async function toggleServiceStatus(id, status) {
+    // Chama a rota PATCH enviando apenas o objeto { serv_situacao: true/false }
     const { data } = await api.patch(`/services/${id}/status`, { serv_situacao: status });
     return data;
 }
