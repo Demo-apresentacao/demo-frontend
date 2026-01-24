@@ -12,6 +12,7 @@ export function useCategories() {
             setLoading(true);
             try {
                 const data = await getAllCategories();
+                console.log("Categorias carregadas:", data);
                 setCategories(data);
             } catch (error) {
                 console.error("Erro categorias:", error);

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Edit, Save } from "lucide-react"; 
 import { InputRegisterForm } from "../../ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "../../ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "../../ui/selectRegister/selectRegister";
 import styles from "../servicesForm2/servicesForm.module.css";
+import Swal from "sweetalert2";
 
 // --- HOOKS ---
 import { useServiceCategories } from "@/hooks/useServicesCategories";
@@ -29,123 +31,135 @@ const parseCurrency = (value) => {
 };
 
 export default function ServiceForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'create' }) {
-    const isView = mode === "view";
     const [loading, setLoading] = useState(false);
+    const [isEditable, setIsEditable] = useState(mode !== "view");
 
-    // 1. Hook para Categorias de Serviço (Dropdown)
     const { categories: serviceOptions, loading: loadingCategories } = useServiceCategories();
-
-    // 2. Hook para Categorias de Veículo (Checkboxes)
     const { vehicleCategories, loading: loadingVehicles } = useCategoriesVehiclesForServices();
 
-    // --- ESTADO DADOS BÁSICOS ---
-    const [formData, setFormData] = useState({
-        category_id: initialData?.cat_serv_id || "",
-        serv_nome: initialData?.serv_nome || "",
-        serv_descricao: initialData?.serv_descricao || "",
+    // 1. MAPEAMENTO DE DADOS (Adicionado serv_situacao)
+    const mapServiceData = (data) => ({
+        category_id: data?.cat_serv_id || "",
+        serv_nome: data?.serv_nome || "",
+        serv_descricao: data?.serv_descricao || "",
+        serv_situacao: String(data?.serv_situacao ?? "true"), // Padrão Ativo
     });
 
-    // --- ESTADO CONFIGURAÇÃO POR VEÍCULO ---
-    // Calculamos a configuração inicial baseada nas props e nos veículos carregados
+    const [formData, setFormData] = useState(mapServiceData(initialData));
+
+    // 2. CONFIGURAÇÃO DOS VEÍCULOS
     const initialVehicleConfig = useMemo(() => {
         if (!vehicleCategories || vehicleCategories.length === 0) return {};
-        
         const config = {};
         vehicleCategories.forEach((item) => {
             const catVehId = item.tps_id || item.id;
-            
-            // Procura se já existe um preço salvo para este veículo no initialData
             const savedPrice = initialData?.precos?.find(p => Number(p.tps_id) === Number(catVehId));
-
             config[catVehId] = savedPrice ? {
                 checked: true,
                 price: formatCurrency(savedPrice.preco),
                 duration: savedPrice.duracao
-            } : {
-                checked: false,
-                price: "",
-                duration: ""
-            };
+            } : { checked: false, price: "", duration: "" };
         });
         return config;
     }, [vehicleCategories, initialData]);
 
-    // Sincronização de estado sem causar erro de "Cascading Renders"
     const [vehicleConfig, setVehicleConfig] = useState(initialVehicleConfig);
-    const [prevInitialConfig, setPrevInitialConfig] = useState(null);
 
-    if (initialVehicleConfig !== prevInitialConfig) {
+    useEffect(() => {
+        setFormData(mapServiceData(initialData));
         setVehicleConfig(initialVehicleConfig);
-        setPrevInitialConfig(initialVehicleConfig);
-    }
+    }, [initialData, initialVehicleConfig]);
 
+    // HANDLERS
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // --- HANDLERS PARA A TABELA DE VEÍCULOS ---
     const handleCheckVehicle = (catVehId) => {
-        if (isView) return;
+        if (!isEditable) return;
         setVehicleConfig(prev => ({
             ...prev,
-            [catVehId]: {
-                ...prev[catVehId],
-                checked: !prev[catVehId]?.checked
-            }
+            [catVehId]: { ...prev[catVehId], checked: !prev[catVehId]?.checked }
         }));
     };
 
     const handleVehiclePriceChange = (e, catVehId) => {
-        if (isView) return;
-        const formatted = maskCurrency(e.target.value);
+        if (!isEditable) return;
         setVehicleConfig(prev => ({
             ...prev,
-            [catVehId]: { ...prev[catVehId], price: formatted }
+            [catVehId]: { ...prev[catVehId], price: maskCurrency(e.target.value) }
         }));
     };
 
     const handleVehicleDurationChange = (value, catVehId) => {
-        if (isView) return;
+        if (!isEditable) return;
         setVehicleConfig(prev => ({
             ...prev,
             [catVehId]: { ...prev[catVehId], duration: value }
         }));
     };
 
+    const handleCancelClick = (e) => {
+        e.preventDefault();
+        if (mode === 'create') {
+            onCancel();
+        } else {
+            setFormData(mapServiceData(initialData));
+            setVehicleConfig(initialVehicleConfig);
+            setIsEditable(false);
+        }
+    };
+
+    const handleEditClick = (e) => {
+        e.preventDefault();
+        setIsEditable(true);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (isView) return;
-        setLoading(true);
+        if (!isEditable) return false;
 
-        const selectedVehicles = Object.entries(vehicleConfig)
-            .filter(([_, config]) => config.checked)
-            .map(([catVehId, config]) => ({
-                tps_id: Number(catVehId), // Nome tps_id para o backend
-                preco: parseCurrency(config.price),
-                duracao: config.duration
-            }));
+        const checkedEntries = Object.entries(vehicleConfig).filter(([_, config]) => config.checked);
 
-        if (!formData.serv_nome || !formData.category_id || selectedVehicles.length === 0) {
-            alert("Preencha o nome, categoria e ao menos um veículo com preço.");
-            setLoading(false);
+        if (checkedEntries.length === 0) {
+            Swal.fire({ title: "Atenção", text: "Selecione ao menos um veículo.", icon: "warning" });
             return;
         }
 
+        const invalidEntries = checkedEntries.filter(([_, config]) => {
+            const priceValue = parseCurrency(config.price);
+            return !config.price || priceValue <= 0 || !config.duration || config.duration.includes("_") || config.duration === "00:00";
+        });
+
+        if (invalidEntries.length > 0) {
+            Swal.fire({ title: "Campos Incompletos", text: "Verifique preços e durações dos itens marcados.", icon: "warning" });
+            return;
+        }
+
+        setLoading(true);
+
+        // 3. PAYLOAD COM SITUAÇÃO FORMATADA
         const payload = {
             serv_nome: formData.serv_nome.trim(),
             serv_descricao: formData.serv_descricao?.trim() || "",
             cat_serv_id: Number(formData.category_id),
-            prices: selectedVehicles
+            serv_situacao: formData.serv_situacao === "true", // Converte string para boolean
+            prices: checkedEntries.map(([catVehId, config]) => ({
+                tps_id: Number(catVehId),
+                preco: parseCurrency(config.price),
+                duracao: config.duration
+            }))
         };
 
         try {
             const result = await saveFunction(payload);
             if (result && (result.success || result.status === 'success')) {
-                onSuccess();
+                setIsEditable(false);
+                if (onSuccess) onSuccess();
             }
         } catch (error) {
-            console.error("Erro ao salvar serviço:", error);
+            Swal.fire({ title: "Erro", text: "Erro ao salvar serviço.", icon: "error" });
         } finally {
             setLoading(false);
         }
@@ -154,18 +168,18 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
     return (
         <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.sectionTitle}>
-                {mode === 'create' ? "Cadastrar" : mode === 'edit' ? "Editar" : "Visualizar"} Serviço
+                {mode === 'create' ? "Cadastrar" : isEditable ? "Editar" : "Visualizar"} Serviço
             </div>
 
             <div className={styles.inputGroup}>
                 <SelectRegister
                     name="category_id"
-                    label="Categoria do Serviço"
+                    label="Categoria"
                     value={formData.category_id}
                     onChange={handleChange}
-                    disabled={loadingCategories || isView}
+                    disabled={loadingCategories || !isEditable}
                     options={serviceOptions} 
-                    placeholder={loadingCategories ? "Carregando..." : "Selecione uma categoria"}
+                    placeholder="Selecione..."
                     required
                 />
             </div>
@@ -174,11 +188,25 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                 <InputRegisterForm
                     name="serv_nome"
                     label="Nome do Serviço"
-                    placeholder="Ex: Lavagem Completa"
                     value={formData.serv_nome}
                     onChange={handleChange}
-                    disabled={isView}
+                    disabled={!isEditable}
                     required
+                />
+            </div>
+
+            {/* 4. CAMPO DE SITUAÇÃO ADICIONADO */}
+            <div className={styles.inputGroup}>
+                <SelectRegister
+                    name="serv_situacao"
+                    label="Situação"
+                    value={formData.serv_situacao}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                    options={[
+                        { value: "true", label: "Ativo" },
+                        { value: "false", label: "Inativo" }
+                    ]}
                 />
             </div>
 
@@ -186,27 +214,22 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                 <InputRegisterForm
                     name="serv_descricao"
                     label="Descrição"
-                    placeholder="Descrição detalhada do serviço..."
                     value={formData.serv_descricao}
                     onChange={handleChange}
-                    disabled={isView}
+                    disabled={!isEditable}
                     textarea
                 />
             </div>
 
             <div className={styles.sectionTitle} style={{ marginTop: '20px' }}>
-                Configuração por Tipo de Veículo
+                Configuração por Veículo
             </div>
 
-            {loadingVehicles ? (
-                <p>Carregando tipos de veículos...</p>
-            ) : (
+            {loadingVehicles ? <p>Carregando...</p> : (
                 <div className={styles.vehicleList}>
                     {vehicleCategories.map((item) => {
                         const catVehId = item.tps_id || item.id; 
-                        const catVehName = item.tps_nome || item.nome; 
                         const config = vehicleConfig[catVehId] || { checked: false, price: "", duration: "" };
-
                         return (
                             <div key={catVehId} className={styles.vehicleRow}>
                                 <div className={styles.vehicleCheck}>
@@ -215,33 +238,26 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                                         id={`veh-${catVehId}`}
                                         checked={!!config.checked}
                                         onChange={() => handleCheckVehicle(catVehId)}
-                                        disabled={isView}
+                                        disabled={!isEditable}
                                     />
-                                    <label htmlFor={`veh-${catVehId}`}>
-                                        {catVehName}
-                                    </label>
+                                    <label htmlFor={`veh-${catVehId}`}>{item.tps_nome || item.nome}</label>
                                 </div>
-
                                 <div className={styles.vehicleInputs}>
-                                    <div style={{ flex: 1 }}>
-                                        <InputRegisterForm
-                                            placeholder="Preço (R$)"
-                                            value={config.price || ""}
-                                            onChange={(e) => handleVehiclePriceChange(e, catVehId)}
-                                            disabled={!config.checked || isView}
-                                            small
-                                        />
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        <InputMaskRegister
-                                            placeholder="Duração"
-                                            mask="00:00"
-                                            value={config.duration || ""}
-                                            onAccept={(val) => handleVehicleDurationChange(val, catVehId)}
-                                            disabled={!config.checked || isView}
-                                            small
-                                        />
-                                    </div>
+                                    <InputRegisterForm
+                                        placeholder="Preço"
+                                        value={config.price || ""}
+                                        onChange={(e) => handleVehiclePriceChange(e, catVehId)}
+                                        disabled={!config.checked || !isEditable}
+                                        small
+                                    />
+                                    <InputMaskRegister
+                                        placeholder="Duração"
+                                        mask="00:00"
+                                        value={config.duration || ""}
+                                        onAccept={(val) => handleVehicleDurationChange(val, catVehId)}
+                                        disabled={!config.checked || !isEditable}
+                                        small
+                                    />
                                 </div>
                             </div>
                         );
@@ -249,14 +265,39 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                 </div>
             )}
 
-            <div className={styles.actions}>
-                <button type="button" onClick={onCancel} className={styles.btnCancel}>
-                    {isView ? "Voltar" : "Cancelar"}
-                </button>
-                {!isView && (
-                    <button type="submit" className={styles.btnSave} disabled={loading}>
-                        {loading ? "Salvando..." : mode === 'create' ? "Salvar Serviço" : "Atualizar Serviço"}
-                    </button>
+            <div className={styles.actions} style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                {!isEditable ? (
+                    <>
+                         <button type="button" onClick={onCancel} className={styles.btnCancel}>Voltar</button>
+                        <button 
+                            type="button" 
+                            className={styles.btnSave} 
+                            onClick={handleEditClick}
+                            style={{ display: 'flex', alignItems: 'center' }}
+                        >
+                            <Edit size={16} style={{ marginRight: 5 }} /> Editar Dados
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <button 
+                            type="button" 
+                            onClick={handleCancelClick} 
+                            className={styles.btnCancel} 
+                            disabled={loading}
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            className={styles.btnSave} 
+                            disabled={loading}
+                            style={{ display: 'flex', alignItems: 'center' }}
+                        >
+                            <Save size={16} style={{ marginRight: 5 }} /> 
+                            {loading ? "Salvando..." : "Salvar Alterações"}
+                        </button>
+                    </>
                 )}
             </div>
         </form>

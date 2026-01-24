@@ -231,7 +231,7 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
             value={formData.cat_id}
             onChange={handleChange}
             disabled={!isEditable || !!initialData}
-            options={categories?.data?.map(cat => ({ value: cat.cat_id, label: cat.cat_nome })) || []}
+            options={categories?.map(cat => ({ value: cat.cat_id, label: cat.cat_nome })) || []}
           />
           <ErrorMessage message={errors.categoryId} />
         </div>

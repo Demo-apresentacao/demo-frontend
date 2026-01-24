@@ -34,7 +34,7 @@ export default function RegisterServicePage() {
             text: "Serviço criado com sucesso.",
             icon: "success",
             confirmButtonColor: "#10b981"
-        }).then(() => router.push("/admin/services"));
+        }).then(() => router.push("/admin/services2"));
     };
 
     return (

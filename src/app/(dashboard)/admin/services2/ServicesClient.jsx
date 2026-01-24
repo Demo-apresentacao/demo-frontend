@@ -3,7 +3,6 @@
 import { useServices } from "@/hooks/useServices";
 import { Table } from "@/components/ui/table/table";
 import Link from "next/link";
-// ADICIONEI: O ícone 'Car' e 'Truck' para ilustrar
 import { Edit, Plus, Eye, Search, Trash2, RotateCcw, Filter, Car } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Pagination } from "@/components/ui/pagination/pagination";
@@ -142,8 +141,8 @@ export default function ServicesClient() {
       accessor: "actions",
       render: (service) => (
         <div style={{ display: 'flex', gap: '8px' }}>
-          <Link href={`/admin/services/${service.serv_id}?mode=view`} style={{ color: '#2563eb' }}><Eye size={16} /></Link>
-          <Link href={`/admin/services/${service.serv_id}?mode=edit`} style={{ color: '#2563eb' }}><Edit size={16} /></Link>
+          <Link href={`/admin/services2/${service.serv_id}?mode=view`} style={{ color: '#2563eb' }}><Eye size={16} /></Link>
+          <Link href={`/admin/services2/${service.serv_id}?mode=edit`} style={{ color: '#2563eb' }}><Edit size={16} /></Link>
           {service.serv_situacao ? (
             <button onClick={() => handleArchiveService(service.serv_id, service.serv_nome)} style={{ color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}><Trash2 size={16} /></button>
           ) : (
