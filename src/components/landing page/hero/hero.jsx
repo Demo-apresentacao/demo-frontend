@@ -10,7 +10,6 @@ export default function Hero() {
   const [showServices, setShowServices] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  // ✅ MESMA LÓGICA DO FOOTER
   const whatsappNumber = "5518996223545";
 
   const openWhatsApp = () => {
@@ -51,7 +50,6 @@ export default function Hero() {
               </p>
               
               <div className={styles.heroActions}>
-                {/* 🔥 AGENDAR SERVIÇO → WHATSAPP */}
                 <button 
                   type="button"
                   className={styles.btnPrimary}
