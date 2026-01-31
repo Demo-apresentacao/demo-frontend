@@ -1,213 +1,312 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Edit, Plus, Settings, List } from "lucide-react";
+
+import { useState, useMemo, useEffect } from "react";
+import { Edit, Save, Plus, Settings, List } from "lucide-react";
+import Swal from "sweetalert2";
+
 import { InputRegisterForm } from "../../ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "../../ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "../../ui/selectRegister/selectRegister";
-import styles from "../userForm/userForm.module.css";
+
+import styles from "../servicesForm/servicesForm.module.css";
+
+import CategoryModal from "../../modals/modalServicesCategories/CategoryModal";
 import ManageCategoriesModal from "../../modals/modalServicesCategories/ManageCategories";
 
 import { useServiceCategories } from "@/hooks/useServicesCategories";
-import CategoryModal from "../../modals/modalServicesCategories/CategoryModal";
+import { useCategoriesVehiclesForServices } from "@/hooks/useCategoriesVehiclesForServices";
 
-// --- FUNÇÕES AUXILIARES DE MOEDA ---
-
-// 1. Converte Número do Banco (100.00) para String Visual (R$ 100,00)
+/* =====================================================
+   FUNÇÕES AUXILIARES DE MOEDA
+===================================================== */
 const formatCurrency = (value) => {
-    if (!value) return "";
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
+    if (value === null || value === undefined || value === "") return "";
+    return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
     }).format(value);
 };
 
-// 2. Lógica de Digitação: Pega apenas números e formata
 const maskCurrency = (value) => {
-    const onlyDigits = value.replace(/\D/g, "");
-    const numberValue = Number(onlyDigits) / 100;
-    return formatCurrency(numberValue);
+    const onlyDigits = String(value).replace(/\D/g, "");
+    return formatCurrency(Number(onlyDigits) / 100);
 };
 
-// 3. Converte String Visual (R$ 1.200,50) para Float do Banco (1200.50)
 const parseCurrency = (value) => {
     if (!value) return 0;
-    const cleanString = value.replace(/[R$\s.]/g, "").replace(",", ".");
-    return parseFloat(cleanString);
+    const clean = String(value)
+        .replace(/[R$\s.]/g, "")
+        .replace(",", ".");
+    return parseFloat(clean);
 };
 
-export default function ServiceForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'edit' }) {
+/* =====================================================
+   COMPONENTE
+===================================================== */
+export default function ServiceForm({
+    onSuccess,
+    onCancel,
+    saveFunction,
+    initialData,
+    mode = "create",
+}) {
+    /* =====================================================
+       HOOKS BÁSICOS
+    ===================================================== */
     const [loading, setLoading] = useState(false);
-    const [isEditable, setIsEditable] = useState(mode === 'edit');
-    const [errors, setErrors] = useState({});
+    const [isEditable, setIsEditable] = useState(mode !== "view");
 
-    // Estados para controlar o Modal de Categorias
+    const {
+        categories,
+        loading: loadingCategories,
+        refetch,
+    } = useServiceCategories();
+
+    const {
+        vehicleCategories,
+        loading: loadingVehicles,
+    } = useCategoriesVehiclesForServices();
+
+    /* =====================================================
+       MODAIS
+    ===================================================== */
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isListModalOpen, setIsListModalOpen] = useState(false);
     const [categoryToEdit, setCategoryToEdit] = useState(null);
 
-    // Hook de categorias (pegando lista e função de recarregar)
-    const { categories, loading: loadingCategories, refetch } = useServiceCategories();
+    /* =====================================================
+       FORM DATA
+    ===================================================== */
+    const mapServiceData = (data) => ({
+        category_id: data?.cat_serv_id || "",
+        serv_nome: data?.serv_nome || "",
+        serv_descricao: data?.serv_descricao || "",
+        serv_situacao: String(data?.serv_situacao ?? "true"),
+    });
 
-    const getInitialState = () => {
-        const defaults = {
-            cat_serv_id: "",
-            serv_nome: "",
-            stv_duracao: "",
-            stv_preco: "",
-            serv_descricao: "",
-            serv_situacao: "true"
-        };
+    const [formData, setFormData] = useState(
+        mapServiceData(initialData)
+    );
 
-        if (!initialData) return defaults;
+    /* =====================================================
+       CONFIGURAÇÃO DE VEÍCULOS
+    ===================================================== */
+    const initialVehicleConfig = useMemo(() => {
+        if (!vehicleCategories?.length) return {};
 
-        return {
-            cat_serv_id: String(initialData.cat_serv_id || ""),
-            serv_nome: initialData.serv_nome || "",
-            stv_duracao: initialData.stv_duracao || "",
-            stv_preco: initialData.stv_preco ? formatCurrency(initialData.stv_preco) : "",
-            serv_descricao: initialData.serv_descricao || "",
-            serv_situacao: String(initialData.serv_situacao ?? "true")
-        };
-    };
+        const config = {};
 
-    const [formData, setFormData] = useState(getInitialState());
+        vehicleCategories.forEach((item) => {
+            const catVehId = item.tps_id || item.id;
+            const saved = initialData?.precos?.find(
+                (p) => Number(p.tps_id) === Number(catVehId)
+            );
 
+            config[catVehId] = saved
+                ? {
+                    checked: true,
+                    price: formatCurrency(saved.preco),
+                    duration: saved.duracao,
+                }
+                : { checked: false, price: "", duration: "" };
+        });
+
+        return config;
+    }, [vehicleCategories, initialData]);
+
+    const [vehicleConfig, setVehicleConfig] =
+        useState(initialVehicleConfig);
+
+    /* =====================================================
+       EFFECTS
+    ===================================================== */
     useEffect(() => {
-        setIsEditable(mode === 'edit');
-        setErrors({});
-    }, [mode]);
+        setFormData(mapServiceData(initialData));
+        setVehicleConfig(initialVehicleConfig);
+    }, [initialData, initialVehicleConfig]);
 
+    /* =====================================================
+       DERIVED STATE
+    ===================================================== */
+    const filteredCategories = useMemo(() => {
+        return categories.filter((cat) => {
+            if (cat.active === true) return true;
+            if (String(cat.value) === String(formData.category_id))
+                return true;
+            return false;
+        });
+    }, [categories, formData.category_id]);
+
+    /* =====================================================
+       HANDLERS
+    ===================================================== */
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
     };
 
-    // Handler de Preço
-    const handlePriceChange = (e) => {
-        const rawValue = e.target.value;
-        const formatted = maskCurrency(rawValue);
-        setFormData((prev) => ({ ...prev, stv_preco: formatted }));
-        if (errors.stv_preco) setErrors(prev => ({ ...prev, stv_preco: null }));
+    const handleCheckVehicle = (catVehId) => {
+        if (!isEditable) return;
+        setVehicleConfig((prev) => ({
+            ...prev,
+            [catVehId]: {
+                ...prev[catVehId],
+                checked: !prev[catVehId]?.checked,
+            },
+        }));
     };
 
-    // Handler de Máscara (Duração)
-    const handleMaskChange = (value, name) => {
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+    const handleVehiclePriceChange = (e, catVehId) => {
+        if (!isEditable) return;
+        setVehicleConfig((prev) => ({
+            ...prev,
+            [catVehId]: {
+                ...prev[catVehId],
+                price: maskCurrency(e.target.value),
+            },
+        }));
     };
 
-    // --- LÓGICA DO MODAL ---
+    const handleVehicleDurationChange = (value, catVehId) => {
+        if (!isEditable) return;
+        setVehicleConfig((prev) => ({
+            ...prev,
+            [catVehId]: {
+                ...prev[catVehId],
+                duration: value,
+            },
+        }));
+    };
 
     const handleNewCategory = () => {
-        setCategoryToEdit(null); // Modo criação
+        setCategoryToEdit(null);
         setIsModalOpen(true);
     };
 
     const handleEditCategory = () => {
-        const catId = formData.cat_serv_id;
-        if (!catId) return;
-
-        // Acha o objeto { value, label, active } correspondente ao ID selecionado
-        // Buscamos na lista completa 'categories', e não na filtrada, para garantir que ache mesmo se inativo
-        const catObj = categories.find(c => c.value === String(catId));
-
-        if (catObj) {
-            setCategoryToEdit(catObj); // Modo edição com status correto
+        if (!formData.category_id) return;
+        const cat = categories.find(
+            (c) =>
+                String(c.value) === String(formData.category_id)
+        );
+        if (cat) {
+            setCategoryToEdit(cat);
             setIsModalOpen(true);
         }
     };
 
-    const handleModalSuccess = () => {
-        // Recarrega o select de categorias após salvar no modal
-        refetch();
+    const handleCancelClick = (e) => {
+        e.preventDefault();
+        if (mode === "create") {
+            onCancel();
+        } else {
+            setFormData(mapServiceData(initialData));
+            setVehicleConfig(initialVehicleConfig);
+            setIsEditable(false);
+        }
     };
 
-    const [isListModalOpen, setIsListModalOpen] = useState(false);
-
-    // --- VALIDAÇÃO ---
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.serv_nome) newErrors.serv_nome = "Nome é obrigatório.";
-
-        if (!formData.stv_preco || formData.stv_preco === "R$ 0,00") {
-            newErrors.stv_preco = "Preço é obrigatório.";
-        }
-
-        if (!formData.cat_serv_id) newErrors.cat_serv_id = "Selecione uma categoria.";
-
-        if (!formData.stv_duracao || formData.stv_duracao.includes("_") || formData.stv_duracao.length < 8) {
-            newErrors.stv_duracao = "Informe a duração completa (HH:MM:SS).";
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+    const handleEditClick = (e) => {
+        e.preventDefault();
+        setIsEditable(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        if (!isEditable) return;
+
+        const checked = Object.entries(vehicleConfig).filter(
+            ([_, cfg]) => cfg.checked
+        );
+
+        if (!checked.length) {
+            Swal.fire({
+                title: "Atenção",
+                text: "Selecione ao menos um veículo.",
+                icon: "warning",
+            });
+            return;
+        }
+
+        const invalid = checked.filter(([_, cfg]) => {
+            const price = parseCurrency(cfg.price);
+            return (
+                !cfg.price ||
+                price <= 0 ||
+                !cfg.duration ||
+                cfg.duration.includes("_") ||
+                cfg.duration === "00:00"
+            );
+        });
+
+        if (invalid.length) {
+            Swal.fire({
+                title: "Campos Incompletos",
+                text: "Verifique preços e durações.",
+                icon: "warning",
+            });
+            return;
+        }
+
         setLoading(true);
 
         const payload = {
-            cat_serv_id: Number(formData.cat_serv_id),
-            serv_nome: formData.serv_nome,
-            stv_duracao: formData.stv_duracao,
-            stv_preco: parseCurrency(formData.stv_preco),
-            serv_descricao: formData.serv_descricao,
-            serv_situacao: formData.serv_situacao === "true"
+            serv_nome: formData.serv_nome.trim(),
+            serv_descricao: formData.serv_descricao?.trim() || "",
+            cat_serv_id: Number(formData.category_id),
+            serv_situacao: formData.serv_situacao === "true",
+            prices: checked.map(([catVehId, cfg]) => ({
+                tps_id: Number(catVehId),
+                preco: parseCurrency(cfg.price),
+                duracao: cfg.duration,
+            })),
         };
 
         try {
             const result = await saveFunction(payload);
-            if (result && result.success) onSuccess();
-        } catch (error) {
-            console.error(error);
+            if (result?.success || result?.status === "success") {
+                setIsEditable(false);
+                onSuccess?.();
+            }
+        } catch {
+            Swal.fire({
+                title: "Erro",
+                text: "Erro ao salvar serviço.",
+                icon: "error",
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const handleCancelClick = () => {
-        if (mode === 'view' && isEditable) {
-            setIsEditable(false);
-            setFormData(getInitialState());
-            setErrors({});
-        } else {
-            onCancel();
-        }
+
+    const handleModalSuccess = () => {
+        setIsModalOpen(false);
+
+        // Recarrega categorias (nova ou editada)
+        refetch();
+
+        // Se quiser limpar categoria selecionada após criar
+        // setFormData(prev => ({ ...prev, category_id: "" }));
     };
-
-    // --- FILTRO DE CATEGORIAS ---
-    // Filtra categorias inativas, a menos que seja a categoria atualmente selecionada neste serviço
-    const filteredCategories = categories.filter(cat => {
-        if (cat.active === true) return true; // Se ativa, mostra
-        if (String(cat.value) === String(formData.cat_serv_id)) return true; // Se selecionada (mesmo inativa), mostra
-        return false; // Senão, esconde
-    });
-
-    const ErrorMessage = ({ message }) => message ? <span className={styles.errorText}>{message}</span> : null;
 
     return (
         <>
             <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.sectionTitle}>
+                    {mode === 'create' ? "Cadastrar" : isEditable ? "Editar" : "Visualizar"} Serviço
+                </div>
 
-                {initialData && (
-                    <div className={styles.inputGroup}>
-                        <InputRegisterForm label="ID" value={initialData.serv_id} disabled={true} />
-                    </div>
-                )}
 
-                {/* GRUPO 1: Categoria + Botões de Ação */}
                 <div className={styles.inputGroup}>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
                         <div style={{ flex: 1 }}>
                             <SelectRegister
-                                name="cat_serv_id"
+                                name="category_id"
                                 label={loadingCategories ? "Carregando..." : "Categoria do Serviço"}
-                                value={formData.cat_serv_id}
+                                value={formData.category_id}
                                 onChange={handleChange}
                                 disabled={!isEditable || loadingCategories}
-                                // Usamos a lista filtrada aqui
                                 options={filteredCategories}
                                 required
                             />
@@ -223,73 +322,43 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                                 >
                                     <Plus size={20} />
                                 </button>
+
                                 <button
                                     type="button"
                                     className={styles.btnIcon}
                                     style={{ backgroundColor: '#8b5cf6', color: 'white' }}
                                     onClick={() => setIsListModalOpen(true)}
-                                    title="Ver todas as categorias (Gerenciar)"
+                                    title="Gerenciar Categorias"
                                 >
                                     <List size={20} />
                                 </button>
+
                                 <button
                                     type="button"
                                     className={`${styles.btnIcon} ${styles.btnEditCat}`}
                                     onClick={handleEditCategory}
                                     title="Editar Categoria Selecionada"
-                                    disabled={!formData.cat_serv_id}
+                                    disabled={!formData.category_id}
                                 >
                                     <Settings size={20} />
                                 </button>
                             </div>
                         )}
                     </div>
-                    <ErrorMessage message={errors.cat_serv_id} />
                 </div>
 
-                {/* GRUPO 2: Nome */}
                 <div className={styles.inputGroup}>
                     <InputRegisterForm
                         name="serv_nome"
                         label="Nome do Serviço"
                         value={formData.serv_nome}
                         onChange={handleChange}
-                        required
-                        disabled={!isEditable}
-                    />
-                    <ErrorMessage message={errors.serv_nome} />
-                </div>
-
-                {/* GRUPO 3: Preço e Duração */}
-                <div className={styles.inputGroup}>
-                    <InputRegisterForm
-                        name="serv_preco"
-                        label="Preço"
-                        placeholder="R$ 0,00"
-                        type="text"
-                        value={formData.stv_preco}
-                        onChange={handlePriceChange}
-                        required
-                        disabled={!isEditable}
-                    />
-                    <ErrorMessage message={errors.stv_preco} />
-                </div>
-
-                <div className={styles.inputGroup}>
-                    <InputMaskRegister
-                        name="serv_duracao"
-                        label="Duração (HH:MM:SS)"
-                        mask="00:00:00"
-                        lazy={false} // Mostra o __:__:__
-                        value={formData.stv_duracao}
-                        onAccept={(value) => handleMaskChange(value, "stv_duracao")}
                         disabled={!isEditable}
                         required
                     />
-                    <ErrorMessage message={errors.stv_duracao} />
                 </div>
 
-                {/* GRUPO 4: Situação */}
+                {/* 4. CAMPO DE SITUAÇÃO ADICIONADO */}
                 <div className={styles.inputGroup}>
                     <SelectRegister
                         name="serv_situacao"
@@ -304,49 +373,111 @@ export default function ServiceForm({ onSuccess, onCancel, saveFunction, initial
                     />
                 </div>
 
-                {/* GRUPO 5: Descrição */}
                 <div className={`${styles.inputGroup} ${styles.fullWidth}`}>
                     <InputRegisterForm
                         name="serv_descricao"
-                        label="Descrição Detalhada"
+                        label="Descrição"
                         value={formData.serv_descricao}
                         onChange={handleChange}
                         disabled={!isEditable}
+                        textarea
                     />
                 </div>
 
-                {/* AÇÕES */}
-                <div className={styles.actions}>
+                <div className={styles.sectionTitle} style={{ marginTop: '20px' }}>
+                    Configuração por Veículo
+                </div>
+
+                {loadingVehicles ? <p>Carregando...</p> : (
+                    <div className={styles.vehicleList}>
+                        {vehicleCategories.map((item) => {
+                            const catVehId = item.tps_id || item.id;
+                            const config = vehicleConfig[catVehId] || { checked: false, price: "", duration: "" };
+                            return (
+                                <div key={catVehId} className={styles.vehicleRow}>
+                                    <div className={styles.vehicleCheck}>
+                                        <input
+                                            type="checkbox"
+                                            id={`veh-${catVehId}`}
+                                            checked={!!config.checked}
+                                            onChange={() => handleCheckVehicle(catVehId)}
+                                            disabled={!isEditable}
+                                        />
+                                        <label htmlFor={`veh-${catVehId}`}>{item.tps_nome || item.nome}</label>
+                                    </div>
+                                    <div className={styles.vehicleInputs}>
+                                        <InputRegisterForm
+                                            placeholder="Preço"
+                                            value={config.price || ""}
+                                            onChange={(e) => handleVehiclePriceChange(e, catVehId)}
+                                            disabled={!config.checked || !isEditable}
+
+                                        />
+                                        <InputMaskRegister
+                                            placeholder="Duração"
+                                            mask="00:00"
+                                            value={config.duration || ""}
+                                            onAccept={(val) => handleVehicleDurationChange(val, catVehId)}
+                                            disabled={!config.checked || !isEditable}
+
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+
+                <div className={styles.actions} style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                     {!isEditable ? (
-                        <button type="button" className={styles.btnSave} onClick={() => setIsEditable(true)}>
-                            <Edit size={16} style={{ marginRight: 5 }} /> Editar
-                        </button>
+                        <>
+                            <button type="button" onClick={onCancel} className={styles.btnCancel}>Voltar</button>
+                            <button
+                                type="button"
+                                className={styles.btnSave}
+                                onClick={handleEditClick}
+                                style={{ display: 'flex', alignItems: 'center' }}
+                            >
+                                <Edit size={16} style={{ marginRight: 5 }} /> Editar Dados
+                            </button>
+                        </>
                     ) : (
                         <>
-                            <button type="button" onClick={handleCancelClick} className={styles.btnCancel} disabled={loading}>
+                            <button
+                                type="button"
+                                onClick={handleCancelClick}
+                                className={styles.btnCancel}
+                                disabled={loading}
+                            >
                                 Cancelar
                             </button>
-                            <button type="submit" className={styles.btnSave} disabled={loading}>
-                                {loading ? "Salvando..." : "Salvar"}
+                            <button
+                                type="submit"
+                                className={styles.btnSave}
+                                disabled={loading}
+                                style={{ display: 'flex', alignItems: 'center' }}
+                            >
+                                <Save size={16} style={{ marginRight: 5 }} />
+                                {loading ? "Salvando..." : "Salvar Alterações"}
                             </button>
                         </>
                     )}
                 </div>
             </form>
 
-            {/* MODAL DE CATEGORIAS (Fica fora do form) */}
             <CategoryModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={handleModalSuccess}
                 categoryToEdit={categoryToEdit}
             />
+
             <ManageCategoriesModal
                 isOpen={isListModalOpen}
                 onClose={() => setIsListModalOpen(false)}
                 categories={categories}
-                onUpdate={refetch}      
+                onUpdate={refetch}
             />
         </>
-    )
+    );
 }

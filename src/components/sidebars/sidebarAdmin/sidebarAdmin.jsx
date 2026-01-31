@@ -11,7 +11,6 @@ const menuItems = [
     { label: "Serviços", href: "/admin/services", icon: Wrench },
     { label: "Agendamentos", href: "/admin/appointments", icon: CalendarCheck },
     { label: "Calendário", href: "/admin/schedule", icon: CalendarDays },
-    { label: "Serviços", href: "/admin/services2", icon: Wrench },
     { label: "Calculadora", href: "/admin/calculator", icon: Calculator },
 ];
 
