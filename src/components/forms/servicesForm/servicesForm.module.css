@@ -1,49 +1,153 @@
+/* --- CONTAINER PRINCIPAL DO FORM --- */
 .form {
     display: grid;
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: 1fr 1fr; /* Duas colunas por padrão */
     column-gap: 1.5rem;
-    row-gap: 2.5rem; 
+    row-gap: 1.5rem; /* Ajustado para ficar mais harmônico */
     width: 100%;
-    background-color: #fff; 
+    background-color: #fff;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.inputGroup {
-    position: relative; 
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem; 
+/* --- TÍTULOS DE SEÇÃO --- */
+/* Força o título a ocupar as duas colunas sempre */
+.sectionTitle {
+    grid-column: 1 / -1; 
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #374151;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 8px;
 }
 
+/* --- GRUPOS DE INPUT --- */
+.inputGroup {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0; /* Evita que inputs estourem o grid */
+}
+
+/* Classe utilitária para ocupar largura total */
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+/* --- ÁREA DA LISTA DE VEÍCULOS (NOVA) --- */
+/* Garante que a lista ocupe a largura total do form */
+.vehicleList {
+    grid-column: 1 / -1; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.vehicleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    flex-wrap: wrap; 
+    gap: 15px;
+}
+
+.vehicleCheck {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 150px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    user-select: none; /* Impede seleção de texto ao clicar */
+}
+
+.vehicleCheck input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #16a34a; /* Verde */
+    cursor: pointer;
+}
+
+.vehicleInputs {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+    justify-content: flex-end;
+}
+
+/* --- TEXTO DE ERRO --- */
 .errorText {
     color: var(--primary-red);
     font-size: 0.75rem;
     font-weight: 500;
     position: absolute;
-    bottom: -22px;
+    bottom: -20px;
     left: 0;
     white-space: nowrap;
     pointer-events: none;
 }
 
-.fullWidth {
-    grid-column: 1 / -1; 
+/* --- BOTÕES AO LADO DA CATEGORIA --- */
+.categoryActions {
+    display: flex;
+    gap: 8px;
+    /* Alinhamento fino para bater com a altura do input */
+    height: 42px; 
+    align-items: center;
 }
 
-/* --- Área dos Botões --- */
+.btnIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.btnAddCat {
+    background-color: var(--primary-red); 
+    color: white;
+}
+.btnAddCat:hover { background-color: var(--primary-darkred); transform: translateY(-1px); }
+
+.btnEditCat {
+    background-color: #f6f3f3; 
+    color: #634b4b;
+    border: 1px solid #ebe5e5;
+}
+.btnEditCat:hover:not(:disabled) {
+    background-color: #ebe5e5;
+    color: #271111;
+    border-color: #dbd1d1;
+}
+.btnEditCat:disabled { opacity: 0.5; cursor: not-allowed; background-color: #fbf9f9; }
+
+
+/* --- ÁREA DOS BOTÕES PRINCIPAIS (SALVAR/CANCELAR) --- */
 .actions {
-    grid-column: 1 / -1; 
+    grid-column: 1 / -1;
     display: flex;
     justify-content: flex-end;
     gap: 1rem;
-    margin-top: 1.5rem; 
+    margin-top: 1.5rem;
     padding-top: 1.5rem;
     border-top: 1px solid #ebe5e5;
 }
 
-/* --- Estilos dos Botões --- */
 .btnCancel {
     padding: 0.6rem 1.5rem;
     background: #fff;
@@ -55,11 +159,7 @@
     transition: all 0.2s;
     font-size: 0.875rem;
 }
-
-.btnCancel:hover {
-    background: #f6f3f3;
-    border-color: #af9c9c;
-}
+.btnCancel:hover { background: #f6f3f3; border-color: #af9c9c; }
 
 .btnSave {
     padding: 0.6rem 1.5rem;
@@ -75,131 +175,30 @@
     justify-content: center;
     font-size: 0.875rem;
 }
+.btnSave:hover { background: var(--primary-darkred); }
+.btnSave:disabled { background: #fd9393; cursor: not-allowed; opacity: 0.7; }
 
-.btnSave:hover {
-    background: var(--primary-darkred);
-}
-
-.btnSave:disabled {
-    background: #fd9393;
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-/* --- BOTÃO DE MOSTRAR SENHA --- */
-.eyeButton {
-    position: absolute;
-    right: 10px;
-    top: 38px; 
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #806b6b;
-    z-index: 10;
-    padding: 0;
-    display: flex;
-    align-items: center;
-}
-
-.eyeButton:hover {
-    color: #513737;
-}
-
-/* --- LISTA DE REQUISITOS (Checklist) --- */
-.passwordRequirements {
-    position: absolute; /* Faz flutuar por cima de tudo */
-    top: 100%; /* Cola logo abaixo do input */
-    left: 0;
-    width: 100%; /* Mesma largura do input */
-    
-    background-color: white; /* Importante para tapar o que está atrás */
-    border: 1px solid #ebe5e5;
-    border-radius: 6px;
-    padding: 12px;
-    margin-top: 4px;
-    
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    
-    z-index: 50; /* Garante que fique na frente dos outros campos */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Sombra para destacar */
-}
-
-.reqItem {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.75rem; /* 12px */
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.pending {
-    color: #ef4444; /* Vermelho */
-}
-
-.success {
-    color: #10b981; /* Verde */
-}
-
-/* Wrapper dos botões ao lado do select */
-.categoryActions {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 2px; /* Alinha visualmente com a base do input */
-}
-
-/* Estilo base do botão quadrado */
-.btnIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;  /* Largura fixa igual altura */
-    height: 42px; /* Altura igual ao input padrão */
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
-
-.btnAddCat {
-    background-color: var(--primary-red); 
-    color: white;
-}
-.btnAddCat:hover {
-    background-color: var(--primary-darkred);
-    transform: translateY(-1px);
-}
-
-.btnEditCat {
-    background-color: #f6f3f3; 
-    color: #634b4b;
-    border: 1px solid #ebe5e5;
-}
-.btnEditCat:hover:not(:disabled) {
-    background-color: #ebe5e5;
-    color: #271111;
-    border-color: #dbd1d1;
-}
-
-.btnEditCat:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: #fbf9f9;
-}
-
-/* --- Responsividade --- */
+/* --- RESPONSIVIDADE --- */
 @media (max-width: 768px) {
     .form {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Vira uma coluna só */
         padding: 1.5rem;
-        row-gap: 2rem; 
+        row-gap: 1.5rem;
     }
     
+    /* No mobile, inputs de veículo empilham verticalmente */
+    .vehicleRow {
+        flex-direction: column;
+        align-items: stretch; /* Estica para largura total */
+    }
+
+    .vehicleInputs {
+        width: 100%;
+        gap: 10px;
+    }
+
     .actions {
-        flex-direction: column-reverse;
+        flex-direction: column-reverse; /* Cancelar embaixo, Salvar em cima */
         gap: 0.75rem;
     }
     
