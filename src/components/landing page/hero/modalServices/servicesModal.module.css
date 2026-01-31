@@ -4,9 +4,9 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Fundo escuro */
-  backdrop-filter: blur(5px); /* Desfoque moderno */
-  z-index: 2000; /* Bem alto para ficar acima de tudo */
+  background-color: rgba(0, 0, 0, 0.6); 
+  backdrop-filter: blur(5px);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -17,12 +17,12 @@
 .modal {
   background: white;
   width: 100%;
-  max-width: 800px; /* Modal larguinho */
+  max-width: 800px;
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
-  max-height: 90vh; /* Não passa da altura da tela */
+  max-height: 90vh;
   overflow: hidden;
   animation: slideUp 0.3s ease-out;
 }
@@ -64,7 +64,7 @@
 
 .body {
   padding: 2rem;
-  overflow-y: auto; /* Scroll se tiver muitos serviços */
+  overflow-y: auto;
   background-color: #f9fafb;
 }
 
@@ -77,7 +77,7 @@
 
 @media (min-width: 640px) {
   .grid {
-    grid-template-columns: 1fr 1fr; /* 2 colunas no PC */
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -137,7 +137,7 @@
   align-items: center;
   gap: 6px;
   padding: 0;
-  margin-top: auto; /* Empurra para baixo */
+  margin-top: auto;
 }
 
 .detailsBtn:hover {
@@ -152,7 +152,7 @@
 }
 
 .ctaButton {
-  background-color: #ffff; /* Verde Zap */
+  background-color: #ffff;
   color: #16a34a;
   border: #16a34a 1px solid;
   text-decoration: none;
@@ -161,14 +161,8 @@
   font-weight: 700;
   transition: background 0.2s;
   display: inline-flex; 
-  
-  /* 2. O SEGREDO: Alinha verticalmente exatamente no centro */
   align-items: center; 
-  
-  /* 3. Alinha horizontalmente (caso o botão tenha largura fixa) */
-  justify-content: center; 
-  
-  /* Espacinho entre o ícone e o texto */
+  justify-content: center;
   gap: 8px;
 }
 
@@ -196,18 +190,17 @@
 
 /* Container de cada categoria */
 .categorySection {
-  margin-bottom: 2.5rem; /* Espaço entre uma categoria e outra */
+  margin-bottom: 2.5rem;
 }
 
-/* Título bonito da categoria (ex: "Lavagem & Higienização") */
 .categoryTitle {
   font-size: 1.25rem;
   font-weight: 800;
   color: #111827;
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb; /* Linha sutil embaixo do título */
-  display: inline-block; /* A linha acompanha o tamanho do texto */
+  border-bottom: 2px solid #e5e7eb; 
+  display: inline-block;
   padding-right: 2rem;
 }
 

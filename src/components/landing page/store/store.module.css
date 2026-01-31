@@ -1,6 +1,6 @@
 .storeSection {
   background: linear-gradient(0deg, #ffffff 0%, #ffefef 100%);
-  padding: 6rem 0; 
+  padding: 6rem 0;
   min-height: 85vh;
   display: flex;
   align-items: center;
@@ -31,31 +31,40 @@
 
 .title {
   font-size: 2.5rem;
-  color: #111827;
+  color: #271111;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1rem;
 }
 
-.highlight { color: var(--primary-red); }
-.subtitle { color: #6b7280; font-size: 1.1rem; line-height: 1.6; }
+.highlight {
+  color: var(--primary-red);
+}
+
+.subtitle {
+  color: #806b6b;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
 
 .productsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 2rem;
-  margin-bottom: 6rem; 
+  margin-bottom: 3rem;
+  align-items: stretch;
 }
 
 .card {
   background: white;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ebe5e5;
   transition: all 0.3s ease;
   position: relative;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .card:hover {
@@ -81,8 +90,8 @@
 .imageWrapper {
   position: relative;
   width: 100%;
-  height: 200px;
-  background-color: #dadada;
+  height: 250px;
+  background-color: #f6f3f3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,29 +106,150 @@
 }
 
 .cardContent {
-  padding: 1.2rem;
-  text-align: center;
+  padding: 1.5rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .productName {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #374151;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #371f20;
   margin-bottom: 0.5rem;
-  line-height: 1.4;
+  line-height: 1.3;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #806b6b;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  min-height: 3em; 
+}
+
+.variantsContainer {
+  margin-bottom: 1rem;
+  margin-top: auto; 
+}
+
+.variantLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #af9c9c;
+  margin-bottom: 6px;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sizesGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sizeBtn {
+  background: white;
+  border: 1px solid #ebe5e5;
+  color: #634b4b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 50px;
+  text-align: center;
+}
+
+.sizeBtn:hover {
+  border-color: var(--primary-red);
+  color: var(--primary-red);
+}
+
+.sizeBtnActive {
+  background-color: #fff1f2;
+  border-color: var(--primary-red);
+  color: var(--primary-red);
+  font-weight: 700;
+}
+
+.priceActionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 1rem;
+  border-top: 1px solid #f6f3f3;
+  margin-top: 1rem;
 }
 
 .price {
   font-size: 1.25rem;
   font-weight: 800;
   color: var(--primary-red);
-  display: block;
+}
+
+.buyBtn {
+  background-color: transparent;
+  border: 1px solid var(--primary-red);
+  color: var(--primary-red);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buyBtn:hover {
+  background-color: var(--primary-red);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
+}
+
+.footer {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.viewAllBtn {
+  background-color: transparent;
+  border: 2px solid #ebe5e5;
+  color: #374151;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.viewAllBtn:hover {
+  border-color: var(--primary-red);
+  color: var(--primary-red);
+  background-color: #fff1f2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .locationContainer {
   background-color: white;
   border-radius: 24px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #ebe5e5;
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
@@ -150,7 +280,7 @@
 .locationTitle {
   font-size: 2rem;
   font-weight: 800;
-  color: #111827;
+  color: #271111;
   margin-bottom: 1.5rem;
   line-height: 1.1;
 }
@@ -158,16 +288,20 @@
 .addressText {
   display: flex;
   gap: 10px;
-  color: #4b5563;
+  color: #634b4b;
   font-size: 1.1rem;
   margin-bottom: 1rem;
   line-height: 1.5;
 }
 
-.icon { color: #ef4444; flex-shrink: 0; margin-top: 3px; }
+.icon {
+  color: #ef4444;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
 
 .timeText {
-  color: #6b7280;
+  color: #806b6b;
   font-size: 0.95rem;
   margin-left: 30px;
   margin-bottom: 2rem;
@@ -188,46 +322,14 @@
 }
 
 .routeBtn:hover {
-  background-color: var(--primary-red);
+  background-color: #dc2626;
   transform: translateY(-2px);
 }
 
 .mapWrapper {
   width: 100%;
   height: 300px;
-  background-color: #e5e7eb;
-}
-
-.footer {
-  margin-top: 3rem;
-  text-align: center;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.viewAllBtn {
-  background-color: transparent;
-  border: 2px solid #e5e7eb;
-  color: #374151;
-  padding: 12px 28px;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: all 0.2s ease;
-}
-
-.viewAllBtn:hover {
-  border-color: var(--primary-red);
-  color: var(--primary-red);
-  background-color: var(--primary-redlight);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background-color: #ebe5e5;
 }
 
 @media (max-width: 768px) {
@@ -239,7 +341,7 @@
 
 @media (min-width: 900px) {
   .locationContent {
-    flex-direction: row; 
+    flex-direction: row;
   }
 
   .locationText {
