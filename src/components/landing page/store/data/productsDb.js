@@ -228,7 +228,7 @@ export const products = [
   {
     id: 23,
     name: "Carnaúba Hybrid Wax",
-    image: "/images/products/hybrid_wax.png",
+    image: "/images/products/hybrid_max.png",
     category: "Ceras e Selantes",
     description: "Cera híbrida com polímeros de última geração e carnaúba. Rende até 60 aplicações.",
     price: "R$ 37,00",
