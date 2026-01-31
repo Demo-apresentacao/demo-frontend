@@ -1,11 +1,12 @@
 "use client";
 
+
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import ServiceForm from "@/components/forms/servicesForm/servicesForm.jsx";
+import ServiceForm from "@/components/forms/servicesForm/servicesForm";
 import { getServiceById, updateService } from "@/services/services.service";
 import Swal from "sweetalert2";
-import styles from "../../users/register/page.module.css"; // Reutilizando CSS
+import styles from "../../users/register/page.module.css"; 
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
@@ -22,7 +23,8 @@ export default function EditServicePage() {
         async function loadData() {
             try {
                 const response = await getServiceById(id);
-                setServiceData(response.data);
+                console.log("Dados da API:", response.data);
+                setServiceData(response);
             } catch (error) {
                 Swal.fire("Erro", "Erro ao carregar serviço", "error");
                 router.push("/admin/services");
