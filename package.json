@@ -17,10 +17,10 @@
     "inputmask": "^5.0.9",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.562.0",
-    "next": "16.1.0",
-    "react": "19.2.3",
+    "next": "^16.1.6",
+    "react": "19.2.4",
     "react-big-calendar": "^1.19.4",
-    "react-dom": "19.2.3",
+    "react-dom": "19.2.4",
     "react-imask": "^7.6.1",
     "recharts": "^3.6.0",
     "sweetalert2": "^11.26.16"
