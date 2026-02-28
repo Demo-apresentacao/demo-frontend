@@ -37,3 +37,9 @@ Google Search Console: Cadastre seu site no Google Search Console. É grátis. L
 Texto na Tela: Garanta que na página inicial do site (o que o cliente lê, não o código) tenha escrito claramente: "Estética Automotiva em Herculândia". O robô lê o código, mas ele prioriza o texto que o humano vê.
 
 Se você comprar o domínio .com.br e cadastrar no Search Console, suas chances de dominar a busca em Herculândia são altíssimas! 🚀
+
+neijunionogueira@email.com
+NeiJunioNogueira123@
+
+INSERT INTO usuario_permissoes (usu_id, per_id)
+values (id do usuario, id da permissao)

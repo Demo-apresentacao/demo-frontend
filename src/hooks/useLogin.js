@@ -87,7 +87,15 @@ export function useLogin() {
       }
 
       // --- ERROS CRÍTICOS (Esses a gente quer ver no console) ---
-      console.error("ERRO CRÍTICO LOGIN:", error);
+      // console.error("ERRO CRÍTICO LOGIN:", error);
+
+console.error("🔴 ERRO CRÍTICO LOGIN:", {
+  message: error.message,
+  name: error.name,
+  stack: error.stack,
+  code: error.code,
+  detail: error.detail
+});
 
       Swal.fire({
         icon: "error",

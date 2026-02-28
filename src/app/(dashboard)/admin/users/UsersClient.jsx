@@ -3,13 +3,14 @@
 import { useUsers } from "@/hooks/useUsers";
 import { Table } from "@/components/ui/table/table";
 import Link from "next/link";
-import { ActionMenu } from "@/components/ui/actionMenu/ActionMenu"; 
-import { Edit, Plus, Eye, Search, Trash2, RotateCcw, Filter } from "lucide-react";
+import { ActionMenu } from "@/components/ui/actionMenu/ActionMenu";
+import { Edit, Plus, Eye, Search, Trash2, RotateCcw, Filter, Shield } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Pagination } from "@/components/ui/pagination/pagination";
 import Swal from "sweetalert2";
 import { toggleUserStatus } from "@/services/users.service";
 import styles from "./UsersClient.module.css";
+import { Can } from "@/components/ui/can";
 
 export default function UsersClient() {
   const {
@@ -18,7 +19,7 @@ export default function UsersClient() {
   } = useUsers();
 
   const [inputValue, setInputValue] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); 
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const isMounted = useRef(false);
 
@@ -140,51 +141,74 @@ export default function UsersClient() {
         <>
           {/* AÇÕES DE DESKTOP */}
           <div className={styles.desktopActions}>
-            <Link
-              href={`/admin/users/${user.usu_id}?mode=view`}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
-              title="Visualizar"
-            >
-              <Eye size={16} />
-            </Link>
-            <Link
-              href={`/admin/users/${user.usu_id}?mode=edit`}
-              style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
-              title="Editar"
-            >
-              <Edit size={16} />
-            </Link>
+            
+            <Can perform="usuarios.visualizar">
+              <Link
+                href={`/admin/users/${user.usu_id}?mode=view`}
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
+                title="Visualizar"
+              >
+                <Eye size={16} />
+              </Link>
+            </Can>
+
+            <Can perform="usuarios.editar">
+              <Link
+                href={`/admin/users/${user.usu_id}?mode=edit`}
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
+                title="Editar"
+              >
+                <Edit size={16} />
+              </Link>
+            </Can>
 
             {user.usu_situacao ? (
-              <button
-                onClick={() => handleArchiveUser(user.usu_id, user.usu_nome)}
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
-                title="Inativar Usuário"
-              >
-                <Trash2 size={16} />
-              </button>
+              <Can perform="usuarios.inativar">
+                <button
+                  onClick={() => handleArchiveUser(user.usu_id, user.usu_nome)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                  title="Inativar Usuário"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </Can>
             ) : (
-              <button
-                onClick={() => handleReactivateUser(user.usu_id, user.usu_nome)}
-                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
-                title="Reativar Acesso"
-              >
-                <RotateCcw size={16} />
-              </button>
+              <Can perform="usuarios.reativar">
+                <button
+                  onClick={() => handleReactivateUser(user.usu_id, user.usu_nome)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
+                  title="Reativar Acesso"
+                >
+                  <RotateCcw size={16} />
+                </button>
+              </Can>
             )}
+
+            {/* O Escudo para a tela de Permissões */}
+            <Can perform="permissoes.visualizar">
+              <Link
+                href={`/admin/users/${user.usu_id}/permissoes`}
+                title="Gerenciar Permissões"
+                style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
+              >
+                <Shield size={16} />
+              </Link>
+            </Can>
           </div>
 
-          {/* AÇÕES DE MOBILE (Componente Novo) */}
+          {/* AÇÕES DE MOBILE */}
           <div className={styles.mobileActions}>
-            <ActionMenu 
-              user={user} 
-              onArchive={handleArchiveUser} 
-              onReactivate={handleReactivateUser} 
+            {/* Dica: Você precisará abrir o arquivo ActionMenu.jsx 
+                e colocar os <Can> lá dentro dos itens do dropdown! */}
+            <ActionMenu
+              user={user}
+              onArchive={handleArchiveUser}
+              onReactivate={handleReactivateUser}
             />
           </div>
         </>
       ),
-    },
+    }
   ];
 
   return (
