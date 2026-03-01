@@ -47,7 +47,8 @@ values (id do usuario, id da permissao)
 testandocadastrosempermissao@teste.com
 TesteSemPermissao123@
 
-pg_dump "CONNECTION_STRING" --format=plain --create --clean --if-exists --blobs --verbose --file=backup_01-03-2026.sql
+pg_dump "CONNECTION_STRING" --format=plain --create --clean --if-exists --blobs --verbose --file=backup_dia-mes-ano.sql (backup com registros)
+pg_dump "CONNECTION_STRING" --format=plain --create --clean --if-exists --schema-only --verbose --file=backup_estrutura_banco.sql (backup sem registros)
 
 
 INSERT INTO usuario_permissoes (usu_id, per_id)
