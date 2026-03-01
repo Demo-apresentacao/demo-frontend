@@ -1,9 +1,11 @@
 "use client"
 
 import { House, Users, Car, Wrench, CalendarCheck, History, CalendarDays, Calculator } from "lucide-react"
+
 import ItemSidebar from "@/components/ui/itemSidebar/itemSidebar"
-import styles from "../sidebar.module.css"
 import { Can } from "@/components/ui/can"
+
+import styles from "../sidebar.module.css"
 
 // 1. Adicionamos a propriedade "permission" aos itens que precisam de bloqueio
 const menuItems = [
@@ -11,8 +13,8 @@ const menuItems = [
     { label: "Usuários", href: "/admin/users", icon: Users, permission: "usuarios.listar" },
     { label: "Veículos", href: "/admin/vehicles", icon: Car, permission: "veiculos.listar" },
     { label: "Serviços", href: "/admin/services", icon: Wrench, permission: "servicos.listar" },
-    { label: "Agendamentos", href: "/admin/appointments", icon: CalendarCheck, permission: "agenda.listar" },
-    { label: "Calendário", href: "/admin/schedule", icon: CalendarDays, permission: "agenda.listar" }, // Assumindo que usa a mesma da agenda
+    { label: "Agendamentos", href: "/admin/appointments", icon: CalendarCheck, permission: "agendamentos.listar" },
+    { label: "Calendário", href: "/admin/schedule", icon: CalendarDays, permission: "calendario.visualizar" }, // Assumindo que usa a mesma da agenda
     { label: "Calculadora", href: "/admin/calculator", icon: Calculator }, // Sem restrição
 ];
 

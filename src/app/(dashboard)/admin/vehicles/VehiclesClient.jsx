@@ -1,12 +1,18 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useVehicles } from "@/hooks/useVehicles";
-import { Table } from "@/components/ui/table/table";
 import Link from "next/link";
+
+import { useState, useEffect, useRef } from "react";
 import { Edit, Search, Plus, Eye, ChevronDown, Filter, Trash2, RotateCcw } from "lucide-react";
+
+import { useVehicles } from "@/hooks/useVehicles";
+
+import { Table } from "@/components/ui/table/table";
+import { Can } from "@/components/ui/can";
 import { Pagination } from "@/components/ui/pagination/pagination";
+
 import { toggleVehicleStatus } from "@/services/vehicles.service";
+
 import Swal from "sweetalert2";
 
 import styles from "./VehiclesClient.module.css";
@@ -32,6 +38,7 @@ export default function VehiclesClient() {
     // O array vazio [] garante que não repita desnecessariamente
     useEffect(() => {
         fetchVehicles("", 1, "all", "veic_id", "DESC");
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // 2. EFEITO INSTANTÂNEO (Filtro de Status e Ordenação)
@@ -58,6 +65,8 @@ export default function VehiclesClient() {
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [inputValue]); // Só monitora o input
 
     // --- HANDLERS ---
@@ -184,36 +193,44 @@ export default function VehiclesClient() {
             accessor: "actions",
             render: (vehicle) => (
                 <div style={{ display: 'flex', gap: '10px' }}>
-                    <Link
-                        href={`/admin/vehicles/${vehicle.veic_id}?mode=view`}
-                        style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
-                        title="Visualizar"
-                    >
-                        <Eye size={16} />
-                    </Link>
-                    <Link
-                        href={`/admin/vehicles/${vehicle.veic_id}?mode=edit`}
-                        style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
-                        title="Editar"
-                    >
-                        <Edit size={16} />
-                    </Link>
+                    <Can perform="veiculos.visualizar">
+                        <Link
+                            href={`/admin/vehicles/${vehicle.veic_id}?mode=view`}
+                            style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
+                            title="Visualizar"
+                        >
+                            <Eye size={16} />
+                        </Link>
+                    </Can>
+                    <Can perform="veiculos.editar">
+                        <Link
+                            href={`/admin/vehicles/${vehicle.veic_id}?mode=edit`}
+                            style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
+                            title="Editar"
+                        >
+                            <Edit size={16} />
+                        </Link>
+                    </Can>
                     {vehicle.veic_situacao ? (
-                        <button
-                            onClick={() => handleArchiveVehicle(vehicle.veic_id, vehicle.veic_placa)}
-                            style={{ display: 'flex', alignItems: 'center', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
-                            title="Ocultar"
-                        >
-                            <Trash2 size={16} />
-                        </button>
+                        <Can perform="veiculos.invativar">
+                            <button
+                                onClick={() => handleArchiveVehicle(vehicle.veic_id, vehicle.veic_placa)}
+                                style={{ display: 'flex', alignItems: 'center', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
+                                title="Ocultar"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </Can>
                     ) : (
-                        <button
-                            onClick={() => handleReactivateVehicle(vehicle.veic_id, vehicle.veic_placa)}
-                            style={{ display: 'flex', alignItems: 'center', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
-                            title="Reativar"
-                        >
-                            <RotateCcw size={16} />
-                        </button>
+                        <Can perform="veiculos.reativar">
+                            <button
+                                onClick={() => handleReactivateVehicle(vehicle.veic_id, vehicle.veic_placa)}
+                                style={{ display: 'flex', alignItems: 'center', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
+                                title="Reativar"
+                            >
+                                <RotateCcw size={16} />
+                            </button>
+                        </Can>
                     )}
                 </div>
             ),
@@ -247,10 +264,12 @@ export default function VehiclesClient() {
                         </select>
                     </div>
                 </div>
-                <Link href="/admin/vehicles/register" className={styles.newButton}>
-                    <Plus size={20} />
-                    <span>Novo Veículo</span>
-                </Link>
+                <Can perform="veiculos.criar">
+                    <Link href="/admin/vehicles/register" className={styles.newButton}>
+                        <Plus size={20} />
+                        <span>Novo Veículo</span>
+                    </Link>
+                </Can>
             </div>
 
             <div className={styles.tableContainer}>

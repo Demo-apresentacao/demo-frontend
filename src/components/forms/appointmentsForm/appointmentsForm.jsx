@@ -1,11 +1,16 @@
 "use client";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
+import { useState, useEffect } from "react";
 import { Edit, Ban, Save, ArrowLeft, Calendar, Clock, User, Car, MessageCircle, Share2, Copy } from "lucide-react";
+
 import { getUsersList, getUserVehicles } from "@/services/users.service";
-// IMPORTANTE: Certifique-se de que a função getServicesByVehicleId está no services.service.js com a URL correta (/vehicle/)
-import { getServicesByVehicleId } from "@/services/services.service"; 
+import { getServicesByVehicleId } from "@/services/services.service";
+
 import Swal from "sweetalert2";
+
+import { Can } from "@/components/ui/can";
+
 import styles from "./appointmentsForm.module.css";
 
 export default function AppointmentForm({
@@ -18,7 +23,7 @@ export default function AppointmentForm({
     const router = useRouter();
     const [isEditable, setIsEditable] = useState(mode !== 'view');
     const [loading, setLoading] = useState(false);
-    
+
     // Novo estado para controlar carregamento dos preços
     const [loadingServices, setLoadingServices] = useState(false);
 
@@ -57,11 +62,11 @@ export default function AppointmentForm({
                         agend_situacao: String(initialData.agend_situacao ?? "1"),
                         services: initialData.servicos ? initialData.servicos.map(s => s.serv_id || s.agend_serv_id) : []
                     });
-                    
+
                     // Se for modo VISUALIZAÇÃO, usamos os serviços que vieram no initialData (pois já tem os preços históricos/salvos)
                     // Se for modo EDIÇÃO, o useEffect abaixo vai recarregar a tabela atualizada baseada no veículo
                     if (initialData.servicos && mode === 'view') {
-                         setServicesList(initialData.servicos);
+                        setServicesList(initialData.servicos);
                     }
                 }
             } catch (error) {
@@ -81,14 +86,14 @@ export default function AppointmentForm({
             try {
                 // Chama o serviço que bate na rota /services/vehicle/:id
                 const specificServices = await getServicesByVehicleId(formData.veic_usu_id);
-                
+
                 // Garante que é um array
                 const lista = Array.isArray(specificServices) ? specificServices : (specificServices.data || []);
-                
+
                 setServicesList(lista);
             } catch (error) {
                 console.error("Erro ao buscar preços por veículo:", error);
-                setServicesList([]); 
+                setServicesList([]);
                 Swal.fire({
                     toast: true,
                     icon: 'error',
@@ -113,14 +118,14 @@ export default function AppointmentForm({
 
     const handleClientChange = async (e) => {
         const userId = e.target.value;
-        
+
         // RESET IMPORTANTE: Ao trocar de cliente, limpamos o veículo e os serviços selecionados
         // Isso evita misturar preços de carro com caminhão se trocar o cliente sem querer
-        setFormData(prev => ({ 
-            ...prev, 
-            usu_id: userId, 
-            veic_usu_id: "", 
-            services: [] 
+        setFormData(prev => ({
+            ...prev,
+            usu_id: userId,
+            veic_usu_id: "",
+            services: []
         }));
         setServicesList([]); // Limpa a lista visual também
 
@@ -417,9 +422,11 @@ export default function AppointmentForm({
             <div className={styles.actionsFooter}>
                 <div className={styles.leftAction}>
                     {isEditable && mode !== 'create' && onCancelAppointment && formData.agend_situacao != "0" && (
-                        <button type="button" onClick={onCancelAppointment} className={`${styles.btnBase} ${styles.btnDanger}`} title="Cancelar este agendamento">
-                            <Ban size={18} /> Cancelar Agendamento
-                        </button>
+                        <Can perform="agendamentos.cancelar">
+                            <button type="button" onClick={onCancelAppointment} className={`${styles.btnBase} ${styles.btnDanger}`} title="Cancelar este agendamento">
+                                <Ban size={18} /> Cancelar Agendamento
+                            </button>
+                        </Can>
                     )}
                 </div>
 
@@ -438,14 +445,18 @@ export default function AppointmentForm({
 
                     {!isEditable ? (
                         formData.agend_situacao != "0" && (
-                            <button type="button" onClick={(e) => { e.preventDefault(); setIsEditable(true); }} className={`${styles.btnBase} ${styles.btnEdit || styles.btnPrimary}`}>
-                                <Edit size={18} /> Editar Agendamento
-                            </button>
+                            <Can perform="agendamentos.editar">
+                                <button type="button" onClick={(e) => { e.preventDefault(); setIsEditable(true); }} className={`${styles.btnBase} ${styles.btnEdit || styles.btnPrimary}`}>
+                                    <Edit size={18} /> Editar Agendamento
+                                </button>
+                            </Can>
                         )
                     ) : (
-                        <button type="submit" className={`${styles.btnBase} ${styles.btnPrimary}`} disabled={loading}>
-                            <Save size={18} /> {loading ? "Salvando..." : "Salvar Alterações"}
-                        </button>
+                        <Can perform="agendamentos.criar">
+                            <button type="submit" className={`${styles.btnBase} ${styles.btnPrimary}`} disabled={loading}>
+                                <Save size={18} /> {loading ? "Salvando..." : "Salvar Alterações"}
+                            </button>
+                        </Can>
                     )}
                 </div>
             </div>
