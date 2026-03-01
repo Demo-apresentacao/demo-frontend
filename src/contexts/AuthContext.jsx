@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useCallback } from "react";
 import Cookies from "js-cookie";
 import { getMe } from "@/services/auth.service";
 
@@ -7,36 +7,52 @@ import { getMe } from "@/services/auth.service";
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
   const [permissions, setPermissions] = useState([]);
-  const [isReady, setIsReady] = useState(false); // Para evitar piscar a tela antes de carregar
+  const [isReady, setIsReady] = useState(false);
 
-  useEffect(() => {
-    async function fetchUserData() {
-      const token = Cookies.get("token");
+  // 1. useCallback permite que a gente chame essa função de fora (ex: na tela de Permissões)
+  const fetchUserData = useCallback(async () => {
+    const token = Cookies.get("token");
 
-      if (token) {
-        try {
-          const data = await getMe();
-          // Ajuste "data.permissoes" para o nome exato que seu backend retorna
-          setPermissions(data.permissoes || []);
-        } catch (error) {
-          console.error("Erro ao buscar permissões no /auth/me", error);
-        }
+    if (token) {
+      try {
+        const data = await getMe();
+        setUser(data); // Salva os dados do usuário (incluindo usu_acesso)
+        setPermissions(data.permissoes || []);
+      } catch (error) {
+        console.error("Erro ao buscar dados no /auth/me", error);
       }
-      setIsReady(true);
     }
+    setIsReady(true);
+  }, []);
 
-    fetchUserData();
-  }, []); // Array vazio garante que só roda 1x quando a aplicação carrega
+  // 2. useEffect blindado contra o aviso de "cascading renders" do linter
+  useEffect(() => {
+    const loadUser = async () => {
+      await fetchUserData();
+    };
 
-  // Hook interno para checar a permissão
+    loadUser();
+  }, [fetchUserData]);
+
+  // Hook interno para checar se o usuário tem uma permissão específica
   const hasPermission = (permissionName) => {
     return permissions.includes(permissionName);
   };
 
   return (
-    <AuthContext.Provider value={{ permissions, hasPermission, isReady }}>
-      {/* Só mostra o site quando terminar de carregar as permissões */}
+    // 3. Exportamos tudo que o sistema precisa, incluindo o refreshSession!
+    <AuthContext.Provider 
+        value={{ 
+            user, 
+            permissions, 
+            hasPermission, 
+            isReady, 
+            refreshSession: fetchUserData // Apelidamos a função para ficar mais semântico
+        }}
+    >
+      {/* Só mostra o site quando terminar de carregar os dados */}
       {isReady ? children : null} 
     </AuthContext.Provider>
   );

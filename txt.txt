@@ -48,3 +48,7 @@ testandocadastrosempermissao@teste.com
 TesteSemPermissao123@
 
 pg_dump "CONNECTION_STRING" --format=plain --create --clean --if-exists --blobs --verbose --file=backup_01-03-2026.sql
+
+
+INSERT INTO usuario_permissoes (usu_id, per_id)
+SELECT NÚMERO_DO_ID_DO_USUARIO, per_id FROM permissoes;

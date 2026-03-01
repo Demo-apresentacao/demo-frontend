@@ -9,13 +9,17 @@ export function useUserPermissions(userId) {
     const [selectedPerms, setSelectedPerms] = useState(new Set());
     const [initialParams, setInitialParams] = useState(new Set());
     const [loading, setLoading] = useState(true);
+    
+    // 1. NOVO: Adicionamos o estado para rastrear o Erro 403
+    const [accessDenied, setAccessDenied] = useState(false); 
+    
     const router = useRouter();
 
-    // Busca os dados e agrupa
     const fetchPermissionsData = useCallback(async () => {
         setLoading(true);
+        setAccessDenied(false); // 2. NOVO: Reseta o erro a cada nova busca
+
         try {
-            // Faz as duas requisições ao mesmo tempo para ser mais rápido
             const [allPermsData, userPermsData] = await Promise.all([
                 getAllPermissions(),
                 getUserPermissions(userId)
@@ -23,46 +27,45 @@ export function useUserPermissions(userId) {
 
             const allPermsArray = allPermsData.data || [];
             const userPermsArray = userPermsData.data || [];
-            // AGRUPAMENTO: Transforma o array em um objeto separado por módulos
-            // Ex: { "usuarios": [{per_chave: "usuarios.listar", ...}], "veiculos": [...] }
+            
             const grouped = allPermsArray.reduce((acc, perm) => {
-                const [modulo] = perm.per_chave.split("."); // Pega a palavra antes do ponto
+                const [modulo] = perm.per_chave.split("."); 
                 if (!acc[modulo]) acc[modulo] = [];
                 acc[modulo].push(perm);
                 return acc;
             }, {});
 
             setAllPermissions(grouped);
-
-            // Salva as permissões que o usuário já tem em um Set (lista otimizada)
             setSelectedPerms(new Set(userPermsArray));
             setInitialParams(new Set(userPermsArray));
 
         } catch (error) {
-            console.error("Erro ao carregar permissões:", error);
-            Swal.fire("Erro", "Não foi possível carregar as permissões.", "error");
+            // 3. NOVO: Interceptamos o 403 para não mostrar o Swal de erro feio
+            if (error.response?.status === 403) {
+                setAccessDenied(true); 
+            } else {
+                console.error("Erro ao carregar permissões:", error);
+                Swal.fire("Erro", "Não foi possível carregar as permissões.", "error");
+            }
         } finally {
             setLoading(false);
         }
     }, [userId]);
 
-    // Função disparada ao clicar no Toggle/Checkbox
     const handleToggle = (chave) => {
         setSelectedPerms((prev) => {
             const newSet = new Set(prev);
             if (newSet.has(chave)) {
-                newSet.delete(chave); // Se já tem, remove (desmarca)
+                newSet.delete(chave); 
             } else {
-                newSet.add(chave); // Se não tem, adiciona (marca)
+                newSet.add(chave); 
             }
             return newSet;
         });
     };
 
-    // Salvar no backend
     const handleSave = async () => {
         try {
-            // Converte o Set de volta para Array antes de enviar pro backend
             const permissionsArray = Array.from(selectedPerms);
 
             await updateUserPermissions(userId, permissionsArray);
@@ -78,8 +81,7 @@ export function useUserPermissions(userId) {
                 color: "#111827"
             });
 
-            router.push("/admin/users");
-
+            return true;
 
         } catch (error) {
             console.error("Erro ao salvar:", error);
@@ -98,6 +100,7 @@ export function useUserPermissions(userId) {
         fetchPermissionsData,
         handleToggle,
         handleSave,
-        hasUnsavedChanges
+        hasUnsavedChanges,
+        accessDenied // 4. NOVO: Exportamos essa variável para a tela ler!
     };
 }
