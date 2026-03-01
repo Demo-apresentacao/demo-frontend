@@ -11,6 +11,8 @@ export async function getUserPermissions(userId) {
   const { data } = await api.get(`/users/${userId}/permissions`);
   // O ideal é que retorne um array de strings: ['usuarios.listar', 'veiculos.criar']
   return data; 
+
+  console.log("Permissões do usuário:", data);
 }
 
 // Salva as novas permissões do usuário

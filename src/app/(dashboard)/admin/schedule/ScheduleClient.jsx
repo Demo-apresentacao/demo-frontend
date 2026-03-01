@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useMemo } from "react";
+
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
@@ -8,22 +9,18 @@ import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import { 
-    getAppointments, 
-    createAppointment, 
-    updateAppointment,
-    getAppointmentById,
-    cancelAppointment 
-} from "@/services/appointments.service";
+import {getAppointments, createAppointment, updateAppointment, getAppointmentById, cancelAppointment } from "@/services/appointments.service";
 
 import AppointmentForm from "@/components/forms/appointmentsForm/appointmentsForm";
 import ModalCalendar from "@/components/modals/modalCalendar/ModalCalendar";
+
 import Swal from "sweetalert2";
+
 import styles from "./ScheduleClient.module.css";
 
 const locales = { 'pt-BR': ptBR };
 const localizer = dateFnsLocalizer({
-  format, parse, startOfWeek, getDay, locales,
+    format, parse, startOfWeek, getDay, locales,
 });
 
 const messages = {
@@ -46,16 +43,16 @@ export default function ScheduleClient() {
     const [events, setEvents] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(null); 
+    const [selectedDate, setSelectedDate] = useState(null);
 
     // 1. Buscar Agendamentos (Fetch Schedule)
     const fetchSchedule = useCallback(async () => {
         try {
             const { data } = await getAppointments({ limit: 1000 });
-            
+
             const mappedEvents = data.map(item => {
                 const startDateTime = new Date(`${item.agend_data.split('T')[0]}T${item.agend_horario}`);
-                const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000)); 
+                const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000));
 
                 return {
                     id: item.agend_id,
@@ -63,7 +60,7 @@ export default function ScheduleClient() {
                     start: startDateTime,
                     end: endDateTime,
                     resource: item,
-                    status: item.agend_situacao 
+                    status: item.agend_situacao
                 };
             });
 
@@ -74,12 +71,18 @@ export default function ScheduleClient() {
     }, []);
 
     useEffect(() => {
-        fetchSchedule();
+        // Envolver a chamada em uma função assíncrona interna 
+        // acalma o linter e evita o aviso de "cascading renders".
+        const loadSchedule = async () => {
+            await fetchSchedule();
+        };
+
+        loadSchedule();
     }, [fetchSchedule]);
 
     // 2. Estilização dos Eventos (Cores por Status)
     const eventPropGetter = (event) => {
-        let backgroundColor = '#3b82f6'; 
+        let backgroundColor = '#3b82f6';
         if (event.status === 1) backgroundColor = '#f59e0b'; // Pendente
         if (event.status === 3) backgroundColor = '#16a34a'; // Concluído
         if (event.status === 0) backgroundColor = '#ef4444'; // Cancelado
@@ -91,8 +94,8 @@ export default function ScheduleClient() {
 
     // Clicar em um slot vazio (Criar Novo)
     const handleSelectSlot = ({ start }) => {
-        setSelectedEvent(null); 
-        setSelectedDate(start); 
+        setSelectedEvent(null);
+        setSelectedDate(start);
         setIsModalOpen(true);
     };
 
@@ -102,13 +105,13 @@ export default function ScheduleClient() {
             // Busca os dados COMPLETOS pelo ID (corrige veículo undefined e serviços vazios)
             const response = await getAppointmentById(event.id);
             const fullData = response.data;
-            
+
             // Tratamento para montar o nome do veículo corretamente se necessário
             if (fullData.veic_modelo && fullData.veic_placa) {
-                 fullData.veiculoLabel = `${fullData.veic_modelo} - ${fullData.veic_placa}`;
+                fullData.veiculoLabel = `${fullData.veic_modelo} - ${fullData.veic_placa}`;
             }
-            
-            setSelectedEvent(fullData); 
+
+            setSelectedEvent(fullData);
             setIsModalOpen(true);
 
         } catch (error) {
@@ -133,7 +136,7 @@ export default function ScheduleClient() {
                 // --- ATUALIZAÇÃO ---
                 isUpdate = true;
                 const response = await updateAppointment(selectedEvent.agend_id, payload);
-                savedData = { ...selectedEvent, ...response.data, ...formData }; 
+                savedData = { ...selectedEvent, ...response.data, ...formData };
             } else {
                 // --- CRIAÇÃO ---
                 await createAppointment(payload);
@@ -161,7 +164,7 @@ export default function ScheduleClient() {
                     const telefone = telefoneRaw.replace(/\D/g, "");
                     const nomeCliente = savedData.usu_nome?.split(" ")[0] || "Cliente";
                     const baseUrl = window.location.origin;
-                    
+
                     if (telefone && savedData.tracking_token) {
                         const linkRastreio = `${baseUrl}/status/${savedData.tracking_token}`;
                         let statusTexto = "";
@@ -203,7 +206,7 @@ export default function ScheduleClient() {
             }
 
             // SE FOR OUTRO ERRO (500, Rede, etc): Logamos e mostramos Swal Vermelho.
-            console.error(error); 
+            console.error(error);
             Swal.fire({
                 icon: 'error',
                 title: 'Erro no Servidor',
@@ -276,7 +279,7 @@ export default function ScheduleClient() {
         const base = new Date();
         // Define o início da visualização: 07:00
         const min = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 7, 0, 0);
-        
+
         // Define o fim da visualização: 18:00 (O calendário mostra até o final dessa hora)
         const max = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 18, 0, 0);
 
@@ -306,13 +309,13 @@ export default function ScheduleClient() {
                 />
             </div>
 
-            <ModalCalendar 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+            <ModalCalendar
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
                 title={selectedEvent ? `Agendamento #${selectedEvent.agend_id}` : "Novo Agendamento"}
             >
-                <AppointmentForm 
-                    initialData={getInitialData()} 
+                <AppointmentForm
+                    initialData={getInitialData()}
                     mode={getFormMode()}
                     onCancel={() => setIsModalOpen(false)}
                     saveFunction={handleSave}

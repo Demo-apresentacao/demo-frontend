@@ -50,7 +50,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    background-color: #2563eb;
+    background-color: var(--primary-red);
     color: #ffffff;
     font-weight: 500;
     font-size: 0.95rem;
@@ -61,5 +61,5 @@
 }
 
 .button:hover {
-    background-color: #1d4ed8;
+    background-color: var(--primary-darkred);
 }

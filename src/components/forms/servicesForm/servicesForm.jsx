@@ -4,11 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import { Edit, Save, Plus, Settings, List } from "lucide-react";
 import Swal from "sweetalert2";
 
-import { InputRegisterForm } from "../../ui/inputRegisterForm/inputRegisterForm";
-import { InputMaskRegister } from "../../ui/inputMaskRegister/inputMaskRegister";
-import { SelectRegister } from "../../ui/selectRegister/selectRegister";
-
-import styles from "../servicesForm/servicesForm.module.css";
+import { InputRegisterForm } from "@/components/ui/inputRegisterForm/inputRegisterForm";
+import { InputMaskRegister } from "@/components/ui/inputMaskRegister/inputMaskRegister";
+import { SelectRegister } from "@/components/ui/selectRegister/selectRegister";
+import { Can } from "@/components/ui/can";
 
 import CategoryModal from "../../modals/modalServicesCategories/CategoryModal";
 import ManageCategoriesModal from "../../modals/modalServicesCategories/ManageCategories";
@@ -16,6 +15,7 @@ import ManageCategoriesModal from "../../modals/modalServicesCategories/ManageCa
 import { useServiceCategories } from "@/hooks/useServicesCategories";
 import { useCategoriesVehiclesForServices } from "@/hooks/useCategoriesVehiclesForServices";
 
+import styles from "../servicesForm/servicesForm.module.css";   
 /* =====================================================
    FUNÇÕES AUXILIARES DE MOEDA
 ===================================================== */
@@ -283,11 +283,7 @@ export default function ServiceForm({
     const handleModalSuccess = () => {
         setIsModalOpen(false);
 
-        // Recarrega categorias (nova ou editada)
         refetch();
-
-        // Se quiser limpar categoria selecionada após criar
-        // setFormData(prev => ({ ...prev, category_id: "" }));
     };
 
     return (
@@ -432,14 +428,16 @@ export default function ServiceForm({
                     {!isEditable ? (
                         <>
                             <button type="button" onClick={onCancel} className={styles.btnCancel}>Voltar</button>
-                            <button
-                                type="button"
-                                className={styles.btnSave}
-                                onClick={handleEditClick}
-                                style={{ display: 'flex', alignItems: 'center' }}
-                            >
-                                <Edit size={16} style={{ marginRight: 5 }} /> Editar Dados
-                            </button>
+                            <Can perform="servicos.editar">
+                                <button
+                                    type="button"
+                                    className={styles.btnSave}
+                                    onClick={handleEditClick}
+                                    style={{ display: 'flex', alignItems: 'center' }}
+                                >
+                                    <Edit size={16} style={{ marginRight: 5 }} /> Editar Dados
+                                </button>
+                            </Can>
                         </>
                     ) : (
                         <>
@@ -451,15 +449,17 @@ export default function ServiceForm({
                             >
                                 Cancelar
                             </button>
-                            <button
-                                type="submit"
-                                className={styles.btnSave}
-                                disabled={loading}
-                                style={{ display: 'flex', alignItems: 'center' }}
-                            >
-                                <Save size={16} style={{ marginRight: 5 }} />
-                                {loading ? "Salvando..." : "Salvar Alterações"}
-                            </button>
+                            <Can perform="servicos.criar">
+                                <button
+                                    type="submit"
+                                    className={styles.btnSave}
+                                    disabled={loading}
+                                    style={{ display: 'flex', alignItems: 'center' }}
+                                >
+                                    <Save size={16} style={{ marginRight: 5 }} />
+                                    {loading ? "Salvando..." : "Salvar Alterações"}
+                                </button>
+                            </Can>
                         </>
                     )}
                 </div>
