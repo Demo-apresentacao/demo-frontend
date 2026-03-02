@@ -300,7 +300,7 @@ export default function ServicesClient() {
                             className={styles.statusSelect}
                             onChange={handleStatusChange}>
 
-                            <option value="all">Status: Todos</option>
+                            <option value="all">Todos</option>
                             <option value="active">Ativos</option>
                             <option value="inactive">Inativos</option>
                         </select>
