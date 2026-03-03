@@ -15,7 +15,7 @@ import ManageCategoriesModal from "../../modals/modalServicesCategories/ManageCa
 import { useServiceCategories } from "@/hooks/useServicesCategories";
 import { useCategoriesVehiclesForServices } from "@/hooks/useCategoriesVehiclesForServices";
 
-import styles from "../servicesForm/servicesForm.module.css";   
+import styles from "../servicesForm/servicesForm.module.css";
 /* =====================================================
    FUNÇÕES AUXILIARES DE MOEDA
 ===================================================== */
@@ -48,13 +48,13 @@ export default function ServiceForm({
     onCancel,
     saveFunction,
     initialData,
-    mode = "create",
+    mode = "edit", // "edit", "view" ou "create"
 }) {
     /* =====================================================
        HOOKS BÁSICOS
     ===================================================== */
     const [loading, setLoading] = useState(false);
-    const [isEditable, setIsEditable] = useState(mode !== "view");
+    const [isEditable, setIsEditable] = useState(mode === 'edit' || mode === 'create');
 
     const {
         categories,
@@ -124,6 +124,11 @@ export default function ServiceForm({
         setFormData(mapServiceData(initialData));
         setVehicleConfig(initialVehicleConfig);
     }, [initialData, initialVehicleConfig]);
+
+    useEffect(() => {
+        setIsEditable(mode === 'edit' || mode === 'create');
+
+    }, [mode]);
 
     /* =====================================================
        DERIVED STATE
@@ -427,7 +432,7 @@ export default function ServiceForm({
                 <div className={styles.actions} style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                     {!isEditable ? (
                         <>
-                            <button type="button" onClick={onCancel} className={styles.btnCancel}>Voltar</button>
+                            {/* <button type="button" onClick={onCancel} className={styles.btnCancel}>Voltar</button> */}
                             <Can perform="servicos.editar">
                                 <button
                                     type="button"
@@ -449,17 +454,36 @@ export default function ServiceForm({
                             >
                                 Cancelar
                             </button>
-                            <Can perform="servicos.criar">
-                                <button
-                                    type="submit"
-                                    className={styles.btnSave}
-                                    disabled={loading}
-                                    style={{ display: 'flex', alignItems: 'center' }}
-                                >
-                                    <Save size={16} style={{ marginRight: 5 }} />
-                                    {loading ? "Salvando..." : "Salvar Alterações"}
-                                </button>
-                            </Can>
+
+                            {mode === 'create' ? (
+
+                                <Can perform="servicos.criar">
+                                    <button
+                                        type="submit"
+                                        className={styles.btnSave}
+                                        disabled={loading}
+                                        style={{ display: 'flex', alignItems: 'center' }}
+                                    >
+                                        <Save size={16} style={{ marginRight: 5 }} />
+                                        {loading ? "Salvando..." : "Cadastrar Serviço"}
+                                    </button>
+                                </Can>
+
+                            ) : (
+                                <Can perform="servicos.editar">
+                                    <button
+                                        type="submit"
+                                        className={styles.btnSave}
+                                        disabled={loading}
+                                        style={{ display: 'flex', alignItems: 'center' }}
+                                    >
+                                        <Save size={16} style={{ marginRight: 5 }} />
+                                        {loading ? "Salvando..." : "Salvar Alterações"}
+                                    </button>
+                                </Can>
+                            )}
+
+
                         </>
                     )}
                 </div>

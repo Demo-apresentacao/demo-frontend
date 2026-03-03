@@ -1,11 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import UserFormAdmin from "@/components/forms/userForm/userFormAdmin/userFormAdmin";
-import { registerUser } from "@/services/register.service";
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+
+import { ChevronLeft } from "lucide-react";
+
+import { registerUser } from "@/services/register.service";
+
+import { Can } from "@/components/ui/can";
+import UserFormAdmin from "@/components/forms/userForm/userFormAdmin/userFormAdmin";
+import AccessDenied from "@/components/ui/accessDenied";
+
 import Swal from "sweetalert2"; // Importando o SweetAlert
+
 import styles from "./page.module.css";
 
 export default function RegisterUserPage() {
@@ -16,15 +23,12 @@ export default function RegisterUserPage() {
             await registerUser(userData);
             return { success: true };
         } catch (error) {
-            // 👇 LÓGICA DE LIMPEZA DO CONSOLE
-            // Se for erro de servidor (500) ou erro de conexão, logamos para debug.
-            // Se for erro de validação (400/409), NÃO logamos console.error, apenas mostramos o alerta.
-            
+
             const status = error.response?.status;
 
             // Só loga no console se for erro grave (diferente de validação)
             if (!status || status >= 500) {
-                 console.error("Erro Crítico:", error);
+                console.error("Erro Crítico:", error);
             }
 
             let title = "Erro ao cadastrar";
@@ -32,7 +36,7 @@ export default function RegisterUserPage() {
 
             if (error.response) {
                 const { data } = error.response;
-                
+
                 if (data && data.message) text = data.message;
                 else if (typeof data === 'string') text = data;
 
@@ -46,7 +50,7 @@ export default function RegisterUserPage() {
             await Swal.fire({
                 title: title,
                 text: text,
-                icon: "warning", // Mudei para warning (amarelo) pois conflito não é crash
+                icon: "warning",
                 confirmButtonColor: "#f59e0b"
             });
 
@@ -61,15 +65,13 @@ export default function RegisterUserPage() {
             text: "Usuário criado com sucesso.",
             icon: "success",
             confirmButtonColor: "#10b981"
-            // Removemos 'timer' e 'showConfirmButton: false'
-            // O padrão do SweetAlert já é exibir o botão "OK"
         }).then(() => {
             router.push("/admin/users"); // Só redireciona quando o usuário clicar no botão
         });
     };
 
     const handleCancel = () => {
-        router.back(); // Volta para a página anterior
+        router.push("/admin/users");// Volta para a página anterior
     };
 
     return (
@@ -83,11 +85,14 @@ export default function RegisterUserPage() {
             </div>
 
             <div className={styles.formCard}>
-                <UserFormAdmin 
-                    saveFunction={handleCreateUser}
-                    onSuccess={handleSuccess}
-                    onCancel={handleCancel}
-                />
+                <Can permission="usuarios.criar" fallback={<AccessDenied />}>
+                    <UserFormAdmin
+                        mode="create"
+                        saveFunction={handleCreateUser}
+                        onSuccess={handleSuccess}
+                        onCancel={handleCancel}
+                    />
+                </Can>
             </div>
         </div>
     );

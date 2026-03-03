@@ -12,7 +12,7 @@ export async function getUserPermissions(userId) {
   // O ideal é que retorne um array de strings: ['usuarios.listar', 'veiculos.criar']
   return data; 
 
-  console.log("Permissões do usuário:", data);
+    console.log("Permissões do usuário:", data);
 }
 
 // Salva as novas permissões do usuário

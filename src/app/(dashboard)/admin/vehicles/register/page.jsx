@@ -1,11 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import VehicleForm from "@/components/forms/vehicleForm/vehicleFormAdmin/vehicleForm";
-import { createVehicle } from "@/services/vehicles.service"; // Importando o serviço
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+
+import { ChevronLeft } from "lucide-react";
+
+import { createVehicle } from "@/services/vehicles.service"; // Importando o serviço
+
+import VehicleForm from "@/components/forms/vehicleForm/vehicleFormAdmin/vehicleForm";
+import { Can } from "@/components/ui/can";
+import AccessDenied from "@/components/ui/accessDenied";
+
 import Swal from "sweetalert2";
+
 import styles from "./page.module.css";
 
 export default function RegisterVehiclePage() {
@@ -22,7 +29,7 @@ export default function RegisterVehiclePage() {
 
             // Só loga se for erro crítico (não loga 400/409)
             if (!status || status >= 500) {
-                 console.error("Erro Crítico ao criar veículo:", error);
+                console.error("Erro Crítico ao criar veículo:", error);
             }
 
             let title = "Erro ao cadastrar";
@@ -30,7 +37,7 @@ export default function RegisterVehiclePage() {
 
             if (error.response) {
                 const { data } = error.response;
-                
+
                 if (data && data.message) text = data.message;
                 else if (typeof data === 'string') text = data;
 
@@ -68,7 +75,7 @@ export default function RegisterVehiclePage() {
     };
 
     return (
-       <div className={styles.container}>
+        <div className={styles.container}>
             <div className={styles.header}>
                 <Link href="/admin/vehicles" className={styles.backLink}>
                     <ChevronLeft size={20} />
@@ -78,12 +85,15 @@ export default function RegisterVehiclePage() {
             </div>
 
             <div className={styles.formCard}>
-                <VehicleForm 
-                    saveFunction={handleCreateVehicle}
-                    onSuccess={handleSuccess}
-                    onCancel={handleCancel}
-                     // Força o modo de criação (editável desde o início)
-                />
+                <Can permission="veiculos.criar" fallback={<AccessDenied />}>
+                    <VehicleForm
+                        mode="create"
+                        saveFunction={handleCreateVehicle}
+                        onSuccess={handleSuccess}
+                        onCancel={handleCancel}
+                    // Força o modo de criação (editável desde o início)
+                    />
+                </Can>
             </div>
         </div>
     );

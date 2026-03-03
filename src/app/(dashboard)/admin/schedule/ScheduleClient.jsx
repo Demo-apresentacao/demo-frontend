@@ -46,13 +46,44 @@ export default function ScheduleClient() {
     const [selectedDate, setSelectedDate] = useState(null);
 
     // 1. Buscar Agendamentos (Fetch Schedule)
-    const fetchSchedule = useCallback(async () => {
+    // const fetchSchedule = useCallback(async () => {
+    //     try {
+    //         const { data } = await getAppointments({ limit: 1000 });
+
+    //         const mappedEvents = data.map(item => {
+    //             const startDateTime = new Date(`${item.agend_data.split('T')[0]}T${item.agend_horario}`);
+    //             const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000));
+
+    //             return {
+    //                 id: item.agend_id,
+    //                 title: `${item.veic_placa} - ${item.usu_nome}`,
+    //                 start: startDateTime,
+    //                 end: endDateTime,
+    //                 resource: item,
+    //                 status: item.agend_situacao
+    //             };
+    //         });
+
+    //         setEvents(mappedEvents);
+    //     } catch (error) {
+    //         console.error("Erro ao carregar agenda (schedule):", error);
+    //     }
+    // }, []);
+
+const fetchSchedule = useCallback(async () => {
         try {
+            // Buscamos um limite alto para preencher o calendário
             const { data } = await getAppointments({ limit: 1000 });
 
             const mappedEvents = data.map(item => {
+                // Monta o início
                 const startDateTime = new Date(`${item.agend_data.split('T')[0]}T${item.agend_horario}`);
-                const endDateTime = new Date(startDateTime.getTime() + (60 * 60 * 1000));
+                
+                // PEGA A DURAÇÃO REAL DO BACKEND (converte para número)
+                const durationMinutes = parseFloat(item.duracao_total_min) || 30;
+                
+                // Calcula o fim com base nos minutos reais
+                const endDateTime = new Date(startDateTime.getTime() + (durationMinutes * 60 * 1000));
 
                 return {
                     id: item.agend_id,
@@ -66,7 +97,7 @@ export default function ScheduleClient() {
 
             setEvents(mappedEvents);
         } catch (error) {
-            console.error("Erro ao carregar agenda (schedule):", error);
+            console.error("Erro ao carregar agenda:", error);
         }
     }, []);
 
@@ -304,6 +335,8 @@ export default function ScheduleClient() {
                     longPressThreshold={0}
                     defaultView="month"
                     views={['month', 'week', 'day', 'agenda']}
+                    step={15}      // Divisões de 15 em 15 minutos
+                    timeslots={4}  // 4 divisões de 15min por hora
                     min={minTime} // Começa a mostrar as 07:00
                     max={maxTime} // Termina de mostrar as 18:00
                 />
