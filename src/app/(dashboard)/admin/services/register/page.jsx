@@ -1,11 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import ServiceForm from "@/components/forms/servicesForm/servicesForm";
-import { createService } from "@/services/services.service";
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+
+import { ChevronLeft } from "lucide-react";
+
+import { createService } from "@/services/services.service";
+
+import { Can } from "@/components/ui/can";
+import ServiceForm from "@/components/forms/servicesForm/servicesForm";
+import AccessDenied from "@/components/ui/accessDenied";
+
 import Swal from "sweetalert2";
+
 import styles from "./page.module.css";
 
 export default function RegisterServicePage() {
@@ -19,7 +26,6 @@ export default function RegisterServicePage() {
             console.error(error);
             Swal.fire({
                 title: "Erro",
-                // Tenta pegar a mensagem do backend, senão usa genérica
                 text: error.response?.data?.message || "Erro ao criar serviço",
                 icon: "error",
                 confirmButtonColor: "#f59e0b"
@@ -37,6 +43,10 @@ export default function RegisterServicePage() {
         }).then(() => router.push("/admin/services"));
     };
 
+    const handleCancel = () => {
+        router.push("/admin/services");// Volta para a página anterior
+    };
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -46,13 +56,14 @@ export default function RegisterServicePage() {
                 <h1 className={styles.title}>Cadastrar Novo Serviço</h1>
             </div>
             <div className={styles.formCard}>
-                {/* mode="edit" garante que o form nasça editável e vazio */}
-                <ServiceForm 
-                    saveFunction={handleCreate}
-                    onSuccess={handleSuccess}
-                    onCancel={() => router.back()}
-                    mode="create" 
-                />
+                <Can permission="servicos.criar" fallback={<AccessDenied />}>
+                    <ServiceForm
+                        mode="create"
+                        saveFunction={handleCreate}
+                        onSuccess={handleSuccess}
+                        onCancel={handleCancel}
+                    />
+                </Can>
             </div>
         </div>
     );

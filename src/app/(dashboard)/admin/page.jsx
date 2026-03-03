@@ -6,6 +6,7 @@ import { getDashboardStats } from "@/services/dashboard.service";
 import StatCard from "@/components/dashboard/statCard/StatCard";
 import SectionCard from "@/components/dashboard/sectionCard/SectionCard";
 import ServiceChart from "@/components/dashboard/serviceChart/ServiceChart";
+import { Can } from "@/components/ui/can";
 
 import styles from "./page.module.css";
 
@@ -56,16 +57,18 @@ export default function AdminDashboard() {
                 <StatCard title="Veículos Hoje" value={data.cards?.veiculos_hoje || 0} icon={<CalendarDays size={24} />} />
 
                 {/* StatCard com Ação (Olhinho) e formatação segura */}
-                <StatCard
-                    title="Faturamento (Mês)"
-                    value={showRevenue ? formatMoney(data.cards?.faturamento_mes) : "R$ ****"}
-                    icon={<DollarSign size={24} />}
-                    action={
-                        <button onClick={() => setShowRevenue(!showRevenue)} className={styles.eyeBtn}>
-                            {showRevenue ? <EyeOff size={18} /> : <Eye size={18} />}
-                        </button>
-                    }
-                />
+                <Can perform="financeiro.visualizar_statCard" >
+                    <StatCard
+                        title="Faturamento (Mês)"
+                        value={showRevenue ? formatMoney(data.cards?.faturamento_mes) : "R$ ****"}
+                        icon={<DollarSign size={24} />}
+                        action={
+                            <button onClick={() => setShowRevenue(!showRevenue)} className={styles.eyeBtn}>
+                                {showRevenue ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        }
+                    />
+                </Can>
 
                 <StatCard title="Serviços Concluídos" value={data.cards?.concluidos_mes || 0} icon={<Activity size={24} />} />
             </div>

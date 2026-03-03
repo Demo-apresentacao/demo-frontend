@@ -17,7 +17,7 @@ import styles from "../userForm.module.css";
 
 export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initialData, mode = 'edit' }) {
     const [loading, setLoading] = useState(false);
-    const [isEditable, setIsEditable] = useState(mode === 'edit');
+    const [isEditable, setIsEditable] = useState(mode === 'edit' || mode === 'create');
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
 
@@ -58,7 +58,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
     const isPasswordValid = Object.values(passwordRules).every(Boolean);
 
     useEffect(() => {
-        setIsEditable(mode === 'edit');
+        setIsEditable(mode === 'edit' || mode === 'create');
         setErrors({});
     }, [mode]);
 
@@ -114,8 +114,6 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
             newErrors.usu_telefone = "Telefone incompleto.";
         }
 
-
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -130,8 +128,9 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
 
         const success = await linkUser(payload);
         if (success) {
-            console.log("Veículo vinculado!");
-            // Opcional: Recarregar dados se você tiver uma lista de carros no form
+
+            setShowLinkModal(false);
+            onSuccess(); // Recarrega os dados do usuário para mostrar o novo vínculo
         }
     };
 
@@ -357,11 +356,12 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
 
                     {/* NOVO: BOTÃO DE VINCULAR VEÍCULO (Só aparece se o usuário já existir) */}
                     {!!initialData && (
-                        <div style={{ marginRight: 'auto', width: "100%" }}>
+                        <div style={{ marginRight: 'auto' }}>
+                            {/* Você pode envolver este botão com um <Can> se só admins puderem vincular carros */}
                             <button
                                 type="button"
                                 className={styles.btnSave}
-                                style={{ backgroundColor: '#fff', color: '#eb2525ff', border: '1px solid #eb2525ff', flex: 1 }}
+                                style={{ backgroundColor: '#fff', color: '#eb2525', border: '1px solid #eb2525' }}
                                 onClick={() => setShowLinkModal(true)}
                             >
                                 <Car size={16} style={{ marginRight: 5 }} />
@@ -381,15 +381,32 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                             </button>
                         </Can>
                     ) : (
+                        // ESTADO DE CRIAÇÃO / EDIÇÃO
                         <>
-                            <button type="button" onClick={handleCancelClick} className={styles.btnCancel} disabled={loading}>
+                            <button 
+                                type="button" 
+                                onClick={handleCancelClick} 
+                                className={styles.btnCancel} 
+                                disabled={loading}
+                            >
                                 Cancelar
                             </button>
-                            <Can perform="usuarios.criar">
-                                <button type="submit" className={styles.btnSave} disabled={loading}>
-                                    {loading ? "Salvando..." : "Salvar"}
-                                </button>
-                            </Can>
+
+                            {mode === 'create' ? (
+                                // 1. Se for NOVO usuário, exige permissão de CRIAR
+                                <Can perform="usuarios.criar">
+                                    <button type="submit" className={styles.btnSave} disabled={loading}>
+                                        {loading ? "Salvando..." : "Cadastrar Usuário"}
+                                    </button>
+                                </Can>
+                            ) : (
+                                // 2. Se for usuário EXISTENTE, exige permissão de ALTERAR
+                                <Can perform="usuarios.editar">
+                                    <button type="submit" className={styles.btnSave} disabled={loading}>
+                                        {loading ? "Salvando..." : "Salvar Alterações"}
+                                    </button>
+                                </Can>
+                            )}
                         </>
                     )}
                 </div>

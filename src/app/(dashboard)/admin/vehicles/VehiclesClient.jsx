@@ -82,13 +82,13 @@ export default function VehiclesClient() {
     // --- FUNÇÕES DE STATUS (Inativar/Reativar) ---
     const handleArchiveVehicle = async (id, nome) => {
         const result = await Swal.fire({
-            title: 'Ocultar Veículo?',
+            title: 'Inativar Veículo?',
             text: `O veículo "${nome}" ficará inativo.`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#ef4444',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Sim, ocultar!',
+            confirmButtonText: 'Sim, inativar!',
             cancelButtonText: 'Cancelar'
         });
 
@@ -96,7 +96,7 @@ export default function VehiclesClient() {
             try {
                 await toggleVehicleStatus(id, false);
                 await Swal.fire({
-                    title: 'Ocultado!',
+                    title: 'Inativado!',
                     text: 'Veículo desativado.',
                     icon: 'success',
                     confirmButtonColor: '#16a34a'
@@ -104,7 +104,7 @@ export default function VehiclesClient() {
                 fetchVehicles(inputValue, page, statusFilter, sortColumn, sortDirection);
             } catch (error) {
                 console.error(error);
-                Swal.fire('Erro', 'Erro ao ocultar.', 'error');
+                Swal.fire('Erro', 'Erro ao inativar.', 'error');
             }
         }
     };
@@ -212,7 +212,7 @@ export default function VehiclesClient() {
                         </Link>
                     </Can>
                     {vehicle.veic_situacao ? (
-                        <Can perform="veiculos.invativar">
+                        <Can perform="veiculos.alterar_status">
                             <button
                                 onClick={() => handleArchiveVehicle(vehicle.veic_id, vehicle.veic_placa)}
                                 style={{ display: 'flex', alignItems: 'center', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -222,7 +222,7 @@ export default function VehiclesClient() {
                             </button>
                         </Can>
                     ) : (
-                        <Can perform="veiculos.reativar">
+                        <Can perform="veiculos.alterar_status">
                             <button
                                 onClick={() => handleReactivateVehicle(vehicle.veic_id, vehicle.veic_placa)}
                                 style={{ display: 'flex', alignItems: 'center', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}

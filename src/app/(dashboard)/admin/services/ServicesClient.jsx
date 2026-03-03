@@ -231,6 +231,7 @@ export default function ServicesClient() {
             accessor: "actions",
             render: (service) => (
                 <div style={{ display: "flex", gap: "8px" }}>
+
                     <Can perform="servicos.visualizar">
                         <Link href={`/admin/services/${service.serv_id}?mode=view`}
                             style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
@@ -238,6 +239,7 @@ export default function ServicesClient() {
                             <Eye size={16} />
                         </Link>
                     </Can>
+                    
                     <Can perform="servicos.editar">
                         <Link href={`/admin/services/${service.serv_id}?mode=edit`}
                             style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
@@ -247,25 +249,25 @@ export default function ServicesClient() {
                     </Can>
 
                     {service.serv_situacao ? (
-                        <Can perform="servicos.inativar">
+                        <Can perform="servicos.alterar_status">
                             <button
                                 onClick={() =>
                                     handleArchiveService(service.serv_id, service.serv_nome)
                                 }
                                 style={{ display: 'flex', alignItems: 'center', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
-                                title="Ocultar"
+                                title="Inativar Serviço"
                             >
                                 <Trash2 size={16} />
                             </button>
                         </Can>
                     ) : (
-                        <Can perform="servicos.reativar">
+                        <Can perform="servicos.alterar_status">
                             <button
                                 onClick={() =>
                                     handleReactivateService(service.serv_id, service.serv_nome)
                                 }
                                 style={{ display: 'flex', alignItems: 'center', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
-                                title="Reativar"
+                                title="Reativar Serviço"
                             >
                                 <RotateCcw size={16} />
                             </button>
@@ -300,7 +302,7 @@ export default function ServicesClient() {
                             className={styles.statusSelect}
                             onChange={handleStatusChange}>
 
-                            <option value="all">Status: Todos</option>
+                            <option value="all">Todos</option>
                             <option value="active">Ativos</option>
                             <option value="inactive">Inativos</option>
                         </select>

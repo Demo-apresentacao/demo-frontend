@@ -20,7 +20,7 @@ import styles from "../vehicleForm.module.css";
 export default function VehicleForm({ onSuccess, onCancel, saveFunction, initialData, mode = 'edit' }) {
 
     const [loading, setLoading] = useState(false);
-    const [isEditable, setIsEditable] = useState(mode === 'edit');
+    const [isEditable, setIsEditable] = useState(mode === 'edit' || mode === 'create');
     const [errors, setErrors] = useState({});
     const [showLinkModal, setShowLinkModal] = useState(false);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -66,7 +66,7 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
 
 
     useEffect(() => {
-        setIsEditable(mode === 'edit');
+        setIsEditable(mode === 'edit' || mode === 'create');
         setErrors({});
     }, [mode]);
 
@@ -373,11 +373,21 @@ export default function VehicleForm({ onSuccess, onCancel, saveFunction, initial
                             <button type="button" onClick={handleCancelClick} className={styles.btnCancel} disabled={loading}>
                                 Cancelar
                             </button>
-                            <Can perform="veiculos.criar">
-                                <button type="submit" className={styles.btnSave} disabled={loading}>
-                                    {loading ? "Salvando..." : "Salvar"}
-                                </button>
-                            </Can>
+                            {mode === 'create' ? (
+                                <Can perform="veiculos.criar">
+                                    <button type="submit" className={styles.btnSave} disabled={loading}>
+                                        {loading ? "Salvando..." : "Cadastrar Veículo"}
+                                    </button>
+                                </Can>
+
+                            ) : (
+                                <Can perform="veiculos.editar">
+                                    <button type="submit" className={styles.btnSave} disabled={loading}>
+                                        {loading ? "Salvando..." : "Salvar Alterações"}
+                                    </button>
+                                </Can>
+                            )}
+
                         </>
                     )}
                 </div>

@@ -20,7 +20,7 @@ export default function UnderConstruction() {
 
                 <div className={styles.alertBox}>
                     <strong>Você é da equipe?</strong>
-                    <p>Se você é um funcionário, peça ao Administrador do sistema para alterar o seu perfil para <strong>Administrador</strong> na tela de Usuários.</p>
+                    <p>Se você é um funcionário, peça ao Administrador do sistema para alterar o seu perfil <b>Administrador</b> na tela de Usuários.</p>
                 </div>
 
                 <button onClick={logout} className={styles.button}>

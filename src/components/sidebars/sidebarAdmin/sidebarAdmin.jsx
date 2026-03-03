@@ -14,7 +14,7 @@ const menuItems = [
     { label: "Veículos", href: "/admin/vehicles", icon: Car, permission: "veiculos.listar" },
     { label: "Serviços", href: "/admin/services", icon: Wrench, permission: "servicos.listar" },
     { label: "Agendamentos", href: "/admin/appointments", icon: CalendarCheck, permission: "agendamentos.listar" },
-    { label: "Calendário", href: "/admin/schedule", icon: CalendarDays, permission: "calendario.visualizar" }, // Assumindo que usa a mesma da agenda
+    { label: "Calendário", href: "/admin/schedule", icon: CalendarDays, permission: "agendamentos.listar" }, // Assumindo que usa a mesma da agenda
     { label: "Calculadora", href: "/admin/calculator", icon: Calculator }, // Sem restrição
 ];
 

@@ -8,8 +8,7 @@ export default function Users() {
         // Envolvemos a página inteira com a permissão exigida
         <Can perform="usuarios.listar" fallback={<AccessDenied />}>
             <div className={styles.container}>
-                <h1 className={styles.title}>Painel de Usuários</h1>
-                
+                <h1 className={styles.title}>Painel de Usuários</h1>   
                 <UsersClient />
             </div>
         </Can>

@@ -184,7 +184,7 @@ export default function UsersClient() {
                         </Can>
 
                         {user.usu_situacao ? (
-                            <Can perform="usuarios.inativar">
+                            <Can perform="usuarios.alterar_status">
                                 <button
                                     onClick={() => handleArchiveUser(user.usu_id, user.usu_nome)}
                                     style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -194,7 +194,7 @@ export default function UsersClient() {
                                 </button>
                             </Can>
                         ) : (
-                            <Can perform="usuarios.reativar">
+                            <Can perform="usuarios.alterar_status">
                                 <button
                                     onClick={() => handleReactivateUser(user.usu_id, user.usu_nome)}
                                     style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
@@ -259,7 +259,7 @@ export default function UsersClient() {
                     </div>
                 </div>
 
-                <Can perform="usuarios.visualizar">
+                <Can perform="usuarios.criar">
                     <Link href="/admin/users/register" className={styles.newButton}>
                         <Plus size={20} />
                         <span>Novo Usuário</span>

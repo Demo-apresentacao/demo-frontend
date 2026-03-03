@@ -7,7 +7,7 @@ import AccessDenied from "@/components/ui/accessDenied";
 
 export default function SchedulePage() {
     return (
-        <Can perform="calendario.visualizar" fallback={<AccessDenied />}>
+        <Can perform="agendamentos.listar" fallback={<AccessDenied />}>
             <div className={styles.container}>
                 {/* <h1 className={styles.title}>Agendamentos</h1> */}
                 <ScheduleClient />

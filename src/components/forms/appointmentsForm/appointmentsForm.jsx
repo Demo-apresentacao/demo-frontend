@@ -345,12 +345,27 @@ export default function AppointmentForm({
                             {servicesList.filter(s => formData.services.includes(s.serv_id)).map(service => (
                                 <div key={service.serv_id} className={styles.serviceRow}>
                                     <span className={styles.serviceNameRO}>{service.serv_nome}</span>
-                                    <span className={styles.servicePriceRO}>{Number(service.serv_preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+
+                                    <span className={styles.servicePriceRO}>
+                                        {service.stv_preco
+                                            ? Number(service.stv_preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                            : "---"}
+                                    </span>
+
+                                    {/* <span className={styles.servicePriceRO}>
+                                        {Number(service.serv_preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        </span> */}
+
                                 </div>
                             ))}
                             <div className={styles.totalRow}>
                                 <span>TOTAL ESTIMADO</span>
-                                <span>{servicesList.filter(s => formData.services.includes(s.serv_id)).reduce((acc, curr) => acc + Number(curr.serv_preco), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+
+                                <span style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>
+                                    {/* Prioriza o valor total vindo do backend, garantindo que seja um número */}
+                                    {Number(initialData?.agend_valor_total || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                </span>
+                                {/* <span>{servicesList.filter(s => formData.services.includes(s.serv_id)).reduce((acc, curr) => acc + Number(curr.serv_preco), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span> */}
                             </div>
                         </>
                     ) : (<div className={styles.noServices}>Nenhum serviço lançado.</div>)}
