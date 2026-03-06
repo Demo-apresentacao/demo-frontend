@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { X, Save, Search, Car, CheckCircle } from "lucide-react";
-import { getAllVehicles } from "@/services/vehicles.service"; // Importe o service de veículos
+import { getAllVehicles } from "@/services/vehicles.service"; 
 
-import styles from "./modalVehicleLink.module.css"; // Use o mesmo CSS ou uma cópia
+import styles from "./modalVehicleLink.module.css";
 
 export default function ModalVehicleLink({ isOpen, onClose, onSave }) {
     const [vehicles, setVehicles] = useState([]);
