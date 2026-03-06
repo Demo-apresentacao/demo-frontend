@@ -2,14 +2,14 @@
 import { useRouter } from "next/navigation";
 
 import { useState, useEffect } from "react";
-import { Edit, Ban, Save, ArrowLeft, Calendar, Clock, User, Car, MessageCircle, Share2, Copy } from "lucide-react";
+import { Edit, Ban, Save, ArrowLeft, Calendar, Clock, User, Car, MessageCircle, Share2, Copy, Lock } from "lucide-react";
 
 import { getUsersList, getUserVehicles } from "@/services/users.service";
 import { getServicesByVehicleId } from "@/services/services.service";
 
-import Swal from "sweetalert2";
-
 import { Can } from "@/components/ui/can";
+
+import Swal from "sweetalert2";
 
 import styles from "./appointmentsForm.module.css";
 
@@ -42,19 +42,65 @@ export default function AppointmentForm({
     });
 
     // --- CARGA INICIAL (Usuários e Dados Iniciais) ---
+    // useEffect(() => {
+    //     const loadDependencies = async () => {
+    //         try {
+    //             // Carrega lista de clientes
+    //             const users = await getUsersList();
+    //             setClientsList(users);
+
+    //             // Se houver dados iniciais (Edição ou Visualização)
+    //             if (initialData) {
+    //                 const dataFormatada = initialData.agend_data ? new Date(initialData.agend_data).toISOString().split('T')[0] : "";
+
+    //                 setFormData({
+    //                     usu_id: initialData.veic_usu_id ? "loaded" : "", // Mantém placeholder se já tiver vinculo
+    //                     veic_usu_id: String(initialData.veic_usu_id || ""),
+    //                     agend_data: dataFormatada,
+    //                     agend_horario: initialData.agend_horario || "",
+    //                     agend_observ: initialData.agend_observ || "",
+    //                     agend_situacao: String(initialData.agend_situacao ?? "1"),
+    //                     services: initialData.servicos ? initialData.servicos.map(s => s.serv_id || s.agend_serv_id) : []
+    //                 });
+
+    //                 // Se for modo VISUALIZAÇÃO, usamos os serviços que vieram no initialData (pois já tem os preços históricos/salvos)
+    //                 // Se for modo EDIÇÃO, o useEffect abaixo vai recarregar a tabela atualizada baseada no veículo
+    //                 if (initialData.servicos && mode === 'view') {
+    //                     setServicesList(initialData.servicos);
+    //                 }
+    //             }
+    //         } catch (error) {
+    //             console.error("Erro ao carregar dependências", error);
+    //         }
+    //     };
+    //     loadDependencies();
+    // }, [initialData, mode]);
+
+
+    // --- CARGA INICIAL (Usuários e Dados Iniciais) ---
     useEffect(() => {
         const loadDependencies = async () => {
             try {
-                // Carrega lista de clientes
-                const users = await getUsersList();
-                setClientsList(users);
+                // 1. TENTA CARREGAR A LISTA DE CLIENTES COM SILENCIADOR DE 403
+                try {
+                    const users = await getUsersList();
+                    setClientsList(users);
+                } catch (userError) {
+                    if (userError.response?.status === 403) {
+                        // Se não tem permissão para listar usuários, apenas ignora.
+                        // O modo "view" ainda vai funcionar porque ele usa o initialData.usu_nome!
+                        setClientsList([]);
+                    } else {
+                        throw userError; // Se for erro de servidor (500), joga pro catch principal
+                    }
+                }
 
-                // Se houver dados iniciais (Edição ou Visualização)
+                // 2. MONTA OS DADOS INICIAIS (Edição ou Visualização)
                 if (initialData) {
                     const dataFormatada = initialData.agend_data ? new Date(initialData.agend_data).toISOString().split('T')[0] : "";
 
                     setFormData({
-                        usu_id: initialData.veic_usu_id ? "loaded" : "", // Mantém placeholder se já tiver vinculo
+                        usu_id: initialData.veic_usu_id ? "loaded" : "",
                         veic_usu_id: String(initialData.veic_usu_id || ""),
                         agend_data: dataFormatada,
                         agend_horario: initialData.agend_horario || "",
@@ -63,8 +109,7 @@ export default function AppointmentForm({
                         services: initialData.servicos ? initialData.servicos.map(s => s.serv_id || s.agend_serv_id) : []
                     });
 
-                    // Se for modo VISUALIZAÇÃO, usamos os serviços que vieram no initialData (pois já tem os preços históricos/salvos)
-                    // Se for modo EDIÇÃO, o useEffect abaixo vai recarregar a tabela atualizada baseada no veículo
+                    // Se for modo VISUALIZAÇÃO, usamos os serviços que vieram no initialData
                     if (initialData.servicos && mode === 'view') {
                         setServicesList(initialData.servicos);
                     }
@@ -92,16 +137,28 @@ export default function AppointmentForm({
 
                 setServicesList(lista);
             } catch (error) {
-                console.error("Erro ao buscar preços por veículo:", error);
-                setServicesList([]);
-                Swal.fire({
-                    toast: true,
-                    icon: 'error',
-                    title: 'Erro ao carregar tabela de preços deste veículo',
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
+                // console.error("Erro ao buscar preços por veículo:", error);
+                // setServicesList([]);
+                // Swal.fire({
+                //     toast: true,
+                //     icon: 'error',
+                //     title: 'Erro ao carregar tabela de preços deste veículo',
+                //     position: 'top-end',
+                //     showConfirmButton: false,
+                //     timer: 3000
+                // });
+                if (error.response?.status !== 403) {
+                    console.error("Erro ao buscar preços por veículo:", error);
+                    setServicesList([]);
+                    Swal.fire({
+                        toast: true,
+                        icon: 'error',
+                        title: 'Erro ao carregar tabela de preços deste veículo',
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
             } finally {
                 setLoadingServices(false);
             }
@@ -337,6 +394,8 @@ export default function AppointmentForm({
                 {!isEditable ? "Extrato de Serviços Realizados" : "Selecione os Serviços"}
             </div>
 
+
+
             {!isEditable ? (
                 /* MODO VISUALIZAÇÃO: MOSTRA SERVIÇOS SALVOS (do initialData) */
                 <div className={styles.servicesReadOnly}>
@@ -404,6 +463,7 @@ export default function AppointmentForm({
                     )}
                 </div>
             )}
+
 
             <div className={styles.inputGroup} style={{ marginTop: '1rem' }}>
                 <label>Observações</label>

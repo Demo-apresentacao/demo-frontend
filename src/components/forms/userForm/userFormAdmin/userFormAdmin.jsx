@@ -356,18 +356,20 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
 
                     {/* NOVO: BOTÃO DE VINCULAR VEÍCULO (Só aparece se o usuário já existir) */}
                     {!!initialData && (
-                        <div style={{ marginRight: 'auto' }}>
-                            {/* Você pode envolver este botão com um <Can> se só admins puderem vincular carros */}
-                            <button
-                                type="button"
-                                className={styles.btnSave}
-                                style={{ backgroundColor: '#fff', color: '#eb2525', border: '1px solid #eb2525' }}
-                                onClick={() => setShowLinkModal(true)}
-                            >
-                                <Car size={16} style={{ marginRight: 5 }} />
-                                Adicionar Veículo
-                            </button>
-                        </div>
+                        <Can perform="veiculos_usuario.criar">
+                            <div style={{ marginRight: 'auto' }}>
+                                {/* Você pode envolver este botão com um <Can> se só admins puderem vincular carros */}
+                                <button
+                                    type="button"
+                                    className={styles.btnSave}
+                                    style={{ backgroundColor: '#fff', color: '#eb2525', border: '1px solid #eb2525' }}
+                                    onClick={() => setShowLinkModal(true)}
+                                >
+                                    <Car size={16} style={{ marginRight: 5 }} />
+                                    Adicionar Veículo
+                                </button>
+                            </div>
+                        </Can>
                     )}
 
                     {!isEditable ? (
@@ -383,10 +385,10 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                     ) : (
                         // ESTADO DE CRIAÇÃO / EDIÇÃO
                         <>
-                            <button 
-                                type="button" 
-                                onClick={handleCancelClick} 
-                                className={styles.btnCancel} 
+                            <button
+                                type="button"
+                                onClick={handleCancelClick}
+                                className={styles.btnCancel}
                                 disabled={loading}
                             >
                                 Cancelar

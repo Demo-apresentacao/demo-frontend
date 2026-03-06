@@ -85,7 +85,7 @@ export default function RegisterUserPage() {
             </div>
 
             <div className={styles.formCard}>
-                <Can permission="usuarios.criar" fallback={<AccessDenied />}>
+                <Can perform="usuarios.criar" fallback={<AccessDenied />}>
                     <UserFormAdmin
                         mode="create"
                         saveFunction={handleCreateUser}

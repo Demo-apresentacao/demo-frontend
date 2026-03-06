@@ -9,10 +9,22 @@ export function useUserPermissions(userId) {
     const [selectedPerms, setSelectedPerms] = useState(new Set());
     const [initialParams, setInitialParams] = useState(new Set());
     const [loading, setLoading] = useState(true);
+
+    // DICIONÁRIO DE DEPENDÊNCIAS
+    // "Se o usuário ganhar a permissão X, ele OBRIGATORIAMENTE precisa das permissões da lista"
     
+    const DEPENDENCIES = {
+        "agendamentos.visualizar": ["usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
+        "agendamentos.listar": ["usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
+        "agendamentos.criar": ["agendamentos.listar", "usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
+        "agendamentos.alterar": ["agendamentos.listar", "usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
+        "agendamentos.cancelar": ["agendamentos.listar"],
+        "veiculos_usuario.criar": ["veiculos.listar"],
+    };
+
     // 1. NOVO: Adicionamos o estado para rastrear o Erro 403
-    const [accessDenied, setAccessDenied] = useState(false); 
-    
+    const [accessDenied, setAccessDenied] = useState(false);
+
     const router = useRouter();
 
     const fetchPermissionsData = useCallback(async () => {
@@ -27,9 +39,9 @@ export function useUserPermissions(userId) {
 
             const allPermsArray = allPermsData.data || [];
             const userPermsArray = userPermsData.data || [];
-            
+
             const grouped = allPermsArray.reduce((acc, perm) => {
-                const [modulo] = perm.per_chave.split("."); 
+                const [modulo] = perm.per_chave.split(".");
                 if (!acc[modulo]) acc[modulo] = [];
                 acc[modulo].push(perm);
                 return acc;
@@ -42,7 +54,7 @@ export function useUserPermissions(userId) {
         } catch (error) {
             // 3. NOVO: Interceptamos o 403 para não mostrar o Swal de erro feio
             if (error.response?.status === 403) {
-                setAccessDenied(true); 
+                setAccessDenied(true);
             } else {
                 console.error("Erro ao carregar permissões:", error);
                 Swal.fire("Erro", "Não foi possível carregar as permissões.", "error");
@@ -52,13 +64,47 @@ export function useUserPermissions(userId) {
         }
     }, [userId]);
 
+    // const handleToggle = (chave) => {
+    //     setSelectedPerms((prev) => {
+    //         const newSet = new Set(prev);
+    //         if (newSet.has(chave)) {
+    //             newSet.delete(chave);
+    //         } else {
+    //             newSet.add(chave);
+    //         }
+    //         return newSet;
+    //     });
+    // };
+
+    // Função disparada ao clicar no Toggle/Checkbox
     const handleToggle = (chave) => {
         setSelectedPerms((prev) => {
             const newSet = new Set(prev);
+
             if (newSet.has(chave)) {
-                newSet.delete(chave); 
+                // 🔴 AÇÃO: DESMARCAR UMA PERMISSÃO
+                newSet.delete(chave);
+
+                // MÁGICA REVERSA: Se ele tirar a permissão de "Clientes",
+                // o sistema arranca a permissão de "Agendamentos" automaticamente, 
+                // pois o agendamento não sobrevive sem o cliente!
+                Object.entries(DEPENDENCIES).forEach(([dependentKey, requiredKeys]) => {
+                    if (requiredKeys.includes(chave) && newSet.has(dependentKey)) {
+                        newSet.delete(dependentKey);
+                    }
+                });
+
             } else {
-                newSet.add(chave); 
+                // 🟢 AÇÃO: MARCAR UMA PERMISSÃO
+                newSet.add(chave);
+
+                // MÁGICA DIRETA: Se ele marcar "Criar Agendamento",
+                // o sistema liga Clientes, Serviços e Veículos automaticamente!
+                if (DEPENDENCIES[chave]) {
+                    DEPENDENCIES[chave].forEach(dep => {
+                        newSet.add(dep);
+                    });
+                }
             }
             return newSet;
         });
