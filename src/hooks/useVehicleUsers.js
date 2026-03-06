@@ -53,6 +53,8 @@ export const useVehicleUsers = () => {
   // 2. BUSCAR HISTÓRICO DE UM VEÍCULO
   // ----------------------------------------------------------------
   const fetchHistory = useCallback(async (veicId) => {
+    if (!veicId) return; // 🔴 TRAVA DE SEGURANÇA: Evita erro de ID null
+
     setLoading(true);
     setError(null);
     try {
@@ -66,7 +68,8 @@ export const useVehicleUsers = () => {
       const msg = err.response?.data?.message || err.message || "Erro ao buscar histórico.";
       setError(msg);
       setHistory([]);
-      console.error("Erro fetchHistory:", err);
+      // 🔴 LOG MELHORADO: Mostra o erro real em vez de {}
+      console.error("Erro fetchHistory:", err.response?.data || err.message || err);
     } finally {
       setLoading(false);
     }
