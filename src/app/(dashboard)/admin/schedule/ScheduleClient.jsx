@@ -9,7 +9,7 @@ import getDay from 'date-fns/getDay';
 import ptBR from 'date-fns/locale/pt-BR';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import {getAppointments, createAppointment, updateAppointment, getAppointmentById, cancelAppointment } from "@/services/appointments.service";
+import { getAppointments, createAppointment, updateAppointment, getAppointmentById, cancelAppointment } from "@/services/appointments.service";
 
 import AppointmentForm from "@/components/forms/appointmentsForm/appointmentsForm";
 import ModalCalendar from "@/components/modals/modalCalendar/ModalCalendar";
@@ -70,7 +70,7 @@ export default function ScheduleClient() {
     //     }
     // }, []);
 
-const fetchSchedule = useCallback(async () => {
+    const fetchSchedule = useCallback(async () => {
         try {
             // Buscamos um limite alto para preencher o calendário
             const { data } = await getAppointments({ limit: 1000 });
@@ -78,10 +78,10 @@ const fetchSchedule = useCallback(async () => {
             const mappedEvents = data.map(item => {
                 // Monta o início
                 const startDateTime = new Date(`${item.agend_data.split('T')[0]}T${item.agend_horario}`);
-                
+
                 // PEGA A DURAÇÃO REAL DO BACKEND (converte para número)
                 const durationMinutes = parseFloat(item.duracao_total_min) || 30;
-                
+
                 // Calcula o fim com base nos minutos reais
                 const endDateTime = new Date(startDateTime.getTime() + (durationMinutes * 60 * 1000));
 
@@ -146,8 +146,31 @@ const fetchSchedule = useCallback(async () => {
             setIsModalOpen(true);
 
         } catch (error) {
-            console.error("Erro ao buscar detalhes:", error);
-            Swal.fire("Erro", "Não foi possível carregar os detalhes do agendamento.", "error");
+            if (error.response?.status === 403) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Acesso Restrito',
+                    text: 'Você não tem permissão para visualizar os detalhes deste agendamento.',
+                    confirmButtonColor: '#f59e0b'
+                });
+            } else {
+                // Se for erro 500 ou o servidor caiu de verdade
+                console.error("Erro ao buscar detalhes:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível carregar os detalhes do agendamento.',
+                    confirmButtonColor: '#ef4444'
+                });
+            }
+
+            // console.error("Erro ao buscar detalhes:", error);
+            // Swal.fire({
+            //     icon: 'error',
+            //     title: 'Erro',
+            //     text: 'Não foi possível carregar os detalhes do agendamento.',
+            //     confirmButtonColor: '#ef4444'
+            // });
         }
     };
 
