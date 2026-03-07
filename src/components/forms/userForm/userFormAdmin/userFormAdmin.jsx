@@ -274,10 +274,12 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
 
                     {!!initialData && (
                         <div className={styles.vehicleActionsGroup}>
-                            <button type="button" className={styles.btnViewVehicles} onClick={handleOpenVehiclesModal}>
-                                <List size={16} style={{ marginRight: 5 }} />
-                                Ver Veículos
-                            </button>
+                            <Can perform="veiculos_usuario.listar">
+                                <button type="button" className={styles.btnViewVehicles} onClick={handleOpenVehiclesModal}>
+                                    <List size={16} style={{ marginRight: 5 }} />
+                                    Ver Veículos
+                                </button>
+                            </Can>
 
                             <Can perform="veiculos_usuario.criar">
                                 <button type="button" className={styles.btnAddVehicle} onClick={() => setShowLinkModal(true)}>

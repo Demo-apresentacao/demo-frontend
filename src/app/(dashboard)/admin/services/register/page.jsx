@@ -56,7 +56,7 @@ export default function RegisterServicePage() {
                 <h1 className={styles.title}>Cadastrar Novo Serviço</h1>
             </div>
             <div className={styles.formCard}>
-                <Can permission="servicos.criar" fallback={<AccessDenied />}>
+                <Can perform="servicos.criar" fallback={<AccessDenied />}>
                     <ServiceForm
                         mode="create"
                         saveFunction={handleCreate}
