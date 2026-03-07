@@ -85,7 +85,7 @@ export default function RegisterVehiclePage() {
             </div>
 
             <div className={styles.formCard}>
-                <Can permission="veiculos.criar" fallback={<AccessDenied />}>
+                <Can perform="veiculos.criar" fallback={<AccessDenied />}>
                     <VehicleForm
                         mode="create"
                         saveFunction={handleCreateVehicle}
