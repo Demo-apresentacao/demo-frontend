@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Edit, Check, X, EyeOff, Eye, Car, Plus, List, History } from "lucide-react";
+import { Edit, Check, X, EyeOff, Eye, Car, Plus, List, Trash2, Save, Truck, Bike, Calendar, Unlink } from "lucide-react";
 
+import Swal from "sweetalert2";
 import { InputRegisterForm } from "@/components/ui/inputRegisterForm/inputRegisterForm";
 import { InputMaskRegister } from "@/components/ui/inputMaskRegister/inputMaskRegister";
 import { SelectRegister } from "@/components/ui/selectRegister/selectRegister";
@@ -10,10 +11,9 @@ import { Can } from "@/components/ui/can";
 import { validateCPF, validateEmail, getBirthDateError } from "@/utils/validators";
 
 import ModalVehicleLink from "../../../modals/modalVehicleLink/modalVehicleLink";
-import ModalVehicleHistory from "../../../modals/modalVehicleHistory/modalVehicleHistory";
 
 import { useVehicleUsers } from "@/hooks/useVehicleUsers";
-import { getUserVehicles } from "@/services/users.service";
+import { getUserVehicles } from "@/services/users.service"; // ou .services se for o caso
 
 import styles from "../userForm.module.css";
 
@@ -23,27 +23,25 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
 
-    // Estados para o Modal de Adicionar Veículo
     const [showLinkModal, setShowLinkModal] = useState(false);
-    const { linkUser } = useVehicleUsers();
+    
+    // Pegamos apenas o linkUser e o finalizeLink agora
+    const { linkUser, finalizeLink } = useVehicleUsers();
 
-    // Estados para o Modal de Visualizar Veículos
     const [showVehiclesModal, setShowVehiclesModal] = useState(false);
     const [userVehiclesList, setUserVehiclesList] = useState([]);
     const [loadingVehicles, setLoadingVehicles] = useState(false);
 
-    // NOVO: Estados para o Modal de Gerenciar o Vínculo do Veículo
-    const [showVehicleHistoryModal, setShowVehicleHistoryModal] = useState(false);
-    const [selectedVehicleId, setSelectedVehicleId] = useState(null);
+    // Estados para o painel expansível
+    const [editingLinkId, setEditingLinkId] = useState(null);
+    const [savingLink, setSavingLink] = useState(false);
 
     const getInitialState = () => {
         const defaults = {
             usu_nome: "", usu_cpf: "", usu_data_nasc: "", usu_sexo: "0",
             usu_email: "", usu_senha: "", usu_acesso: "false", usu_observ: "", usu_telefone: ""
         };
-
         if (!initialData) return defaults;
-
         return {
             usu_nome: initialData.usu_nome || "",
             usu_cpf: initialData.usu_cpf || "",
@@ -113,6 +111,41 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
         return Object.keys(newErrors).length === 0;
     };
 
+    // FUNÇÕES DE VEÍCULOS
+    const getVehicleIcon = (categoryName) => {
+        const name = (categoryName || "").toLowerCase();
+        if (name.includes('caminhao') || name.includes('caminhão') || name.includes('caminhonete')) {
+            return <Truck size={24} color="#eb2525" />;
+        }
+        if (name.includes('moto')) {
+            return <Bike size={24} color="#eb2525" />;
+        }
+        return <Car size={24} color="#eb2525" />;
+    };
+
+    // Formata a data (YYYY-MM-DD para DD/MM/YYYY) de forma segura
+    const formatDateBr = (dateString) => {
+        if (!dateString) return '-';
+        return dateString.split('T')[0].split('-').reverse().join('/');
+    };
+
+    const handleOpenVehiclesModal = async () => {
+        if (!initialData?.usu_id) return;
+        setShowVehiclesModal(true);
+        setLoadingVehicles(true);
+        setEditingLinkId(null);
+
+        try {
+            const response = await getUserVehicles(initialData.usu_id);
+            setUserVehiclesList(response.data || response || []);
+        } catch (error) {
+            console.error("Erro ao buscar veículos:", error);
+            setUserVehiclesList([]);
+        } finally {
+            setLoadingVehicles(false);
+        }
+    };
+
     const handleLinkVehicleSave = async (modalData) => {
         const payload = {
             usu_id: initialData.usu_id,
@@ -120,40 +153,62 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
             ehproprietario: modalData.is_owner,
             data_inicial: modalData.start_date
         };
-
         const success = await linkUser(payload);
         if (success) {
             setShowLinkModal(false);
-            onSuccess();
+            if (showVehiclesModal) handleOpenVehiclesModal();
         }
     };
 
-    const handleOpenVehiclesModal = async () => {
-        if (!initialData?.usu_id) return;
-        setShowVehiclesModal(true);
-        setLoadingVehicles(true);
-
-        try {
-            const response = await getUserVehicles(initialData.usu_id);
-            setUserVehiclesList(response.data || response || []);
-        } catch (error) {
-            console.error("Erro ao buscar veículos do usuário:", error);
-            setUserVehiclesList([]);
-        } finally {
-            setLoadingVehicles(false);
+    // Expande o card
+    const handleTogglePanel = (veic_usu_id) => {
+        if (editingLinkId === veic_usu_id) {
+            setEditingLinkId(null);
+        } else {
+            setEditingLinkId(veic_usu_id);
         }
     };
 
-    // NOVO: Função para abrir o modal de histórico e gerenciar o vínculo daquele veículo
-    const handleOpenVehicleHistory = (veic_id) => {
-        setSelectedVehicleId(veic_id);
-        setShowVehicleHistoryModal(true);
+    // ENCERRAR VÍNCULO COM SWEETALERT
+    const handleFinalizeLink = async (veic_usu_id, placa) => {
+        // 1. Pede a confirmação do usuário
+        const confirm = await Swal.fire({
+            title: 'Encerrar Vínculo?',
+            text: `Tem certeza que deseja desvincular o veículo ${placa} deste usuário?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#eb2525', // Vermelho do sistema
+            cancelButtonColor: '#6b7280',  // Cinza
+            confirmButtonText: 'Sim, encerrar!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        // 2. Se o usuário clicar em "Sim"
+        if (confirm.isConfirmed) {
+            setSavingLink(true);
+            const today = new Date().toISOString().split('T')[0]; // Pega a data atual
+            
+            const success = await finalizeLink(veic_usu_id, today);
+            setSavingLink(false);
+
+            // 3. Se a API retornou sucesso, mostra o aviso final
+            if (success) {
+                Swal.fire({
+                    title: 'Encerrado!',
+                    text: 'O veículo foi desvinculado com sucesso.',
+                    icon: 'success',
+                    confirmButtonColor: '#16a34a' // Verde
+                });
+                
+                setEditingLinkId(null);
+                handleOpenVehiclesModal(); // Recarrega a lista
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validateForm()) return;
-
         setLoading(true);
         const phoneVal = formData.usu_telefone ? formData.usu_telefone.trim() : "";
         const isPhoneValid = phoneVal.length >= 14;
@@ -164,7 +219,6 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
             usu_acesso: formData.usu_acesso === "true",
             usu_telefone: isPhoneValid ? formData.usu_telefone : null
         };
-
         if (initialData && !payload.usu_senha) delete payload.usu_senha;
 
         try {
@@ -326,9 +380,10 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                 onSave={handleLinkVehicleSave}
             />
 
+            {/* MODAL: MEUS VEÍCULOS */}
             {showVehiclesModal && (
                 <div className={styles.modalOverlay} onClick={() => setShowVehiclesModal(false)}>
-                    <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                    <div className={styles.modalContent} style={{ maxWidth: '550px' }} onClick={e => e.stopPropagation()}>
 
                         <div className={styles.modalHeader}>
                             <h3>Veículos de {initialData?.usu_nome}</h3>
@@ -342,49 +397,65 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                                 <p className={styles.emptyText}>Buscando veículos...</p>
                             ) : userVehiclesList.length > 0 ? (
                                 <div className={styles.vehicleList}>
-                                    {userVehiclesList.map(v => (
-                                        <div key={v.veic_id} className={styles.vehicleCard}>
-                                            <div className={styles.vehicleIconWrapper}>
-                                                <Car size={24} color="#eb2525" />
-                                            </div>
-                                            <div className={styles.vehicleInfo}>
-                                                <span className={styles.vehiclePlate}>{v.veic_placa}</span>
-                                                <span className={styles.vehicleModel}>{v.mod_nome}</span>
-                                            </div>
+                                    
+                                    {userVehiclesList.map(v => {
+                                        const isExpanded = editingLinkId === v.veic_usu_id;
 
-                                            <button
-                                                type="button"
-                                                className={styles.btnManageVehicle}
-                                                onClick={() => handleOpenVehicleHistory(v.veic_id)}
-                                                title="Gerenciar Vínculos do Veículo"
-                                            >
-                                                <History size={18} />
-                                            </button>
-                                        </div>
-                                    ))}
+                                        return (
+                                            <div key={v.veic_usu_id} className={styles.vehicleCardContainer}>
+                                                
+                                                {/* CABEÇALHO DO CARD */}
+                                                <div className={styles.vehicleCardHeader} onClick={() => handleTogglePanel(v.veic_usu_id)} style={{ cursor: 'pointer' }}>
+                                                    <div className={styles.vehicleIconWrapper}>
+                                                        {getVehicleIcon(v.cat_nome)}
+                                                    </div>
+                                                    <div className={styles.vehicleInfo}>
+                                                        <span className={styles.vehiclePlate}>{v.veic_placa}</span>
+                                                        <span className={styles.vehicleModel}>{v.mod_nome} {v.veic_ano && `- ${v.veic_ano}`}</span>
+                                                    </div>
+                                                    
+                                                    {/* Ícone virou uma setinha/lápis indicando ação */}
+                                                    <button type="button" className={`${styles.btnManageVehicle} ${isExpanded ? styles.active : ''}`}>
+                                                        {isExpanded ? <X size={18} color="#ef4444" /> : <Edit size={18} />}
+                                                    </button>
+                                                </div>
+
+                                                {/* PAINEL EXPANSÍVEL: INFORMAÇÃO DIRETA */}
+                                                {isExpanded && (
+                                                    <div className={styles.editLinkPanel}>
+                                                        <div className={styles.infoGrid}>
+                                                            <div className={styles.infoCol}>
+                                                                <span className={styles.infoLabel}>Início do Vínculo:</span>
+                                                                <span className={styles.infoValue}>{formatDateBr(v.data_inicial)}</span>
+                                                            </div>
+                                                            <div className={styles.infoCol}>
+                                                                <span className={styles.infoLabel}>Proprietário Responsável:</span>
+                                                                <span className={styles.infoValue}>{v.ehproprietario ? "Sim" : "Não"}</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={styles.editPanelActions} style={{ justifyContent: 'flex-end', borderTop: 'none', paddingTop: 0 }}>
+                                                            <button 
+                                                                type="button" 
+                                                                className={styles.btnEndLink}
+                                                                onClick={() => handleFinalizeLink(v.veic_usu_id, v.veic_placa)}
+                                                                disabled={savingLink}
+                                                            >
+                                                                {savingLink ? "Aguarde..." : <><Unlink size={16} /> Encerrar Vínculo</>}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <p className={styles.emptyText}>Este usuário não possui veículos vinculados.</p>
                             )}
                         </div>
-
                     </div>
                 </div>
-            )}
-
-            {showVehicleHistoryModal && selectedVehicleId && (
-                <ModalVehicleHistory
-                    isOpen={showVehicleHistoryModal}
-                    onClose={() => {
-                        setShowVehicleHistoryModal(false);
-                        setSelectedVehicleId(null);
-                        // Recarrega a lista de veículos caso algum vínculo tenha sido encerrado no modal
-                        if (showVehiclesModal) {
-                            handleOpenVehiclesModal();
-                        }
-                    }}
-                    vehicleId={selectedVehicleId}
-                />
             )}
         </>
     )
