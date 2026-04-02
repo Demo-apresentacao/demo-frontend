@@ -199,7 +199,7 @@ export default function VehiclesClient() {
                             style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
                             title="Visualizar"
                         >
-                            <Eye size={16} />
+                            <Eye size={18} />
                         </Link>
                     </Can>
                     <Can perform="veiculos.editar">
@@ -208,7 +208,7 @@ export default function VehiclesClient() {
                             style={{ display: 'flex', alignItems: 'center', color: '#2563eb' }}
                             title="Editar"
                         >
-                            <Edit size={16} />
+                            <Edit size={18} />
                         </Link>
                     </Can>
                     {vehicle.veic_situacao ? (
@@ -218,7 +218,7 @@ export default function VehiclesClient() {
                                 style={{ display: 'flex', alignItems: 'center', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
                                 title="Ocultar"
                             >
-                                <Trash2 size={16} />
+                                <Trash2 size={18} />
                             </button>
                         </Can>
                     ) : (
@@ -228,7 +228,7 @@ export default function VehiclesClient() {
                                 style={{ display: 'flex', alignItems: 'center', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
                                 title="Reativar"
                             >
-                                <RotateCcw size={16} />
+                                <RotateCcw size={18} />
                             </button>
                         </Can>
                     )}

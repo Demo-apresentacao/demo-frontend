@@ -16,10 +16,10 @@ export function useUserPermissions(userId) {
     const DEPENDENCIES = {
         "agendamentos.visualizar": ["usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
         "agendamentos.listar": ["usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
-        "agendamentos.criar": ["agendamentos.listar", "usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
+        "agendamentos.criar": ["agendamentos.listar", "usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar", "usuarios.veiculos"],
         "agendamentos.alterar": ["agendamentos.listar", "usuarios.listar", "veiculos.listar", "servicos.listar", "veiculos_usuario.listar"],
         "agendamentos.cancelar": ["agendamentos.listar"],
-        "veiculos_usuario.criar": ["veiculos.listar"],
+        "veiculos_usuario.criar": ["veiculos.listar", "veiculos_usuario.editar"],
     };
 
     // 1. NOVO: Adicionamos o estado para rastrear o Erro 403

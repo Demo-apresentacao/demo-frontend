@@ -9,7 +9,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // ✅ MESMA LÓGICA DO FOOTER
-  const whatsappNumber = "5518996223545";
+  const whatsappNumber = "5514997093611";
 
   const openWhatsApp = () => {
     const mensagem = "Olá! Gostaria de mais informações sobre os serviços!";

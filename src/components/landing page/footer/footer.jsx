@@ -18,7 +18,7 @@ const WhatsAppIcon = ({ size = 20 }) => (
 
 export default function Footer() {
 
-  const whatsappNumber = "5518996223545";
+  const whatsappNumber = "5514997093611";
 
   const openWhatsApp = () => {
     const mensagem = "Olá! Gostaria de mais informações sobre os serviços!";

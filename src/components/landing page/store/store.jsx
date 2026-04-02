@@ -9,7 +9,7 @@ import ProductsModal from './productsModal/ProductsModal';
 
 // --- COMPONENTE DO CARD (SMART CARD) ---
 const ProductCard = ({ product }) => {
-  const whatsappNumber = "5518996223545"; 
+  const whatsappNumber = "5514997093611"; 
 
   // --- LÓGICA DE PADRONIZAÇÃO ---
   // Aqui garantimos que TODO produto tenha uma lista de variantes.

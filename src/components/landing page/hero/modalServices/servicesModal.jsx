@@ -12,7 +12,7 @@ const WhatsAppIcon = () => (
 );
 
 export default function ServicesModal({ isOpen, onClose, selectedCategoryId }) {
-  const whatsappNumber = "5518996223545"; 
+  const whatsappNumber = "5514997093611"; 
 
   const openWhatsApp = (serviceName = null) => {
   let message = "";

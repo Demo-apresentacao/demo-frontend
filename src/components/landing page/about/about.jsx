@@ -7,7 +7,7 @@ import styles from './about.module.css';
 
 export default function About() {
 
-  const whatsappNumber = "5518996223545"; 
+  const whatsappNumber = "5514997093611"; 
 
   const openWhatsApp = () => {
     const mensagem = "Olá! Gostaria de mais informações sobre os serviços da AutoLimp.";
@@ -61,7 +61,7 @@ export default function About() {
           </p>
 
           <p className={styles.text}>
-            Entendemos que seu carro é uma extensão da sua personalidade e um investimento valioso. Por isso, utilizamos produtos biodegradáveis de tecnologia alemã e equipamentos de precisão.
+            Sabemos que seu carro é uma extensão da sua personalidade e também um investimento importante. Por isso, trabalhamos com produtos de qualidade e equipamentos adequados para garantir um resultado impecável em cada detalhe
           </p>
 
           <ul className={styles.checkList}>

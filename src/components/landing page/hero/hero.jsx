@@ -10,7 +10,7 @@ export default function Hero() {
   const [showServices, setShowServices] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const whatsappNumber = "5518996223545";
+  const whatsappNumber = "5514997093611";
 
   const openWhatsApp = () => {
     const mensagem = "Olá! Gostaria de mais informações sobre os serviços!";

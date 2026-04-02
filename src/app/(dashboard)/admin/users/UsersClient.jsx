@@ -169,7 +169,7 @@ export default function UsersClient() {
                                 style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
                                 title="Visualizar"
                             >
-                                <Eye size={16} />
+                                <Eye size={18} />
                             </Link>
                         </Can>
 
@@ -179,7 +179,7 @@ export default function UsersClient() {
                                 style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
                                 title="Editar"
                             >
-                                <Edit size={16} />
+                                <Edit size={18} />
                             </Link>
                         </Can>
 
@@ -190,7 +190,7 @@ export default function UsersClient() {
                                     style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}
                                     title="Inativar Usuário"
                                 >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={18} />
                                 </button>
                             </Can>
                         ) : (
@@ -200,7 +200,7 @@ export default function UsersClient() {
                                     style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#16a34a', background: 'none', border: 'none', cursor: 'pointer' }}
                                     title="Reativar Acesso"
                                 >
-                                    <RotateCcw size={16} />
+                                    <RotateCcw size={18} />
                                 </button>
                             </Can>
                         )}
@@ -212,7 +212,7 @@ export default function UsersClient() {
                                 title="Gerenciar Permissões"
                                 style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#2563eb', textDecoration: 'none' }}
                             >
-                                <Shield size={16} />
+                                <Shield size={18} />
                             </Link>
                         </Can>
                     </div>
