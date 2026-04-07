@@ -15,25 +15,23 @@ export default function ServicesModal({ isOpen, onClose, selectedCategoryId }) {
   const whatsappNumber = "5514997093611"; 
 
   const openWhatsApp = (serviceName = null) => {
-  let message = "";
+    let message = "";
 
-  if (serviceName) {
-    message = `Olá! Vi no site sobre *${serviceName}* e gostaria de mais detalhes.`;
-  } else {
-    message = "Olá! Gostaria de agendar um serviço para meu carro.";
-  }
+    if (serviceName) {
+      message = `Olá! Vi no site sobre o serviço de *${serviceName}* e gostaria de agendar ou solicitar um orçamento.`;
+    } else {
+      message = "Olá! Gostaria de agendar um serviço ou tirar uma dúvida sobre a estética automotiva.";
+    }
 
-  const mensagemCodificada = encodeURIComponent(message);
+    const mensagemCodificada = encodeURIComponent(message);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const linkZap = isMobile
+      ? `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${mensagemCodificada}`
+      : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${mensagemCodificada}`;
 
-  const linkZap = isMobile
-    ? `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${mensagemCodificada}`
-    : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${mensagemCodificada}`;
-
-  window.open(linkZap, "_blank");
-};
-
+    window.open(linkZap, "_blank");
+  };
 
   useEffect(() => {
     const handleEsc = (e) => { if (e.key === 'Escape') onClose(); };
@@ -43,8 +41,6 @@ export default function ServicesModal({ isOpen, onClose, selectedCategoryId }) {
 
   if (!isOpen) return null;
 
-  // LÓGICA DE FILTRO: 
-  // Se veio um ID, pega só aquela categoria. Se é null, pega todas.
   const categoriesToShow = selectedCategoryId 
     ? { [selectedCategoryId]: categories[selectedCategoryId] } 
     : categories;
@@ -56,11 +52,10 @@ export default function ServicesModal({ isOpen, onClose, selectedCategoryId }) {
         <div className={styles.header}>
           <div>
             <h3 className={styles.title}>
-              {/* Título dinâmico: mostra o nome da categoria ou "Nossos Serviços" */}
               {selectedCategoryId ? categories[selectedCategoryId].name : "Nossos Serviços"}
             </h3>
             <p className={styles.subtitle}>
-              {selectedCategoryId ? "Confira as opções exclusivas desta categoria" : "Escolha o tratamento ideal para seu carro"}
+              {selectedCategoryId ? "Confira as opções exclusivas desta categoria" : "Escolha o tratamento ideal para seu veículo"}
             </p>
           </div>
           <button className={styles.closeBtn} onClick={onClose}>
@@ -69,17 +64,13 @@ export default function ServicesModal({ isOpen, onClose, selectedCategoryId }) {
         </div>
 
         <div className={styles.body}>
-          {/* Loop pelas categorias filtradas */}
           {Object.entries(categoriesToShow).map(([catId, catData]) => {
-             // Busca na lista de serviços apenas os que tem esse ID de categoria
              const categoryServices = servicesList.filter(s => s.catId === parseInt(catId));
              
-             // Se não tiver serviço, não renderiza nada
              if (categoryServices.length === 0) return null;
 
              return (
                <div key={catId} className={styles.categorySection}>
-                 {/* Só mostra o título da seção se estiver vendo TUDO. Se já filtrou, o título tá no header. */}
                  {!selectedCategoryId && <h4 className={styles.categoryTitle}>{catData.name}</h4>}
                  
                  <div className={styles.grid}>
@@ -104,12 +95,16 @@ export default function ServicesModal({ isOpen, onClose, selectedCategoryId }) {
           })}
         </div>
 
-        <div className={styles.footer}>
+        <div className={styles.footer} style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'center' }}>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
+            * Qualquer serviço automotivo não descrito nesta lista, consulte-nos para saber se estamos realizando.
+          </p>
           <button className={styles.ctaButton} onClick={() => openWhatsApp()}>
             <WhatsAppIcon />
             Entrar em contato via WhatsApp
           </button>
         </div>
+
       </div>
     </div>
   );

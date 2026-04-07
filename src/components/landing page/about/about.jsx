@@ -61,7 +61,7 @@ export default function About() {
           </p>
 
           <p className={styles.text}>
-            Sabemos que seu carro é uma extensão da sua personalidade e também um investimento importante. Por isso, trabalhamos com produtos de qualidade e equipamentos adequados para garantir um resultado impecável em cada detalhe
+            Sabemos que seu carro é uma extensão da sua personalidade e também um investimento importante. Por isso, trabalhamos com produtos de qualidade e equipamentos adequados para garantir um resultado impecável em cada detalhe.
           </p>
 
           <ul className={styles.checkList}>
@@ -71,7 +71,7 @@ export default function About() {
             </li>
             <li>
               <CheckCircle size={20} className={styles.checkIcon} />
-              Produtos premium importados
+              Produtos de alta qualidade
             </li>
             <li>
               <CheckCircle size={20} className={styles.checkIcon} />
