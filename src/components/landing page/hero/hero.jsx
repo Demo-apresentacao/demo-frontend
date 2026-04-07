@@ -46,7 +46,7 @@ export default function Hero() {
               </h1>
 
               <p className={styles.heroText}>
-                Não é apenas lavagem. É um tratamento completo de rejuvenescimento e proteção para o seu veículo, utilizando as melhores técnicas do mercado.
+                Tratamento completo de rejuvenescimento e proteção para o seu veículo, utilizando as melhores técnicas e produtos do mercado.
               </p>
               
               <div className={styles.heroActions}>

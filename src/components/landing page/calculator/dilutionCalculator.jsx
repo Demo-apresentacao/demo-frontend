@@ -6,17 +6,20 @@ import styles from './dilutionCalculator.module.css';
 
 // 1. Recebemos a prop simpleMode (padrão false)
 export default function DilutionCalculator({ simpleMode = false }) {
-  const [containerSize, setContainerSize] = useState(500); 
-  const [ratio, setRatio] = useState(10); 
+  const [containerSize, setContainerSize] = useState(500);
+  const [ratio, setRatio] = useState(10);
   const [result, setResult] = useState({ product: 0, water: 0 });
 
   const commonRatios = [
-    { label: "1:5 (Limpeza Pesada)", value: 5 },
-    { label: "1:10 (Interiores/Couro)", value: 10 },
-    { label: "1:20 (Multiuso)", value: 20 },
-    { label: "1:50 (Shampoo)", value: 50 },
-    { label: "1:100 (Lavagem Leve)", value: 100 },
-    { label: "1:200 (Snow Foam)", value: 200 },
+    { label: "1:1 (Extrema/Motores)", value: 1 },
+    { label: "1:5 (Limpeza Pesada/Caixas de Roda)", value: 5 },
+    { label: "1:10 (Interiores/Couro/Plásticos)", value: 10 },
+    { label: "1:20 (Multiuso/Limpeza Leve)", value: 20 },
+    { label: "1:30 (Tecidos/Teto)", value: 30 },
+    { label: "1:50 (Shampoo Pré-Lavagem)", value: 50 },
+    { label: "1:100 (Shampoo Manutenção)", value: 100 },
+    { label: "1:200 (Snow Foam/Shampoo Concentrado)", value: 200 },
+    { label: "1:400 (Shampoo Hiper Concentrado)", value: 400 },
   ];
 
   useEffect(() => {
@@ -34,14 +37,14 @@ export default function DilutionCalculator({ simpleMode = false }) {
     // 2. Trocamos a classe: Se for simpleMode, usa estilo Admin, senão usa estilo Landing Page
     <section className={simpleMode ? styles.adminSection : styles.dilutionSection}>
       <div className={styles.container}>
-        
+
         {/* 3. Condicional: Só mostra o texto de marketing se NÃO for modo simples */}
         {!simpleMode && (
           <div className={styles.headerContent}>
             <h4 className={styles.tagline}>Ferramenta Gratuita</h4>
             <h2 className={styles.sectionTitle}>Calculadora de Diluição</h2>
             <p className={styles.text}>
-              Não desperdice produtos. 
+              Não desperdice produtos.
               <br />Calcule a mistura exata para o seu borrifador ou snow foam em segundos.
             </p>
           </div>
@@ -49,14 +52,14 @@ export default function DilutionCalculator({ simpleMode = false }) {
 
         {/* Card da Calculadora */}
         <div className={styles.calculatorCard}>
-          
+
           {/* Inputs */}
           <div className={styles.inputGroup}>
             <label className={styles.label}>
               Tamanho do Recipiente (ml)
             </label>
-            <input 
-              type="number" 
+            <input
+              type="number"
               value={containerSize}
               onChange={(e) => setContainerSize(e.target.value)}
               className={styles.input}
@@ -69,7 +72,7 @@ export default function DilutionCalculator({ simpleMode = false }) {
             <label className={styles.label}>
               Diluição Desejada (Produto : Água)
             </label>
-            <select 
+            <select
               className={styles.select}
               value={ratio}
               onChange={(e) => setRatio(e.target.value)}
@@ -106,7 +109,7 @@ export default function DilutionCalculator({ simpleMode = false }) {
               </div>
             </div>
           </div>
-          
+
           <div className={styles.proTip}>
             <Info size={16} className={styles.infoIcon} />
             <p>Dica: Coloque a água antes do produto para evitar muita espuma.</p>

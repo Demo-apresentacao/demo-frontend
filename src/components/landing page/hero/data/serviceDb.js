@@ -1,59 +1,53 @@
-import { Car, Droplets, Sparkles, Shield, Scan, Disc, Armchair, Wind, SprayCan, Wrench } from 'lucide-react';
+import { Car, Droplets, Sparkles, Shield, Scan, Armchair, Wrench, Bike } from 'lucide-react';
 
-// 1. Mapeamento de Categorias (ID -> Nome + Ícone)
+// 1. Mapeamento de Categorias Reais
 export const categories = {
-  1: { name: "Lavagem & Higienização", icon: Droplets },
+  1: { name: "Lavagem & Descontaminação", icon: Droplets },
   2: { name: "Polimento & Proteção", icon: Sparkles },
   3: { name: "Vidros & Faróis", icon: Scan },
-  4: { name: "Rodas & Pneus", icon: Disc },
-  5: { name: "Estética Interna", icon: Armchair },
-  6: { name: "Odores & Sanitização", icon: Wind },
-  7: { name: "Funilaria Express", icon: SprayCan },
-  8: { name: "Personalização", icon: Car },
-  9: { name: "Reparos & Martelinho", icon: Wrench },
-  10: { name: "Motor & Manutenção", icon: Shield }
+  4: { name: "Estética Interna", icon: Armchair },
+  5: { name: "Motor & Chassi", icon: Shield },
+  6: { name: "Estética de Motos", icon: Bike },
+  7: { name: "Serviços Especiais", icon: Wrench }
 };
 
-// 2. Lista de Serviços
+// 2. Lista de Serviços Reais do Cliente
 export const servicesList = [
-  { id: 1, catId: 1, title: "Lavagem externa (tradicional)", desc: "Lavagem externa convencional do veiculo.", price: "R$ 30,00" },
-  { id: 2, catId: 1, title: "Lavagem externa (a seco)", desc: "Lavagem externa do veiculo sem uso de agua.", price: "R$ 40,00" },
-  { id: 3, catId: 1, title: "Lavagem interna completa", desc: "Limpeza completa do interior do veiculo.", price: "R$ 60,00" },
-  { id: 4, catId: 1, title: "Limpeza de estofados", desc: "Limpeza profunda de estofados.", price: "R$ 120,00" },
-  { id: 5, catId: 1, title: "Limpeza de carpetes", desc: "Limpeza detalhada dos carpetes do veiculo.", price: "R$ 70,00" },
-  { id: 6, catId: 1, title: "Higienizacao de ar-condicionado", desc: "Higienizacao do sistema de ar-condicionado.", price: "R$ 80,00" },
-  { id: 7, catId: 1, title: "Descontaminacao de pintura", desc: "Remocao de contaminantes da pintura.", price: "R$ 100,00" },
-  { id: 8, catId: 2, title: "Polimento de pintura", desc: "Polimento completo da pintura do veiculo.", price: "R$ 200,00" },
-  { id: 9, catId: 2, title: "Espelhamento", desc: "Espelhamento da pintura para brilho intenso.", price: "R$ 250,00" },
-  { id: 10, catId: 2, title: "Vitrificacao", desc: "Aplicacao de revestimento vitrificado.", price: "R$ 300,00" },
-  { id: 11, catId: 2, title: "Enceramento", desc: "Aplicacao de cera para protecao da pintura.", price: "R$ 80,00" },
-  { id: 12, catId: 2, title: "Selagem de pintura", desc: "Selagem da pintura para protecao prolongada.", price: "R$ 150,00" },
-  { id: 13, catId: 2, title: "Pelicula de proteção (PPF)", desc: "Aplicacao de pelicula protetora de pintura.", price: "R$ 500,00" },
-  { id: 14, catId: 3, title: "Polimento de farois", desc: "Polimento para clarear farois.", price: "R$ 60,00" },
-  { id: 15, catId: 3, title: "Restauracao de farois", desc: "Restauracao completa de farois.", price: "R$ 120,00" },
-  { id: 16, catId: 3, title: "Cristalizacao de vidros", desc: "Aplicacao de repelente de agua nos vidros.", price: "R$ 50,00" },
-  { id: 17, catId: 3, title: "Aplicacao de insulfilm", desc: "Aplicacao de pelicula insulfilm.", price: "R$ 200,00" },
-  { id: 18, catId: 4, title: "Limpeza de rodas e calotas", desc: "Limpeza detalhada de rodas e calotas.", price: "R$ 40,00" },
-  { id: 19, catId: 4, title: "Polimento de rodas", desc: "Polimento para brilho intenso das rodas.", price: "R$ 100,00" },
-  { id: 20, catId: 4, title: "Protetores de pneu", desc: "Aplicacao de produto protetor nos pneus.", price: "R$ 30,00" },
-  { id: 21, catId: 4, title: "Pintura e restauracao de rodas", desc: "Pintura e restauracao de rodas.", price: "R$ 250,00" },
-  { id: 22, catId: 5, title: "Limpeza de painel e console", desc: "Limpeza detalhada do painel e console.", price: "R$ 60,00" },
-  { id: 23, catId: 5, title: "Hidratacao de couro", desc: "Limpeza e hidratacao de bancos de couro.", price: "R$ 150,00" },
-  { id: 24, catId: 5, title: "Hidratacao de plasticos", desc: "Limpeza e hidratacao de plasticos internos.", price: "R$ 80,00" },
-  { id: 25, catId: 5, title: "Limpeza de portas", desc: "Limpeza detalhada de portas e macanetas.", price: "R$ 50,00" },
-  { id: 26, catId: 5, title: "Dutos de ventilacao", desc: "Limpeza detalhada dos dutos de ventilacao.", price: "R$ 70,00" },
-  { id: 27, catId: 6, title: "Tratamento com ozonio", desc: "Remocao de odores com tratamento de ozonio.", price: "R$ 150,00" },
-  { id: 28, catId: 6, title: "Neutralizacao de odores", desc: "Neutralizacao de odores no veiculo.", price: "R$ 100,00" },
-  { id: 29, catId: 7, title: "Retoque de pintura", desc: "Retoque de pintura para corrigir imperfeicoes.", price: "R$ 200,00" },
-  { id: 30, catId: 7, title: "Pintura parcial", desc: "Pintura parcial para correcao estetica.", price: "R$ 300,00" },
-  { id: 31, catId: 8, title: "Envelopamento (vinil)", desc: "Envelopamento completo do veiculo com vinil.", price: "R$ 800,00" },
-  { id: 32, catId: 8, title: "Pintura de pincas de freio", desc: "Pintura personalizada das pincas de freio.", price: "R$ 150,00" },
-  { id: 33, catId: 8, title: "Adesivos decorativos", desc: "Aplicacao de adesivos decorativos no veiculo.", price: "R$ 50,00" },
-  { id: 34, catId: 8, title: "Instalacao de spoilers", desc: "Instalacao de spoilers e acessorios externos.", price: "R$ 300,00" },
-  { id: 35, catId: 9, title: "Remocao de riscos", desc: "Remocao de riscos e arranhoes superficiais.", price: "R$ 200,00" },
-  { id: 36, catId: 9, title: "Martelinho de ouro", desc: "Reparo de amassados sem necessidade de pintura.", price: "R$ 300,00" },
-  { id: 37, catId: 9, title: "Remocao de manchas", desc: "Remocao de manchas da superficie do veiculo.", price: "R$ 100,00" },
-  { id: 38, catId: 10, title: "Lavagem de motor", desc: "Lavagem detalhada do motor do veiculo.", price: "R$ 80,00" },
-  { id: 39, catId: 10, title: "Polimento de escapamento", desc: "Polimento do sistema de escapamento.", price: "R$ 50,00" },
-  { id: 40, catId: 10, title: "Revitalizacao de teto solar", desc: "Revitalizacao e limpeza do teto solar.", price: "R$ 150,00" }
+  // --- LAVAGEM & DESCONTAMINAÇÃO ---
+  { id: 1, catId: 1, title: "Lavagem Padrão - Carro", desc: "Lavagem externa detalhada e segura.", price: "R$ 90,00" },
+  { id: 2, catId: 1, title: "Lavagem Padrão - Camionete", desc: "Lavagem externa detalhada para veículos de grande porte.", price: "R$ 130,00" },
+  { id: 3, catId: 1, title: "Lavagem Padrão - Caminhão", desc: "Lavagem externa especializada para caminhões.", price: "R$ 170,00" },
+  { id: 4, catId: 1, title: "Descontaminação de Pintura e Vidros", desc: "Remoção de impurezas, névoa de tinta e contaminações encrustadas.", price: "Sob Avaliação" },
+
+  // --- POLIMENTO & PROTEÇÃO ---
+  { id: 5, catId: 2, title: "Enceramento Padrão", desc: "Aplicação de cera para brilho e proteção básica.", price: "R$ 50,00" },
+  { id: 6, catId: 2, title: "Enceramento Técnico", desc: "Enceramento de alta performance para maior durabilidade e hidro-repelência.", price: "R$ 80,00" },
+  { id: 7, catId: 2, title: "Polimento Comercial", desc: "Correção leve de pintura para devolução de brilho e remoção de marcas superficiais.", price: "Sob Avaliação" },
+  { id: 8, catId: 2, title: "Polimento Técnico", desc: "Correção avançada de verniz, nivelamento e remoção de riscos profundos.", price: "Sob Avaliação" },
+
+  // --- VIDROS & FARÓIS ---
+  { id: 9, catId: 3, title: "Restauração de Farol com Polímero", desc: "Recuperação definitiva de faróis amarelados ou oxidados.", price: "A partir de R$ 250 (par)" },
+  { id: 10, catId: 3, title: "Remoção de Chuva Ácida", desc: "Remoção de marcas d'água calcificadas nos vidros.", price: "Sob Avaliação" },
+  { id: 11, catId: 3, title: "Polimento de Vidros", desc: "Remoção de riscos leves, palhetadas e manchas nos vidros.", price: "Sob Avaliação" },
+  { id: 12, catId: 3, title: "Remoção de Insulfilm", desc: "Retirada segura de película e limpeza de cola dos vidros.", price: "A combinar" },
+
+  // --- ESTÉTICA INTERNA ---
+  { id: 13, catId: 4, title: "Hidratação de Banco de Couro", desc: "Limpeza profunda e condicionamento para evitar trincas e ressecamento.", price: "R$ 100,00" },
+  { id: 14, catId: 4, title: "Lavagem de Estofados", desc: "Limpeza interna profunda (banco do motorista, passageiro e traseiro).", price: "R$ 250,00" },
+  { id: 15, catId: 4, title: "Higienização Completa Interna", desc: "Limpeza extrema detalhada: bancos + portas + forro de teto.", price: "Sob Avaliação" },
+
+  // --- MOTOR & CHASSI ---
+  { id: 16, catId: 5, title: "Lavagem de Chassi", desc: "Limpeza profunda e desengraxante da parte inferior do veículo.", price: "R$ 100,00" },
+  { id: 17, catId: 5, title: "Lavagem de Motor + Verniz", desc: "Limpeza técnica do cofre do motor com aplicação de verniz protetor para plásticos e borrachas.", price: "R$ 100,00" },
+
+  // --- ESTÉTICA DE MOTOS ---
+  { id: 18, catId: 6, title: "Lavagem Padrão Moto", desc: "Limpeza técnica e segura para motocicletas.", price: "A consultar" },
+  { id: 19, catId: 6, title: "Lavagem Detalhada Moto", desc: "Cera líquida, restauração de plásticos, limpeza da transmissão, verniz e clareamento do motor e bacalhau.", price: "R$ 90,00" },
+  { id: 20, catId: 6, title: "Combo: Cera Líquida + Plásticos + Transmissão", desc: "Acabamento com cera líquida, revitalização de plásticos e limpeza do kit transmissão.", price: "R$ 70,00" },
+  { id: 21, catId: 6, title: "Aplicação de Cera em Pasta", desc: "Proteção e brilho intenso para a pintura e carenagens da moto.", price: "R$ 30,00" },
+  { id: 22, catId: 6, title: "Polimento de Tanque", desc: "Remoção de riscos e restauração do brilho do tanque.", price: "R$ 100,00" },
+
+  // --- SERVIÇOS ESPECIAIS ---
+  { id: 23, catId: 7, title: "Polimento de Escapamento", desc: "Restauração do brilho e remoção de oxidação severa do escape.", price: "A combinar" },
+  { id: 24, catId: 7, title: "Remoção de Adesivos", desc: "Retirada segura de adesivos e colas para qualquer tipo de veículo.", price: "A combinar" }
 ];
