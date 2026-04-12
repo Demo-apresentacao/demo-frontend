@@ -6,63 +6,72 @@ import { useRouter } from "next/navigation";
 import { registerUser } from "@/services/register.service.js";
 
 export function useRegister() {
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-  async function handleRegister(formData) {
-    try {
-      setLoading(true);
+    async function handleRegister(formData) {
+        try {
+            setLoading(true);
 
-      const response = await registerUser(formData);
+            const payload = {
+                ...formData,
+                usu_cpf: formData.usu_cpf?.replace(/\D/g, '') === "" ? null : formData.usu_cpf,
+                usu_email: formData.usu_email?.trim() === "" ? null : formData.usu_email,
+                usu_senha: formData.usu_senha?.trim() === "" ? null : formData.usu_senha,
+                usu_telefone: formData.usu_telefone?.trim() === "" ? null : formData.usu_telefone,
+                usu_sexo: formData.usu_sexo === "" ? null : Number(formData.usu_sexo)
+            };
 
-      await Swal.fire({
-        title: "Sucesso!",
-        text: "Usuário cadastrado com sucesso.",
-        icon: "success",
-        confirmButtonColor: "#16a34a",
-        background: "#ffffff",
-        color: "#111827"
-      });
+            const response = await registerUser(payload);
 
-      router.push("/auth/login");
-      return response;
+            await Swal.fire({
+                title: "Sucesso!",
+                text: "Usuário cadastrado com sucesso.",
+                icon: "success",
+                confirmButtonColor: "#16a34a",
+                background: "#ffffff",
+                color: "#111827"
+            });
 
-    } catch (error) {
+            router.push("/auth/login");
+            return response;
 
-      // Tenta pegar o status e a mensagem de vários lugares possíveis
-      const status = error?.response?.status || 500;
-      
-      // Prioridade da mensagem: 
-      // 1. Mensagem vinda do backend (Axios)
-      // 2. Mensagem de erro genérica do JS (Error.message)
-      // 3. Fallback manual
-      const message = 
-        error?.response?.data?.message || 
-        error?.message || 
-        "Ocorreu um erro ao processar sua solicitação.";
+        } catch (error) {
 
-      // Se for 400 (Bad Request) ou 409 (Conflict/Duplicado)
-      const isBusinessError = status === 409 || status === 400;
+            // Tenta pegar o status e a mensagem de vários lugares possíveis
+            const status = error?.response?.status || 500;
 
-      Swal.fire({
-        // Título mais amigável
-        title: isBusinessError ? "Atenção" : "Erro no Sistema",
-        text: message, // Aqui vai aparecer "CPF inválido" ou "Email já existe"
-        icon: isBusinessError ? "warning" : "error",
-        confirmButtonColor: isBusinessError ? "#f59e0b" : "#dc2626",
-        background: "#ffffff",
-        color: "#111827"
-      });
+            // Prioridade da mensagem: 
+            // 1. Mensagem vinda do backend (Axios)
+            // 2. Mensagem de erro genérica do JS (Error.message)
+            // 3. Fallback manual
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                "Ocorreu um erro ao processar sua solicitação.";
 
-      throw error;
+            // Se for 400 (Bad Request) ou 409 (Conflict/Duplicado)
+            const isBusinessError = status === 409 || status === 400;
 
-    } finally {
-      setLoading(false);
+            Swal.fire({
+                // Título mais amigável
+                title: isBusinessError ? "Atenção" : "Erro no Sistema",
+                text: message, // Aqui vai aparecer "CPF inválido" ou "Email já existe"
+                icon: isBusinessError ? "warning" : "error",
+                confirmButtonColor: isBusinessError ? "#f59e0b" : "#dc2626",
+                background: "#ffffff",
+                color: "#111827"
+            });
+
+            throw error;
+
+        } finally {
+            setLoading(false);
+        }
     }
-  }
 
-  return {
-    handleRegister,
-    loading
-  };
+    return {
+        handleRegister,
+        loading
+    };
 }

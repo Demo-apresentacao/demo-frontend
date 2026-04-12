@@ -329,15 +329,28 @@ export default function ScheduleClient() {
         return null;
     };
 
-    const { minTime, maxTime } = useMemo(() => {
-        const base = new Date();
-        // Define o início da visualização: 07:00
-        const min = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 7, 0, 0);
+    // const { minTime, maxTime } = useMemo(() => {
+    //     const base = new Date();
+    //     // Define o início da visualização: 07:00
+    //     const min = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 7, 0, 0);
 
-        // Define o fim da visualização: 18:00 (O calendário mostra até o final dessa hora)
+    //     // Define o fim da visualização: 18:00 (O calendário mostra até o final dessa hora)
+    //     const max = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 18, 0, 0);
+
+    //     return { minTime: min, maxTime: max };
+    // }, []);
+
+    const { minTime, maxTime, defaultScrollTime } = useMemo(() => {
+        const base = new Date();
+        const min = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 7, 0, 0);
         const max = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 18, 0, 0);
 
-        return { minTime: min, maxTime: max };
+        // Define para onde o scroll deve ir ao carregar a visão de dia/semana
+        const scroll = new Date();
+        
+        // const scroll = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 7, 0, 0);
+
+        return { minTime: min, maxTime: max, defaultScrollTime: scroll };
     }, []);
 
     return (
@@ -349,6 +362,7 @@ export default function ScheduleClient() {
                     startAccessor="start"
                     endAccessor="end"
                     style={{ height: '100%' }}
+                    dayLayoutAlgorithm={'no-overlap'}
                     culture="pt-BR"
                     messages={messages}
                     eventPropGetter={eventPropGetter}
@@ -362,6 +376,7 @@ export default function ScheduleClient() {
                     timeslots={4}  // 4 divisões de 15min por hora
                     min={minTime} // Começa a mostrar as 07:00
                     max={maxTime} // Termina de mostrar as 18:00
+                    scrollToTime={defaultScrollTime}
                 />
             </div>
 

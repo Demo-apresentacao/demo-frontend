@@ -405,11 +405,11 @@ export default function AppointmentForm({
                                 <div key={service.serv_id} className={styles.serviceRow}>
                                     <span className={styles.serviceNameRO}>{service.serv_nome}</span>
 
-                                    <span className={styles.servicePriceRO}>
+                                    {/* <span className={styles.servicePriceRO}>
                                         {service.stv_preco
                                             ? Number(service.stv_preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                                             : "---"}
-                                    </span>
+                                    </span> */}
 
                                     {/* <span className={styles.servicePriceRO}>
                                         {Number(service.serv_preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -453,9 +453,9 @@ export default function AppointmentForm({
                                     <input type="checkbox" className={styles.serviceCheckbox} checked={isSelected} onChange={() => handleServiceToggle(service.serv_id)} />
                                     <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <span className={styles.serviceName} style={{ fontWeight: isSelected ? '600' : '400' }}>{service.serv_nome}</span>
-                                        <span className={styles.servicePrice}>
+                                        {/* <span className={styles.servicePrice}>
                                             {Number(service.serv_preco || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                        </span>
+                                        </span> */}
                                     </div>
                                 </label>
                             );

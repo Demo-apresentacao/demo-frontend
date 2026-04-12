@@ -57,7 +57,7 @@ export default function AdminDashboard() {
                 <StatCard title="Veículos Hoje" value={data.cards?.veiculos_hoje || 0} icon={<CalendarDays size={24} />} />
 
                 {/* StatCard com Ação (Olhinho) e formatação segura */}
-                <Can perform="financeiro.visualizar_statCard" >
+                {/* <Can perform="financeiro.visualizar_statCard" >
                     <StatCard
                         title="Faturamento (Mês)"
                         value={showRevenue ? formatMoney(data.cards?.faturamento_mes) : "R$ ****"}
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
                             </button>
                         }
                     />
-                </Can>
+                </Can> */}
 
                 <StatCard title="Serviços Concluídos" value={data.cards?.concluidos_mes || 0} icon={<Activity size={24} />} />
             </div>

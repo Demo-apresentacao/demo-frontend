@@ -24,7 +24,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
     const [showPassword, setShowPassword] = useState(false);
 
     const [showLinkModal, setShowLinkModal] = useState(false);
-    
+
     // Pegamos apenas o linkUser e o finalizeLink agora
     const { linkUser, finalizeLink } = useVehicleUsers();
 
@@ -83,27 +83,60 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
     };
 
+    // const validateForm = () => {
+    //     const newErrors = {};
+    //     if (!initialData && !validateCPF(formData.usu_cpf)) newErrors.usu_cpf = "CPF inválido.";
+    //     if (!validateEmail(formData.usu_email)) newErrors.usu_email = "E-mail inválido.";
+
+    //     const isTypingPassword = formData.usu_senha.length > 0;
+    //     const isNewUser = !initialData;
+
+    //     if (isNewUser || isTypingPassword) {
+    //         if (!isPasswordValid) newErrors.usu_senha = "A senha não atende aos requisitos.";
+    //     }
+
+    //     if (formData.usu_data_nasc) {
+    //         const dateError = getBirthDateError(formData.usu_data_nasc);
+    //         if (dateError) newErrors.usu_data_nasc = dateError;
+    //     }
+
+    //     const phoneVal = formData.usu_telefone ? formData.usu_telefone.trim() : "";
+    //     if (phoneVal.length === 0 || phoneVal === "() -" || phoneVal === "(") {
+    //         newErrors.usu_telefone = "O telefone é obrigatório.";
+    //     } else if (phoneVal.length > 0 && phoneVal.length < 14) {
+    //         newErrors.usu_telefone = "Telefone incompleto.";
+    //     }
+
+    //     setErrors(newErrors);
+    //     return Object.keys(newErrors).length === 0;
+    // };
+
     const validateForm = () => {
         const newErrors = {};
-        if (!initialData && !validateCPF(formData.usu_cpf)) newErrors.usu_cpf = "CPF inválido.";
-        if (!validateEmail(formData.usu_email)) newErrors.usu_email = "E-mail inválido.";
 
-        const isTypingPassword = formData.usu_senha.length > 0;
-        const isNewUser = !initialData;
+        // CPF: Valida apenas se houver conteúdo (ignorando a máscara vazia)
+        const cpfLimpo = formData.usu_cpf ? formData.usu_cpf.replace(/\D/g, '') : "";
+        if (cpfLimpo.length > 0) {
+            if (!validateCPF(formData.usu_cpf)) newErrors.usu_cpf = "CPF inválido.";
+        }
 
-        if (isNewUser || isTypingPassword) {
+        // E-mail: Valida apenas se preenchido
+        if (formData.usu_email && formData.usu_email.trim() !== "") {
+            if (!validateEmail(formData.usu_email)) newErrors.usu_email = "E-mail inválido.";
+        }
+
+        // Senha: Valida requisitos apenas se o usuário começar a digitar
+        const isTypingPassword = formData.usu_senha && formData.usu_senha.length > 0;
+        if (isTypingPassword) {
             if (!isPasswordValid) newErrors.usu_senha = "A senha não atende aos requisitos.";
         }
 
-        if (formData.usu_data_nasc) {
-            const dateError = getBirthDateError(formData.usu_data_nasc);
-            if (dateError) newErrors.usu_data_nasc = dateError;
-        }
-
+        // Telefone: Recomendado manter obrigatório para contato/WhatsApp
         const phoneVal = formData.usu_telefone ? formData.usu_telefone.trim() : "";
-        if (phoneVal.length === 0 || phoneVal === "() -" || phoneVal === "(") {
+        const phoneNumbers = phoneVal.replace(/\D/g, "");
+        if (phoneNumbers.length === 0) {
             newErrors.usu_telefone = "O telefone é obrigatório.";
-        } else if (phoneVal.length > 0 && phoneVal.length < 14) {
+        } else if (phoneNumbers.length < 10) {
             newErrors.usu_telefone = "Telefone incompleto.";
         }
 
@@ -187,7 +220,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
         if (confirm.isConfirmed) {
             setSavingLink(true);
             const today = new Date().toISOString().split('T')[0]; // Pega a data atual
-            
+
             const success = await finalizeLink(veic_usu_id, today);
             setSavingLink(false);
 
@@ -199,7 +232,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                     icon: 'success',
                     confirmButtonColor: '#16a34a' // Verde
                 });
-                
+
                 setEditingLinkId(null);
                 handleOpenVehiclesModal(); // Recarrega a lista
             }
@@ -213,12 +246,23 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
         const phoneVal = formData.usu_telefone ? formData.usu_telefone.trim() : "";
         const isPhoneValid = phoneVal.length >= 14;
 
+        // const payload = {
+        //     ...formData,
+        //     usu_sexo: Number(formData.usu_sexo),
+        //     usu_acesso: formData.usu_acesso === "true",
+        //     usu_telefone: isPhoneValid ? formData.usu_telefone : null
+        // };
+
         const payload = {
             ...formData,
+            // Converte strings vazias em null para o backend aceitar melhor
+            usu_cpf: formData.usu_cpf.replace(/\D/g, '') === "" ? null : formData.usu_cpf,
+            usu_email: formData.usu_email.trim() === "" ? null : formData.usu_email,
+            usu_senha: formData.usu_senha === "" ? null : formData.usu_senha,
             usu_sexo: Number(formData.usu_sexo),
             usu_acesso: formData.usu_acesso === "true",
-            usu_telefone: isPhoneValid ? formData.usu_telefone : null
         };
+        
         if (initialData && !payload.usu_senha) delete payload.usu_senha;
 
         try {
@@ -269,7 +313,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                 </div>
 
                 <div className={styles.inputGroup}>
-                    <InputMaskRegister name="usu_cpf" label="CPF" mask="000.000.000-00" value={formData.usu_cpf} onAccept={(value) => handleMaskChange(value, "usu_cpf")} required disabled={!isEditable || !!initialData} />
+                    <InputMaskRegister name="usu_cpf" label="CPF" mask="000.000.000-00" value={formData.usu_cpf} onAccept={(value) => handleMaskChange(value, "usu_cpf")} disabled={!isEditable || !!initialData} />
                     <ErrorMessage message={errors.usu_cpf} />
                 </div>
 
@@ -284,7 +328,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                 </div>
 
                 <div className={styles.inputGroup}>
-                    <InputRegisterForm name="usu_email" label="E-mail" type="email" value={formData.usu_email} onChange={handleChange} required disabled={!isEditable} />
+                    <InputRegisterForm name="usu_email" label="E-mail" type="email" value={formData.usu_email} onChange={handleChange} disabled={!isEditable} />
                     <ErrorMessage message={errors.usu_email} />
                 </div>
 
@@ -295,7 +339,9 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
 
                 <div className={styles.inputGroup}>
                     <div style={{ position: 'relative' }}>
-                        <InputRegisterForm name="usu_senha" label={initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"} type={showPassword ? "text" : "password"} value={formData.usu_senha} onChange={handleChange} required={!initialData} disabled={!isEditable} />
+                        <InputRegisterForm name="usu_senha" label={initialData ? "Nova Senha (deixe em branco para manter)" : "Senha"} type={showPassword ? "text" : "password"} value={formData.usu_senha} onChange={handleChange}
+                            // required={!initialData}
+                            disabled={!isEditable} />
                         {isEditable && (
                             <button type="button" className={styles.eyeButton} onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -397,13 +443,13 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                                 <p className={styles.emptyText}>Buscando veículos...</p>
                             ) : userVehiclesList.length > 0 ? (
                                 <div className={styles.vehicleList}>
-                                    
+
                                     {userVehiclesList.map(v => {
                                         const isExpanded = editingLinkId === v.veic_usu_id;
 
                                         return (
                                             <div key={v.veic_usu_id} className={styles.vehicleCardContainer}>
-                                                
+
                                                 {/* CABEÇALHO DO CARD */}
                                                 <div className={styles.vehicleCardHeader} onClick={() => handleTogglePanel(v.veic_usu_id)} style={{ cursor: 'pointer' }}>
                                                     <div className={styles.vehicleIconWrapper}>
@@ -413,7 +459,7 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                                                         <span className={styles.vehiclePlate}>{v.veic_placa}</span>
                                                         <span className={styles.vehicleModel}>{v.mod_nome} {v.veic_ano && `- ${v.veic_ano}`}</span>
                                                     </div>
-                                                    
+
                                                     {/* Ícone virou uma setinha/lápis indicando ação */}
                                                     <button type="button" className={`${styles.btnManageVehicle} ${isExpanded ? styles.active : ''}`}>
                                                         {isExpanded ? <X size={18} color="#ef4444" /> : <Edit size={18} />}
@@ -435,8 +481,8 @@ export default function UserFormAdmin({ onSuccess, onCancel, saveFunction, initi
                                                         </div>
 
                                                         <div className={styles.editPanelActions} style={{ justifyContent: 'flex-end', borderTop: 'none', paddingTop: 0 }}>
-                                                            <button 
-                                                                type="button" 
+                                                            <button
+                                                                type="button"
                                                                 className={styles.btnEndLink}
                                                                 onClick={() => handleFinalizeLink(v.veic_usu_id, v.veic_placa)}
                                                                 disabled={savingLink}

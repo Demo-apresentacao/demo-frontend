@@ -44,10 +44,70 @@ export default function Cadastro() {
   // Verifica se TODAS as regras são verdadeiras
   const isPasswordValid = Object.values(passwordRules).every(Boolean);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
-    // 1. CPF
+//     // 1. CPF
+//     if (!validateCPF(formData.usu_cpf)) {
+//       Swal.fire({
+//         title: "CPF Inválido",
+//         text: "Por favor, verifique os números digitados.",
+//         icon: "warning",
+//         confirmButtonColor: "#f59e0b"
+//       });
+//       return;
+//     }
+
+//     // 2. Email
+//     if (!validateEmail(formData.usu_email)) {
+//       Swal.fire({
+//         title: "E-mail Inválido",
+//         text: "Por favor, insira um endereço válido.",
+//         icon: "warning",
+//         confirmButtonColor: "#f59e0b"
+//       });
+//       return;
+//     }
+
+//     // 3. SENHA (Validação simples, pois o usuário já está vendo o checklist)
+//     if (!isPasswordValid) {
+//       Swal.fire({
+//         title: "Senha Incompleta",
+//         text: "Por favor, atenda a todos os requisitos de senha exibidos na tela.",
+//         icon: "warning",
+//         confirmButtonColor: "#f59e0b"
+//       });
+//       return;
+//     }
+
+//     // 4. Data de Nascimento
+//     if (formData.usu_data_nasc) {
+//       const dateError = getBirthDateError(formData.usu_data_nasc);
+
+//       if (dateError) {
+//         Swal.fire({
+//           title: "Data Inválida",
+//           text: dateError,
+//           icon: "warning",
+//           confirmButtonColor: "#f59e0b"
+//         });
+//         return;
+//       }
+//     }
+
+//     // 4. Tenta Enviar
+//     try {
+//       await handleRegister(formData);
+//     } catch (err) {
+//       // Hook trata
+//     }
+//   };
+
+    const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // 1. CPF (Valida apenas se preenchido)
+  if (formData.usu_cpf && formData.usu_cpf.replace(/\D/g, '').length > 0) {
     if (!validateCPF(formData.usu_cpf)) {
       Swal.fire({
         title: "CPF Inválido",
@@ -57,8 +117,10 @@ export default function Cadastro() {
       });
       return;
     }
+  }
 
-    // 2. Email
+  // 2. Email (Valida apenas se preenchido)
+  if (formData.usu_email && formData.usu_email.trim() !== "") {
     if (!validateEmail(formData.usu_email)) {
       Swal.fire({
         title: "E-mail Inválido",
@@ -68,8 +130,10 @@ export default function Cadastro() {
       });
       return;
     }
+  }
 
-    // 3. SENHA (Validação simples, pois o usuário já está vendo o checklist)
+  // 3. SENHA (Valida apenas se o usuário começou a digitar)
+  if (formData.usu_senha && formData.usu_senha.length > 0) {
     if (!isPasswordValid) {
       Swal.fire({
         title: "Senha Incompleta",
@@ -79,30 +143,29 @@ export default function Cadastro() {
       });
       return;
     }
+  }
 
-    // 4. Data de Nascimento
-    if (formData.usu_data_nasc) {
-      const dateError = getBirthDateError(formData.usu_data_nasc);
-
-      if (dateError) {
-        Swal.fire({
-          title: "Data Inválida",
-          text: dateError,
-          icon: "warning",
-          confirmButtonColor: "#f59e0b"
-        });
-        return;
-      }
+  // 4. Data de Nascimento (Mantém como está, já é opcional)
+  if (formData.usu_data_nasc) {
+    const dateError = getBirthDateError(formData.usu_data_nasc);
+    if (dateError) {
+      Swal.fire({
+        title: "Data Inválida",
+        text: dateError,
+        icon: "warning",
+        confirmButtonColor: "#f59e0b"
+      });
+      return;
     }
+  }
 
-    // 4. Tenta Enviar
-    try {
-      await handleRegister(formData);
-    } catch (err) {
-      // Hook trata
-    }
-  };
-
+  try {
+    await handleRegister(formData);
+  } catch (err) {
+    // Hook trata
+  }
+};
+    
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -138,7 +201,7 @@ export default function Cadastro() {
             value={formData.usu_cpf}
             onChange={handleChange}
             mask="000.000.000-00"
-            required
+            // required
           />
 
           <InputRegister
@@ -184,7 +247,7 @@ export default function Cadastro() {
               name="usu_email"
               value={formData.usu_email}
               onChange={handleChange}
-              required
+            //   required
             />
           </div>
 
@@ -197,7 +260,7 @@ export default function Cadastro() {
               name="usu_senha"
               value={formData.usu_senha}
               onChange={handleChange}
-              required
+            //   required
             >
               <button
                 type="button"
